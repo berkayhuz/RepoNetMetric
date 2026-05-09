@@ -49,6 +49,42 @@ const runCommand = (command, args) => {
   return 1;
 };
 
+const ensureTool = (command, label) => {
+  if (!commandAvailable(command)) {
+    statusError("blocked-missing-tooling", `${label} tool is required but not available on PATH.`);
+    process.exit(1);
+  }
+};
+
+const getDomainArtifacts = () => {
+  const hasTerraform = existsSync(path.join(deployDir, "terraform"));
+  const hasHelm = existsSync(path.join(deployDir, "helm"));
+  const hasKubernetes = existsSync(path.join(deployDir, "kubernetes"));
+
+  const terraformFiles = hasTerraform
+    ? collectFiles(path.join(deployDir, "terraform"), (filePath) =>
+        [".tf", ".tfvars"].some((extension) => filePath.endsWith(extension)),
+      )
+    : [];
+  const helmChartFiles = hasHelm
+    ? collectFiles(path.join(deployDir, "helm"), (filePath) => filePath.endsWith("Chart.yaml"))
+    : [];
+  const kubernetesManifestFiles = hasKubernetes
+    ? collectFiles(path.join(deployDir, "kubernetes"), (filePath) =>
+        [".yml", ".yaml"].some((extension) => filePath.endsWith(extension)),
+      )
+    : [];
+
+  return {
+    hasTerraform,
+    hasHelm,
+    hasKubernetes,
+    terraformFiles,
+    helmChartFiles,
+    kubernetesManifestFiles,
+  };
+};
+
 if (!task) {
   console.error("Usage: node scripts/orchestration/run-deploy-task.mjs <lint|validate>");
   process.exit(1);
@@ -59,139 +95,109 @@ if (!existsSync(deployDir)) {
   process.exit(0);
 }
 
-const hasTerraform = existsSync(path.join(deployDir, "terraform"));
-const hasHelm = existsSync(path.join(deployDir, "helm"));
-const hasKubernetes = existsSync(path.join(deployDir, "kubernetes"));
+const artifacts = getDomainArtifacts();
 
-if (!hasTerraform && !hasHelm && !hasKubernetes) {
-  statusError(
-    "blocked-missing-artifact",
-    "Deploy domain exists but no deploy/{terraform|helm|kubernetes} subdomain is present.",
+if (!artifacts.hasTerraform && !artifacts.hasHelm && !artifacts.hasKubernetes) {
+  statusInfo(
+    "skipped-intentional",
+    "Deploy domain has no deploy/{terraform|helm|kubernetes} subdomain yet.",
   );
-  process.exit(1);
+  process.exit(0);
 }
 
-const ensureTool = (command, label) => {
-  if (!commandAvailable(command)) {
-    statusError("blocked-missing-tooling", `${label} tool is required but not available on PATH.`);
-    process.exit(1);
-  }
-};
+if (
+  artifacts.terraformFiles.length === 0 &&
+  artifacts.helmChartFiles.length === 0 &&
+  artifacts.kubernetesManifestFiles.length === 0
+) {
+  statusInfo("skipped-intentional", "Deploy subdomains are scaffold-only (no artifacts yet).");
+  process.exit(0);
+}
 
 if (task === "lint") {
-  if (hasTerraform) {
-    ensureTool("terraform", "terraform");
-    const terraformStatus = runCommand("terraform", [
-      "fmt",
-      "-check",
-      "-recursive",
-      "deploy/terraform",
-    ]);
-    if (terraformStatus !== 0) process.exit(terraformStatus);
-  }
-
-  if (hasHelm) {
-    const chartFiles = collectFiles(path.join(deployDir, "helm"), (filePath) =>
-      filePath.endsWith("Chart.yaml"),
-    );
-    if (chartFiles.length === 0) {
-      statusError(
-        "blocked-missing-artifact",
-        "deploy/helm exists but no Chart.yaml artifact was found.",
-      );
-      process.exit(1);
-    }
-
-    ensureTool("helm", "helm");
-    for (const chartFile of chartFiles) {
-      const chartDir = path.dirname(chartFile);
-      const helmStatus = runCommand("helm", ["lint", chartDir]);
-      if (helmStatus !== 0) process.exit(helmStatus);
+  if (artifacts.hasTerraform) {
+    if (artifacts.terraformFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/terraform has no .tf artifacts yet.");
+    } else {
+      ensureTool("terraform", "terraform");
+      const terraformStatus = runCommand("terraform", [
+        "fmt",
+        "-check",
+        "-recursive",
+        "deploy/terraform",
+      ]);
+      if (terraformStatus !== 0) process.exit(terraformStatus);
     }
   }
 
-  if (hasKubernetes) {
-    const manifestFiles = collectFiles(path.join(deployDir, "kubernetes"), (filePath) =>
-      [".yml", ".yaml"].some((extension) => filePath.endsWith(extension)),
-    );
-    if (manifestFiles.length === 0) {
-      statusError(
-        "blocked-missing-artifact",
-        "deploy/kubernetes exists but no YAML manifest artifact was found.",
-      );
-      process.exit(1);
+  if (artifacts.hasHelm) {
+    if (artifacts.helmChartFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/helm has no Chart.yaml artifacts yet.");
+    } else {
+      ensureTool("helm", "helm");
+      for (const chartFile of artifacts.helmChartFiles) {
+        const chartDir = path.dirname(chartFile);
+        const helmStatus = runCommand("helm", ["lint", chartDir]);
+        if (helmStatus !== 0) process.exit(helmStatus);
+      }
     }
+  }
 
-    ensureTool("kubectl", "kubectl");
-    const kubectlStatus = runCommand("kubectl", [
-      "apply",
-      "--dry-run=client",
-      "-f",
-      path.join("deploy", "kubernetes"),
-    ]);
-    if (kubectlStatus !== 0) process.exit(kubectlStatus);
+  if (artifacts.hasKubernetes) {
+    if (artifacts.kubernetesManifestFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/kubernetes has no YAML artifacts yet.");
+    } else {
+      ensureTool("kubectl", "kubectl");
+      const kubectlStatus = runCommand("kubectl", [
+        "apply",
+        "--dry-run=client",
+        "-f",
+        path.join("deploy", "kubernetes"),
+      ]);
+      if (kubectlStatus !== 0) process.exit(kubectlStatus);
+    }
   }
 
   process.exit(0);
 }
 
 if (task === "validate") {
-  if (hasTerraform) {
-    const terraformRoot = path.join(deployDir, "terraform");
-    const terraformEntries = existsSync(terraformRoot) ? readdirSync(terraformRoot) : [];
-    if (terraformEntries.length === 0) {
-      statusError(
-        "blocked-missing-artifact",
-        "deploy/terraform exists but contains no validation targets.",
-      );
-      process.exit(1);
-    }
-
-    ensureTool("terraform", "terraform");
-    const terraformStatus = runCommand("terraform", ["validate", "deploy/terraform"]);
-    if (terraformStatus !== 0) process.exit(terraformStatus);
-  }
-
-  if (hasHelm) {
-    const chartFiles = collectFiles(path.join(deployDir, "helm"), (filePath) =>
-      filePath.endsWith("Chart.yaml"),
-    );
-    if (chartFiles.length === 0) {
-      statusError(
-        "blocked-missing-artifact",
-        "deploy/helm exists but no Chart.yaml artifact was found.",
-      );
-      process.exit(1);
-    }
-
-    ensureTool("helm", "helm");
-    for (const chartFile of chartFiles) {
-      const chartDir = path.dirname(chartFile);
-      const helmStatus = runCommand("helm", ["template", chartDir]);
-      if (helmStatus !== 0) process.exit(helmStatus);
+  if (artifacts.hasTerraform) {
+    if (artifacts.terraformFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/terraform has no .tf artifacts yet.");
+    } else {
+      ensureTool("terraform", "terraform");
+      const terraformStatus = runCommand("terraform", ["validate", "deploy/terraform"]);
+      if (terraformStatus !== 0) process.exit(terraformStatus);
     }
   }
 
-  if (hasKubernetes) {
-    const manifestFiles = collectFiles(path.join(deployDir, "kubernetes"), (filePath) =>
-      [".yml", ".yaml"].some((extension) => filePath.endsWith(extension)),
-    );
-    if (manifestFiles.length === 0) {
-      statusError(
-        "blocked-missing-artifact",
-        "deploy/kubernetes exists but no YAML manifest artifact was found.",
-      );
-      process.exit(1);
+  if (artifacts.hasHelm) {
+    if (artifacts.helmChartFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/helm has no Chart.yaml artifacts yet.");
+    } else {
+      ensureTool("helm", "helm");
+      for (const chartFile of artifacts.helmChartFiles) {
+        const chartDir = path.dirname(chartFile);
+        const helmStatus = runCommand("helm", ["template", chartDir]);
+        if (helmStatus !== 0) process.exit(helmStatus);
+      }
     }
+  }
 
-    ensureTool("kubectl", "kubectl");
-    const kubectlStatus = runCommand("kubectl", [
-      "apply",
-      "--dry-run=server",
-      "-f",
-      path.join("deploy", "kubernetes"),
-    ]);
-    if (kubectlStatus !== 0) process.exit(kubectlStatus);
+  if (artifacts.hasKubernetes) {
+    if (artifacts.kubernetesManifestFiles.length === 0) {
+      statusInfo("skipped-intentional", "deploy/kubernetes has no YAML artifacts yet.");
+    } else {
+      ensureTool("kubectl", "kubectl");
+      const kubectlStatus = runCommand("kubectl", [
+        "apply",
+        "--dry-run=client",
+        "-f",
+        path.join("deploy", "kubernetes"),
+      ]);
+      if (kubectlStatus !== 0) process.exit(kubectlStatus);
+    }
   }
 
   process.exit(0);

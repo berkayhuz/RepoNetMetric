@@ -27,29 +27,53 @@ const commandAvailable = (command) => {
   return check.status === 0;
 };
 
-const hasDotnetDomainSignals = () => {
-  const domainIndicators = [
-    "services",
-    "platform",
-    path.join("packages", "dotnet"),
-    "Directory.Build.props",
-    "Directory.Build.targets",
-    "Directory.Packages.props",
-    "global.json",
-  ];
+const collectFiles = (directory, predicate, found = []) => {
+  if (!existsSync(directory)) {
+    return found;
+  }
 
-  if (domainIndicators.some((item) => existsSync(path.join(rootDir, item)))) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      collectFiles(fullPath, predicate, found);
+      continue;
+    }
+
+    if (entry.isFile() && predicate(fullPath)) {
+      found.push(fullPath);
+    }
+  }
+
+  return found;
+};
+
+const hasDotnetImplementationArtifacts = () => {
+  const rootArtifacts = collectFiles(
+    rootDir,
+    (filePath) =>
+      [".sln", ".slnx", ".csproj"].some((extension) =>
+        filePath.toLowerCase().endsWith(extension),
+      ) && path.dirname(filePath) === rootDir,
+  );
+
+  if (rootArtifacts.length > 0) {
     return true;
   }
 
-  const rootEntries = readdirSync(rootDir, { withFileTypes: true });
-  return rootEntries.some(
-    (entry) =>
-      entry.isFile() &&
-      [".sln", ".slnx", ".csproj"].some((extension) =>
-        entry.name.toLowerCase().endsWith(extension),
+  const domainRoots = ["services", "platform", path.join("packages", "dotnet")];
+  for (const domainRoot of domainRoots) {
+    const fullRoot = path.join(rootDir, domainRoot);
+    const domainArtifacts = collectFiles(fullRoot, (filePath) =>
+      [".csproj", ".sln", ".slnx", ".cs"].some((extension) =>
+        filePath.toLowerCase().endsWith(extension),
       ),
-  );
+    );
+    if (domainArtifacts.length > 0) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 const pickDotnetTarget = () => {
@@ -80,7 +104,7 @@ const pickDotnetTarget = () => {
 const target = pickDotnetTarget();
 
 if (!target) {
-  if (hasDotnetDomainSignals()) {
+  if (hasDotnetImplementationArtifacts()) {
     statusError(
       "blocked-missing-artifact",
       "Dotnet domain signals exist, but no solution file (.sln/.slnx) was found at repository root.",
@@ -88,7 +112,7 @@ if (!target) {
     process.exit(1);
   }
 
-  statusInfo("skipped-intentional", "No dotnet domain signals detected.");
+  statusInfo("skipped-intentional", "No dotnet implementation artifacts detected.");
   process.exit(0);
 }
 

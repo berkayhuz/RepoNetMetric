@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { readdirSync } from "node:fs";
 
 const task = process.argv[2];
 const rootDir = process.cwd();
@@ -22,6 +23,26 @@ const commandAvailable = (command) => {
   return check.status === 0;
 };
 
+const collectFiles = (directory, predicate, found = []) => {
+  if (!existsSync(directory)) {
+    return found;
+  }
+
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      collectFiles(fullPath, predicate, found);
+      continue;
+    }
+
+    if (entry.isFile() && predicate(fullPath)) {
+      found.push(fullPath);
+    }
+  }
+
+  return found;
+};
+
 if (!task) {
   console.error("Usage: node scripts/orchestration/run-native-task.mjs <configure|build|test>");
   process.exit(1);
@@ -33,6 +54,17 @@ if (!existsSync(nativeDir)) {
 }
 
 if (!existsSync(cmakeLists)) {
+  const sourceArtifacts = collectFiles(nativeDir, (filePath) =>
+    [".c", ".cc", ".cpp", ".cxx", ".h", ".hpp", ".hh"].some((extension) =>
+      filePath.toLowerCase().endsWith(extension),
+    ),
+  );
+
+  if (sourceArtifacts.length === 0) {
+    statusInfo("skipped-intentional", "Native domain has no source artifacts yet.");
+    process.exit(0);
+  }
+
   statusError(
     "blocked-missing-artifact",
     "Native domain exists but native/CMakeLists.txt is missing.",
