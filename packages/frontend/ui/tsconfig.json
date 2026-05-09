@@ -1,0 +1,10 @@
+{
+  "extends": "@netmetric/tsconfig/react-library",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["src"]
+}

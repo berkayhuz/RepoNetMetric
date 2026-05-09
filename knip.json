@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "workspaces": {
+    "packages/frontend/ui": {
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignore": ["src/test/raw-css.d.ts"]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+.vs/
+.git/
+.github/
+artifacts/
+**/bin/
+**/obj/
+**/node_modules/
+**/*.user
+**/keys/*.pem
+**/keys/*.key
+**/data-protection-keys/*
+*.zip

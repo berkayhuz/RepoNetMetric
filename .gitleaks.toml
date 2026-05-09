@@ -1,0 +1,21 @@
+title = "NetMetric Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allow environment template files with placeholder values"
+paths = [
+  '''(^|/)\\.env\\.example$'''
+]
+
+[[allowlists]]
+description = "Allow documentation examples that intentionally mention token-like words"
+paths = [
+  '''^docs/.*\\.md$''',
+  '''^README\\.md$''',
+  '''^CONTRIBUTING\\.md$'''
+]
+regexes = [
+  '''(?i)(example|changeme|placeholder|dummy|sample|test)'''
+]
