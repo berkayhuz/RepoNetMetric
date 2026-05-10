@@ -1,0 +1,52 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using NetMetric.Auth.Domain.Entities;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Infrastructure.Persistence;
+
+namespace NetMetric.Auth.Infrastructure.Services;
+
+public sealed class AuthSessionService(
+    AuthDbContext dbContext,
+    IOptions<SessionSecurityOptions> options,
+    IClock clock) : IAuthSessionService
+{
+    public async Task<IReadOnlyCollection<Guid>> EnforceSessionLimitsAsync(Guid tenantId, Guid userId, Guid? currentSessionId, CancellationToken cancellationToken)
+    {
+        var value = options.Value;
+        var revokedSessionIds = new List<Guid>();
+
+        var activeSessions = await dbContext.UserSessions
+            .Where(x => x.TenantId == tenantId && x.UserId == userId && x.RevokedAt == null)
+            .OrderByDescending(x => x.LastSeenAt ?? x.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        foreach (var expired in activeSessions.Where(x => IsExpired(x, clock.UtcNow)))
+        {
+            expired.Revoke(clock.UtcNow, "session_expired");
+            revokedSessionIds.Add(expired.Id);
+        }
+
+        var survivors = activeSessions
+            .Where(x => x.RevokedAt == null && (!currentSessionId.HasValue || x.Id != currentSessionId.Value))
+            .OrderByDescending(x => x.LastSeenAt ?? x.CreatedAt)
+            .ToList();
+
+        foreach (var overflow in survivors.Skip(Math.Max(0, value.MaxActiveSessions - 1)))
+        {
+            overflow.Revoke(clock.UtcNow, "max_active_sessions_exceeded");
+            revokedSessionIds.Add(overflow.Id);
+        }
+
+        return revokedSessionIds;
+    }
+
+    public bool IsExpired(UserSession session, DateTime utcNow)
+    {
+        var value = options.Value;
+        var idleCutoff = (session.LastSeenAt ?? session.CreatedAt).AddMinutes(value.IdleTimeoutMinutes);
+        var absoluteCutoff = session.CreatedAt.AddDays(value.AbsoluteLifetimeDays);
+        return utcNow >= idleCutoff || utcNow >= absoluteCutoff || utcNow >= session.RefreshTokenExpiresAt;
+    }
+}

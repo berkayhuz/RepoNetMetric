@@ -1,0 +1,56 @@
+﻿using NetMetric.Notification.Application.DependencyInjection;
+using NetMetric.Notification.Application.Services;
+using NetMetric.Notification.Infrastructure.DependencyInjection;
+using NetMetric.Notification.Worker;
+using NetMetric.Notification.Worker.Health;
+using NetMetric.Notification.Worker.Workers;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddOptions<NotificationWorkerOptions>()
+    .BindConfiguration(NotificationWorkerOptions.SectionName)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddNotificationApplication();
+builder.Services.AddNotificationInfrastructure(builder.Configuration);
+builder.Services.AddHostedService<NotificationQueueConsumerService>();
+builder.Services.AddHealthChecks()
+    .AddCheck<NotificationRabbitMqHealthCheck>("notification-rabbitmq", tags: ["ready", "notification"]);
+
+AddOpenTelemetry(builder.Services, builder.Configuration, "NetMetric.Notification.Worker");
+
+var host = builder.Build();
+await host.Services.InitializeNotificationInfrastructureAsync(CancellationToken.None);
+await host.RunAsync();
+
+static void AddOpenTelemetry(IServiceCollection services, IConfiguration configuration, string serviceName)
+{
+    var otlpEndpoint = configuration["OpenTelemetry:Otlp:Endpoint"] ?? configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+    var telemetry = services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource.AddService(serviceName));
+
+    telemetry.WithMetrics(metrics =>
+    {
+        metrics.AddMeter(NotificationMetrics.MeterName);
+
+        if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+        {
+            metrics.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
+        }
+    });
+
+    telemetry.WithTracing(tracing =>
+    {
+        tracing.AddSource("NetMetric.Notification.Worker");
+
+        if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+        {
+            tracing.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
+        }
+    });
+}

@@ -1,0 +1,48 @@
+﻿using MediatR;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Features.Commands;
+using NetMetric.Auth.Application.Records;
+
+namespace NetMetric.Auth.Application.Features.Handlers;
+
+public sealed class RevokeOtherSessionsCommandHandler(
+    IUserSessionRepository userSessionRepository,
+    IUserSessionStateValidator userSessionStateValidator,
+    IAuthAuditTrail auditTrail,
+    IAuthUnitOfWork unitOfWork,
+    IClock clock) : IRequestHandler<RevokeOtherSessionsCommand, Unit>
+{
+    public async Task<Unit> Handle(RevokeOtherSessionsCommand request, CancellationToken cancellationToken)
+    {
+        var revokedSessionIds = await userSessionRepository.RevokeAllAsync(
+            request.TenantId,
+            request.UserId,
+            clock.UtcNow,
+            "user_revoked_other_sessions",
+            request.CurrentSessionId,
+            cancellationToken);
+
+        await auditTrail.WriteAsync(
+            new AuthAuditRecord(
+                request.TenantId,
+                "auth.session.revoke-others",
+                "success",
+                request.UserId,
+                request.CurrentSessionId,
+                request.Email,
+                request.IpAddress,
+                request.UserAgent,
+                request.CorrelationId,
+                request.TraceId),
+            cancellationToken);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        foreach (var sessionId in revokedSessionIds)
+        {
+            userSessionStateValidator.Evict(request.TenantId, sessionId);
+        }
+
+        return Unit.Value;
+    }
+}

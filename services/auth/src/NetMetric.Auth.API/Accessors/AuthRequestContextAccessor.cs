@@ -1,0 +1,100 @@
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using NetMetric.Auth.API.Cookies;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Exceptions;
+using NetMetric.Auth.Application.Options;
+
+namespace NetMetric.Auth.API.Accessors;
+
+public sealed class AuthRequestContextAccessor(
+    ITenantContextAccessor tenantContextAccessor,
+    IOptions<TenantResolutionOptions> tenantResolutionOptions,
+    IOptions<TokenTransportOptions> tokenTransportOptions,
+    AuthCookieService cookieService)
+{
+    public Guid ResolveTenantId(Guid bodyTenantId)
+    {
+        var resolvedTenantContext = tenantContextAccessor.Current;
+        if (resolvedTenantContext is { IsTrusted: true, TenantId: Guid resolvedTenantId })
+        {
+            if (bodyTenantId != Guid.Empty && bodyTenantId != resolvedTenantId)
+            {
+                throw new AuthApplicationException(
+                    "Tenant mismatch",
+                    "Resolved tenant does not match request body tenant.",
+                    StatusCodes.Status400BadRequest,
+                    errorCode: "tenant_mismatch");
+            }
+
+            return resolvedTenantId;
+        }
+
+        if (!tenantResolutionOptions.Value.AllowBodyFallback || bodyTenantId == Guid.Empty)
+        {
+            throw new AuthApplicationException(
+                "Tenant context required",
+                "Tenant context could not be resolved from the trusted request surface.",
+                StatusCodes.Status400BadRequest,
+                errorCode: "tenant_resolution_required");
+        }
+
+        return bodyTenantId;
+    }
+
+    public (Guid SessionId, string RefreshToken) ResolveRefreshContext(HttpRequest request, Guid requestedSessionId, string? requestedRefreshToken)
+    {
+        var options = tokenTransportOptions.Value;
+        var refreshToken = requestedRefreshToken;
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            refreshToken = request.Cookies[cookieService.RefreshCookieName];
+        }
+
+        if (string.IsNullOrWhiteSpace(refreshToken) && options.AllowRefreshTokenFromRequestBody)
+        {
+            refreshToken = requestedRefreshToken;
+        }
+
+        var sessionId = requestedSessionId;
+        if (sessionId == Guid.Empty)
+        {
+            sessionId = ReadSessionIdFromCookie(request);
+        }
+
+        if (sessionId == Guid.Empty && options.AllowSessionIdFromRequestBody)
+        {
+            sessionId = requestedSessionId;
+        }
+
+        return (sessionId, refreshToken ?? string.Empty);
+    }
+
+    public PrincipalContext GetPrincipalContext(ClaimsPrincipal principal)
+    {
+        var tenantId = principal.FindFirstValue("tenant_id");
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? principal.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var sessionId = principal.FindFirstValue(JwtRegisteredClaimNames.Sid);
+        var email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue(JwtRegisteredClaimNames.Email);
+
+        if (!Guid.TryParse(tenantId, out var parsedTenantId) ||
+            !Guid.TryParse(userId, out var parsedUserId) ||
+            !Guid.TryParse(sessionId, out var parsedSessionId))
+        {
+            throw new AuthApplicationException(
+                "Invalid principal context",
+                "Authenticated session claims are incomplete.",
+                StatusCodes.Status401Unauthorized,
+                errorCode: "invalid_principal_context");
+        }
+
+        return new PrincipalContext(parsedTenantId, parsedUserId, parsedSessionId, email);
+    }
+
+    private Guid ReadSessionIdFromCookie(HttpRequest request) =>
+        Guid.TryParse(request.Cookies[cookieService.SessionCookieName], out var sessionId) ? sessionId : Guid.Empty;
+}
+
+public sealed record PrincipalContext(Guid TenantId, Guid UserId, Guid CurrentSessionId, string? Email);

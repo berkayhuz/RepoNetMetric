@@ -1,0 +1,72 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Infrastructure.Persistence;
+
+namespace NetMetric.Auth.Infrastructure.Services;
+
+public sealed class DataRetentionCleanupService(
+    IServiceScopeFactory scopeFactory,
+    IOptions<DataRetentionOptions> options,
+    IClock clock,
+    ILogger<DataRetentionCleanupService> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var value = options.Value;
+        if (!value.EnableCleanupService)
+        {
+            return;
+        }
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using var scope = scopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+
+                var utcNow = clock.UtcNow;
+                var sessionCutoff = utcNow.AddDays(-value.RevokedSessionRetentionDays);
+                var auditCutoff = utcNow.AddDays(-value.AuditRetentionDays);
+
+                var revokedSessionCount = await dbContext.UserSessions
+                    .IgnoreQueryFilters()
+                    .Where(x => x.RevokedAt.HasValue && x.RevokedAt <= sessionCutoff && !x.IsDeleted)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.IsDeleted, true)
+                        .SetProperty(x => x.DeletedAt, utcNow)
+                        .SetProperty(x => x.DeletedBy, "retention-cleanup")
+                        .SetProperty(x => x.UpdatedAt, utcNow), stoppingToken);
+
+                var oldAuditEventCount = await dbContext.AuthAuditEvents
+                    .IgnoreQueryFilters()
+                    .Where(x => x.CreatedAt <= auditCutoff && !x.IsDeleted)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.IsDeleted, true)
+                        .SetProperty(x => x.DeletedAt, utcNow)
+                        .SetProperty(x => x.DeletedBy, "retention-cleanup")
+                        .SetProperty(x => x.UpdatedAt, utcNow), stoppingToken);
+
+                logger.LogInformation(
+                    "Retention cleanup completed. Soft deleted {RevokedSessionCount} sessions and {AuditEventCount} audit events.",
+                    revokedSessionCount,
+                    oldAuditEventCount);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Retention cleanup failed.");
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(value.CleanupIntervalMinutes), stoppingToken);
+        }
+    }
+}

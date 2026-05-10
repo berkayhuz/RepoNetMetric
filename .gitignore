@@ -95,6 +95,8 @@ __pycache__/
 .artifacts/
 artifacts/
 .sonarqube/
+.scannerwork/
+.sonar/
 .dotnet-home/
 .nuget/
 .tmp/
@@ -102,6 +104,9 @@ artifacts/
 graphify-out/cache/
 graphify-out/manifest.json
 graph.json
+**/coverage.opencover.xml
+**/coverage.cobertura.xml
+**/lcov.info
 
 # Husky runtime helpers (generated on install)
 .husky/_

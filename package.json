@@ -57,7 +57,12 @@
     "workspace:validate": "pnpm run repo:validate",
     "workspace:health": "pnpm run frontend:health",
     "format": "pnpm run repo:format",
-    "format:check": "pnpm run repo:format:check"
+    "format:check": "pnpm run repo:format:check",
+    "sonar:backend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-backend.ps1",
+    "sonar:frontend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-frontend.ps1",
+    "sonar:frontend:strict": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-frontend.ps1 -StrictCoverage",
+    "sonar:all": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-all.ps1",
+    "sonar:all:strict": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-all.ps1 -StrictCoverage"
   },
   "workspaces": [
     "apps/*",

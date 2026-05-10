@@ -1,0 +1,16 @@
+﻿namespace NetMetric.Auth.Application.Options;
+
+public sealed class TenantResolutionOptions
+{
+    public const string SectionName = "Security:TenantResolution";
+
+    public bool RequireResolvedTenant { get; set; }
+
+    public bool AllowBodyFallback { get; set; } = true;
+
+    public string HeaderName { get; set; } = "X-Tenant-Id";
+
+    public string SlugHeaderName { get; set; } = "X-Tenant-Slug";
+
+    public string[] TrustedHostSuffixes { get; set; } = [];
+}

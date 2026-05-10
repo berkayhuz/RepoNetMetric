@@ -1,0 +1,69 @@
+<Solution>
+  <Folder Name="/packages/" />
+  <Folder Name="/packages/dotnet/" />
+  <Folder Name="/packages/dotnet/src/">
+    <Project Path="packages/dotnet/src/NetMetric.AspNetCore.TrustedGateway/NetMetric.AspNetCore.TrustedGateway.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.AspNetCore/NetMetric.AspNetCore.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.Localization/NetMetric.Localization.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.Media.Storage/NetMetric.Media.Storage.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.Media/NetMetric.Media.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.Messaging.Abstractions/NetMetric.Messaging.Abstractions.csproj" />
+    <Project Path="packages/dotnet/src/NetMetric.Messaging.RabbitMq/NetMetric.Messaging.RabbitMq.csproj" />
+  </Folder>
+  <Folder Name="/platform/" />
+  <Folder Name="/platform/caching/" />
+  <Folder Name="/platform/gateway/" />
+  <Folder Name="/platform/identity/" />
+  <Folder Name="/platform/messaging/" />
+  <Folder Name="/platform/multitenancy/" />
+  <Folder Name="/platform/observability/" />
+  <Folder Name="/platform/persistence/" />
+  <Folder Name="/platform/security/" />
+  <Folder Name="/services/" />
+  <Folder Name="/services/account/" />
+  <Folder Name="/services/audit/" />
+  <Folder Name="/services/auth/" />
+  <Folder Name="/services/auth/src/">
+    <Project Path="services/auth/src/NetMetric.Auth.API/NetMetric.Auth.API.csproj" Id="97a8ea43-abf2-4542-b925-52bd63658a4a" />
+    <Project Path="services/auth/src/NetMetric.Auth.Application/NetMetric.Auth.Application.csproj" Id="c981f502-7de4-491c-82c8-c7263586ea90" />
+    <Project Path="services/auth/src/NetMetric.Auth.Contracts/NetMetric.Auth.Contracts.csproj" Id="8c1593e2-c315-4d11-9f37-e93baee985b1" />
+    <Project Path="services/auth/src/NetMetric.Auth.Domain/NetMetric.Auth.Domain.csproj" Id="771f089f-6077-409b-bf3a-684005101b42" />
+    <Project Path="services/auth/src/NetMetric.Auth.Infrastructure/NetMetric.Auth.Infrastructure.csproj" Id="5406b830-cbfc-429c-8a7c-ab052969613f" />
+  </Folder>
+  <Folder Name="/services/auth/tests/">
+    <Project Path="services/auth/tests/NetMetric.Auth.Api.FunctionalTests/NetMetric.Auth.Api.FunctionalTests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.Application.UnitTests/NetMetric.Auth.Application.UnitTests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.ArchitectureTests/NetMetric.Auth.ArchitectureTests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.Contracts.Tests/NetMetric.Auth.Contracts.Tests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.Domain.UnitTests/NetMetric.Auth.Domain.UnitTests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.Infrastructure.IntegrationTests/NetMetric.Auth.Infrastructure.IntegrationTests.csproj" />
+    <Project Path="services/auth/tests/NetMetric.Auth.TestKit/NetMetric.Auth.TestKit.csproj" />
+  </Folder>
+  <Folder Name="/services/billing/" />
+  <Folder Name="/services/crm/" />
+  <Folder Name="/services/media/" />
+  <Folder Name="/services/notification/" />
+  <Folder Name="/services/notification/src/">
+    <Project Path="services/notification/src/NetMetric.Notification.Application/NetMetric.Notification.Application.csproj" Id="8417276c-5a11-420c-abb0-c17edac18b14" />
+    <Project Path="services/notification/src/NetMetric.Notification.Contracts/NetMetric.Notification.Contracts.csproj" Id="308474cd-9964-45b6-a166-0f638ea9e81b" />
+    <Project Path="services/notification/src/NetMetric.Notification.Domain/NetMetric.Notification.Domain.csproj" Id="c34ad864-e1c8-4640-87db-2ac5aaf8baf1" />
+    <Project Path="services/notification/src/NetMetric.Notification.Infrastructure/NetMetric.Notification.Infrastructure.csproj" Id="b86749eb-82b3-4edc-b210-8876b9953df0" />
+    <Project Path="services/notification/src/NetMetric.Notification.Worker/NetMetric.Notification.Worker.csproj" Id="50b22cc2-e9f4-4a8a-ad20-d3b3ce363d8a" />
+  </Folder>
+  <Folder Name="/services/notification/tests/" />
+  <Folder Name="/services/search/" />
+  <Folder Name="/services/tools/" />
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/contract/" />
+  <Folder Name="/tests/e2e/" />
+  <Folder Name="/tests/integration/" />
+  <Folder Name="/tests/performance/" />
+  <Folder Name="/tests/smoke/" />
+  <Folder Name="/tests/unit/" />
+  <Folder Name="/tools/" />
+  <Folder Name="/tools/analyzers/" />
+  <Folder Name="/tools/codegen/" />
+  <Folder Name="/tools/jwt-keygen/" />
+  <Folder Name="/tools/local-smoke/" />
+  <Folder Name="/tools/migration-bundles/" />
+</Solution>

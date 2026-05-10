@@ -1,0 +1,325 @@
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
+using NetMetric.AspNetCore.Health;
+using NetMetric.AspNetCore.Localization.DependencyInjection;
+using NetMetric.AspNetCore.ProblemDetails;
+using NetMetric.AspNetCore.RequestContext;
+using NetMetric.AspNetCore.TrustedGateway.Options;
+using NetMetric.Auth.API.Accessors;
+using NetMetric.Auth.API.Configurations;
+using NetMetric.Auth.API.Cookies;
+using NetMetric.Auth.API.Exceptions;
+using NetMetric.Auth.API.Health;
+using NetMetric.Auth.API.Middlewares;
+using NetMetric.Auth.API.Security;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.DependencyInjection;
+using NetMetric.Auth.Application.Diagnostics;
+using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Infrastructure.DependencyInjection;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+builder.Services.AddNetMetricProblemDetails();
+builder.Services.AddNetMetricLocalization();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services
+    .AddOptions<ApiCorsOptions>()
+    .BindConfiguration(ApiCorsOptions.SectionName)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<ApiForwardedHeadersOptions>()
+    .BindConfiguration(ApiForwardedHeadersOptions.SectionName)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<ApiSecurityHeadersOptions>()
+    .BindConfiguration(ApiSecurityHeadersOptions.SectionName)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<TenantResolutionOptions>()
+    .BindConfiguration(TenantResolutionOptions.SectionName)
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<TokenTransportOptions>()
+    .BindConfiguration(TokenTransportOptions.SectionName)
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<TrustedGatewayOptions>()
+    .BindConfiguration(TrustedGatewayOptions.SectionName)
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<InternalIdentityOptions>()
+    .BindConfiguration(InternalIdentityOptions.SectionName)
+    .Validate(options => options.AllowedSources.Length > 0, "Security:InternalIdentity:AllowedSources must contain at least one source.")
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<AuthRateLimitingOptions>()
+    .BindConfiguration(AuthRateLimitingOptions.SectionName)
+    .ValidateOnStart();
+
+builder.Services.AddSingleton<IValidateOptions<ApiCorsOptions>, ApiCorsOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<ApiForwardedHeadersOptions>, ApiForwardedHeadersOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<ApiSecurityHeadersOptions>, ApiSecurityHeadersOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<TenantResolutionOptions>, TenantResolutionOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<TokenTransportOptions>, TokenTransportOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<TrustedGatewayOptions>, AuthTrustedGatewayOptionsValidation>();
+builder.Services.AddSingleton<IValidateOptions<AuthRateLimitingOptions>, AuthRateLimitingOptionsValidation>();
+
+builder.Services.AddSingleton<IConfigureOptions<ForwardedHeadersOptions>, ConfigureApiForwardedHeaders>();
+builder.Services.AddSingleton<AuthCookieService>();
+builder.Services.AddScoped<AuthRequestContextAccessor>();
+builder.Services.AddScoped<ITenantContextAccessor, HttpTenantContextAccessor>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+AddOpenTelemetry(builder.Services, builder.Configuration, "NetMetric.Auth.API", "NetMetric.Auth", "NetMetric.Auth.API.Requests");
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = builder.Configuration["OpenApi:Title"] ?? "NetMetric Auth API",
+        Version = builder.Configuration["OpenApi:Version"] ?? "v1"
+    });
+
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Bearer access token."
+    });
+});
+
+var corsOptions = builder.Configuration.GetSection(ApiCorsOptions.SectionName).Get<ApiCorsOptions>()
+    ?? throw new InvalidOperationException("Security:Cors configuration is missing.");
+
+var rateLimitingOptions = builder.Configuration.GetSection(AuthRateLimitingOptions.SectionName).Get<AuthRateLimitingOptions>()
+    ?? throw new InvalidOperationException("Security:RateLimiting configuration is missing.");
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(ApiCorsOptions.PolicyName, policy =>
+    {
+        policy.WithOrigins(corsOptions.AllowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+
+        if (corsOptions.AllowCredentials)
+        {
+            policy.AllowCredentials();
+        }
+    });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        var correlationId = RequestContextSupport.GetOrCreateCorrelationId(context.HttpContext);
+        var path = context.HttpContext.Request.Path.Value;
+
+        AuthMetrics.RateLimitRejected.Add(1, new KeyValuePair<string, object?>("path", path));
+
+        await context.HttpContext.RequestServices.GetRequiredService<ISecurityAlertPublisher>().PublishAsync(
+            new NetMetric.Auth.Application.Records.SecurityAlert(
+                "auth.rate-limit.rejected",
+                "warning",
+                "Authentication rate limit rejected request.",
+                Guid.Empty,
+                null,
+                null,
+                correlationId,
+                context.HttpContext.TraceIdentifier,
+                $"path={path};method={context.HttpContext.Request.Method}"),
+            cancellationToken);
+
+        await ProblemDetailsSupport.WriteProblemAsync(
+            context.HttpContext,
+            StatusCodes.Status429TooManyRequests,
+            "Rate limit exceeded",
+            "Too many authentication requests were sent.",
+            errorCode: "auth_rate_limit_exceeded",
+            cancellationToken: cancellationToken);
+    };
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"global:{httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}",
+            factory: _ => rateLimitingOptions.Global.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.LoginPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"login:{httpContext.Connection.RemoteIpAddress}",
+            factory: _ => rateLimitingOptions.Login.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.RegisterPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"register:{httpContext.Connection.RemoteIpAddress}",
+            factory: _ => rateLimitingOptions.Register.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.RefreshPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"refresh:{httpContext.Connection.RemoteIpAddress}",
+            factory: _ => rateLimitingOptions.Refresh.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.LogoutPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"logout:{httpContext.Connection.RemoteIpAddress}",
+            factory: _ => rateLimitingOptions.Logout.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.InvitePolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"invite:{httpContext.Connection.RemoteIpAddress}:{httpContext.User.FindFirst("tenant_id")?.Value ?? "anonymous"}",
+            factory: _ => rateLimitingOptions.Invite.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.RoleManagementPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"roles:{httpContext.Connection.RemoteIpAddress}:{httpContext.User.FindFirst("tenant_id")?.Value ?? "anonymous"}",
+            factory: _ => rateLimitingOptions.RoleManagement.ToLimiterOptions()));
+});
+
+var authorizationOptions = builder.Configuration.GetSection(AuthorizationOptions.SectionName).Get<AuthorizationOptions>() ?? new AuthorizationOptions();
+builder.Services.AddNetMetricAuthorization(authorizationOptions);
+
+builder.Services.AddHealthChecks()
+    .AddCheck<AuthDatabaseConnectivityHealthCheck>("identity-db-connectivity", tags: ["ready", "startup"])
+    .AddCheck<AuthDatabaseQueryHealthCheck>("identity-db-query", tags: ["ready"])
+    .AddCheck<AuthPendingMigrationsHealthCheck>("identity-db-migrations", tags: ["ready", "startup"])
+    .AddCheck<DistributedCacheAvailabilityHealthCheck>("distributed-cache", tags: ["ready", "startup"])
+    .AddCheck<JwtSigningKeyHealthCheck>("jwt-signing-keys", tags: ["ready", "startup"])
+    .AddCheck<TrustedGatewayConfigurationHealthCheck>("trusted-gateway-config", tags: ["ready", "startup"]);
+
+builder.Services.AddAuthApplication();
+builder.Services.AddAuthInfrastructure(builder.Configuration);
+
+var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseMiddleware<RequestContextMiddleware>();
+app.UseMiddleware<TrustedGatewayMiddleware>();
+app.UseForwardedHeaders();
+if (!app.Environment.IsDevelopment() || !app.Configuration.GetValue<bool>("LocalDevelopment:DisableHttpsRedirection"))
+{
+    app.UseHttpsRedirection();
+}
+app.UseMiddleware<TenantResolutionMiddleware>();
+app.UseMiddleware<CookieOriginProtectionMiddleware>();
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors(ApiCorsOptions.PolicyName);
+app.UseRateLimiter();
+app.UseNetMetricLocalization();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.MapGet("/.well-known/jwks.json", (ITokenSigningKeyProvider signingKeyProvider, IOptions<JwtOptions> jwtOptions) =>
+        Results.Ok(signingKeyProvider.GetJwksDocument(jwtOptions.Value.Issuer)))
+    .AllowAnonymous()
+    .WithMetadata(new RouteDiagnosticsMetadata("/.well-known/jwks.json"));
+
+app.MapGet("/.well-known/openid-configuration", (HttpContext httpContext, IOptions<JwtOptions> jwtOptions) =>
+{
+    var issuer = jwtOptions.Value.Issuer.TrimEnd('/');
+    var forwardedPrefix = httpContext.Request.Headers["X-Forwarded-Prefix"].FirstOrDefault()?.TrimEnd('/');
+    var jwksUri = string.IsNullOrWhiteSpace(forwardedPrefix)
+        ? $"{issuer}/.well-known/jwks.json"
+        : $"{issuer}{forwardedPrefix}/.well-known/jwks.json";
+
+    return Results.Ok(new
+    {
+        issuer,
+        jwks_uri = jwksUri,
+        token_endpoint = $"{issuer}/api/auth/login",
+        response_types_supported = new[] { "token" },
+        subject_types_supported = new[] { "public" },
+        id_token_signing_alg_values_supported = new[] { "RS256" },
+        token_endpoint_auth_methods_supported = new[] { "none" },
+        claims_supported = new[] { "sub", "sid", "tenant_id", "role", "permission", "token_version" }
+    });
+})
+    .AllowAnonymous()
+    .WithMetadata(new RouteDiagnosticsMetadata("/.well-known/openid-configuration"));
+
+app.MapHealthChecks("/health/live", HealthResponseWriter.CreateMinimalOptions(registration => registration.Tags.Contains("live")))
+   .AllowAnonymous()
+   .WithMetadata(new RouteDiagnosticsMetadata("/health/live"));
+
+app.MapHealthChecks("/health/ready", HealthResponseWriter.CreateMinimalOptions(registration => registration.Tags.Contains("ready")))
+   .AllowAnonymous()
+   .WithMetadata(new RouteDiagnosticsMetadata("/health/ready"));
+
+app.MapHealthChecks("/health/startup", HealthResponseWriter.CreateMinimalOptions(registration => registration.Tags.Contains("startup")))
+   .AllowAnonymous()
+   .WithMetadata(new RouteDiagnosticsMetadata("/health/startup"));
+
+var skipInfrastructureInitialization = app.Configuration.GetValue<bool>("Testing:SkipInfrastructureInitialization");
+if (!skipInfrastructureInitialization)
+{
+    await app.Services.InitializeAuthInfrastructureAsync(CancellationToken.None);
+}
+
+await app.RunAsync();
+
+static void AddOpenTelemetry(IServiceCollection services, IConfiguration configuration, string serviceName, params string[] meterNames)
+{
+    var otlpEndpoint = configuration["OpenTelemetry:Otlp:Endpoint"] ?? configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+    var telemetry = services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource.AddService(serviceName));
+
+    telemetry.WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation(options => options.RecordException = true);
+        tracing.AddHttpClientInstrumentation(options => options.RecordException = true);
+
+        if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+        {
+            tracing.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
+        }
+    });
+
+    telemetry.WithMetrics(metrics =>
+    {
+        metrics.AddAspNetCoreInstrumentation();
+        metrics.AddHttpClientInstrumentation();
+        metrics.AddMeter(meterNames);
+
+        if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+        {
+            metrics.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
+        }
+    });
+}
+
+public partial class Program;
