@@ -59,6 +59,12 @@ BenchmarkDotNet.Artifacts/
 *.nuget.targets
 .nuget/
 
+# npm lock file - this repo uses pnpm
+package-lock.json
+
+# yarn lock file - this repo uses pnpm
+yarn.lock
+
 # Local env / secrets
 .env
 .env.*
@@ -110,3 +116,7 @@ graph.json
 
 # Husky runtime helpers (generated on install)
 .husky/_
+
+# Misc
+
+apps/auth-web/tsconfig.tsbuildinfo

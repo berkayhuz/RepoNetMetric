@@ -839,7 +839,6 @@
           "NetMetric.Auth.Contracts": "[1.0.0, )",
           "NetMetric.Auth.Domain": "[1.0.0, )",
           "NetMetric.Messaging.RabbitMq": "[1.0.0, )",
-          "NetMetric.Notification.Contracts": "[1.0.0, )",
           "StackExchange.Redis": "[2.12.14, )"
         }
       },
@@ -871,9 +870,6 @@
           "NetMetric.Messaging.Abstractions": "[1.0.0, )",
           "RabbitMQ.Client": "[7.2.1, )"
         }
-      },
-      "netmetric.notification.contracts": {
-        "type": "Project"
       },
       "FluentValidation": {
         "type": "CentralTransitive",

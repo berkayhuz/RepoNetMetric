@@ -1,0 +1,44 @@
+name: Auth Backend
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: auth-backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  auth-backend:
+    name: Restore, Build, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore Auth test solution
+        run: dotnet restore services/auth/tests/NetMetric.Auth.Tests.slnx --force-evaluate
+
+      - name: Build Auth test solution
+        run: dotnet build services/auth/tests/NetMetric.Auth.Tests.slnx -c Release --no-restore -m:1 -v minimal
+
+      - name: Test Auth test solution
+        run: dotnet test services/auth/tests/NetMetric.Auth.Tests.slnx -c Release --no-build -m:1 -v minimal --logger "trx;LogFileName=auth-tests.trx" --results-directory .test-results/auth
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-test-results
+          path: .test-results/auth

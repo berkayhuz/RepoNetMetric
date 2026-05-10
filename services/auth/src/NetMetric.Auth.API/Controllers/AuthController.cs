@@ -48,7 +48,7 @@ public sealed class AuthController(
     }
 
     [HttpPost("workspaces")]
-    [Authorize(Policy = "tenant-user")]
+    [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
     [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
@@ -72,7 +72,7 @@ public sealed class AuthController(
     }
 
     [HttpPost("workspaces/switch")]
-    [Authorize(Policy = "tenant-user")]
+    [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
     [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
@@ -273,7 +273,7 @@ public sealed class AuthController(
     }
 
     [HttpGet("session-status")]
-    [Authorize(Policy = "tenant-user")]
+    [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetSessionStatus()
         => NoContent();

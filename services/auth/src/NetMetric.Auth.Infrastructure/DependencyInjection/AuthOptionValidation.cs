@@ -553,6 +553,35 @@ internal sealed class TokenValidationCacheOptionsValidation : IValidateOptions<T
     }
 }
 
+internal sealed class AuthDataProtectionOptionsValidation(IHostEnvironment environment) : IValidateOptions<AuthDataProtectionOptions>
+{
+    public ValidateOptionsResult Validate(string? name, AuthDataProtectionOptions options)
+    {
+        var failures = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(options.ApplicationName))
+        {
+            failures.Add("Infrastructure:DataProtection:ApplicationName is required.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(options.KeyRingPath) && !Path.IsPathFullyQualified(options.KeyRingPath))
+        {
+            failures.Add("Infrastructure:DataProtection:KeyRingPath must be an absolute path when configured.");
+        }
+
+        if (environment.IsProduction() &&
+            options.RequirePersistentKeyRingInProduction &&
+            string.IsNullOrWhiteSpace(options.KeyRingPath))
+        {
+            failures.Add("Infrastructure:DataProtection:KeyRingPath is required in production when persistent keys are enforced.");
+        }
+
+        return failures.Count > 0
+            ? ValidateOptionsResult.Fail(failures)
+            : ValidateOptionsResult.Success;
+    }
+}
+
 internal sealed class DistributedCacheOptionsValidation(IHostEnvironment environment) : IValidateOptions<DistributedCacheOptions>
 {
     public ValidateOptionsResult Validate(string? name, DistributedCacheOptions options)

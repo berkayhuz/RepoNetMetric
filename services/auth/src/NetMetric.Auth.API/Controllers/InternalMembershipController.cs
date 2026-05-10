@@ -12,7 +12,7 @@ using NetMetric.Auth.Contracts.Internal;
 namespace NetMetric.Auth.API.Controllers;
 
 [ApiController]
-[AllowAnonymous]
+[Authorize(Policy = AuthAuthorizationPolicies.InternalService)]
 [Route("api/v1/internal/membership/users/{userId:guid}")]
 public sealed class InternalMembershipController(
     ISender sender,

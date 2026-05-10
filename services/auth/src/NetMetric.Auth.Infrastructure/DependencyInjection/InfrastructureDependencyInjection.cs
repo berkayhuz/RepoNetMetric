@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
@@ -99,6 +100,11 @@ public static class InfrastructureDependencyInjection
             .Bind(configuration.GetSection(DistributedCacheOptions.SectionName))
             .ValidateOnStart();
 
+        services
+            .AddOptions<AuthDataProtectionOptions>()
+            .Bind(configuration.GetSection(AuthDataProtectionOptions.SectionName))
+            .ValidateOnStart();
+
         services.AddSingleton<IValidateOptions<JwtOptions>, JwtOptionsValidation>();
         services.AddSingleton<IValidateOptions<IdentitySecurityOptions>, IdentitySecurityOptionsValidation>();
         services.AddSingleton<IValidateOptions<AccountLifecycleOptions>, AccountLifecycleOptionsValidation>();
@@ -111,6 +117,7 @@ public static class InfrastructureDependencyInjection
         services.AddSingleton<IValidateOptions<TrustedGatewayOptions>, TrustedGatewayOptionsValidation>();
         services.AddSingleton<IValidateOptions<TokenValidationCacheOptions>, TokenValidationCacheOptionsValidation>();
         services.AddSingleton<IValidateOptions<DistributedCacheOptions>, DistributedCacheOptionsValidation>();
+        services.AddSingleton<IValidateOptions<AuthDataProtectionOptions>, AuthDataProtectionOptionsValidation>();
 
         var connectionString = configuration.GetConnectionString("IdentityConnection")
             ?? throw new InvalidOperationException("Connection string 'IdentityConnection' is missing.");
@@ -122,7 +129,20 @@ public static class InfrastructureDependencyInjection
                 sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
             });
         });
-        services.AddDataProtection();
+
+        var authDataProtectionOptions = configuration
+            .GetSection(AuthDataProtectionOptions.SectionName)
+            .Get<AuthDataProtectionOptions>()
+            ?? new AuthDataProtectionOptions();
+
+        var dataProtectionBuilder = services
+            .AddDataProtection()
+            .SetApplicationName(authDataProtectionOptions.ApplicationName);
+
+        if (!string.IsNullOrWhiteSpace(authDataProtectionOptions.KeyRingPath))
+        {
+            dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(authDataProtectionOptions.KeyRingPath));
+        }
 
         var distributedCacheOptions = configuration
             .GetSection(DistributedCacheOptions.SectionName)

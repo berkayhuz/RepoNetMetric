@@ -2,9 +2,6 @@ using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Domain.Entities;
-using NetMetric.Notification.Contracts.IntegrationEvents.V1;
-using NetMetric.Notification.Contracts.Notifications.Enums;
-using NetMetric.Notification.Contracts.Notifications.Models;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -60,7 +57,7 @@ public sealed class OutboxInviteNotificationDispatcher(
             ["expiresAtUtc"] = invitation.ExpiresAtUtc.ToString("O")
         };
 
-        var payload = new NotificationRequestedV1(
+        var payload = new NotificationRequestedPayloadV1(
             Guid.NewGuid(),
             tenant.Id,
             invitedUser?.Id,
@@ -87,9 +84,9 @@ public sealed class OutboxInviteNotificationDispatcher(
 
         return outbox.AddAsync(
             Guid.NewGuid(),
-            NotificationRequestedV1.EventName,
-            NotificationRequestedV1.EventVersion,
-            NotificationRequestedV1.RoutingKey,
+            NotificationRequestedPayloadV1.EventName,
+            NotificationRequestedPayloadV1.EventVersion,
+            NotificationRequestedPayloadV1.RoutingKey,
             "NetMetric.Auth",
             payload,
             correlationId,
@@ -102,5 +99,55 @@ public sealed class OutboxInviteNotificationDispatcher(
     {
         var value = string.Join(' ', new[] { user.FirstName, user.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
         return string.IsNullOrWhiteSpace(value) ? user.Email ?? user.UserName : value;
+    }
+
+    private sealed record NotificationRequestedPayloadV1(
+        Guid EventId,
+        Guid? TenantId,
+        Guid? UserId,
+        string Source,
+        NotificationCategory Category,
+        NotificationPriority Priority,
+        NotificationRecipient Recipient,
+        IReadOnlyCollection<NotificationChannel> Channels,
+        string Subject,
+        string TextBody,
+        string? HtmlBody,
+        NotificationTemplateData Template,
+        IReadOnlyDictionary<string, string> Metadata,
+        string? CorrelationId,
+        string? IdempotencyKey,
+        DateTime OccurredAtUtc)
+    {
+        public const string EventName = "notification.requested";
+        public const int EventVersion = 1;
+        public const string RoutingKey = "notification.requested.v1";
+    }
+
+    private sealed record NotificationRecipient(
+        Guid? UserId,
+        string? EmailAddress,
+        string? PhoneNumber,
+        string? PushToken,
+        string? DisplayName);
+
+    private sealed record NotificationTemplateData(
+        string? TemplateKey,
+        IReadOnlyDictionary<string, string> Values);
+
+    private enum NotificationCategory
+    {
+        Account = 2
+    }
+
+    private enum NotificationPriority
+    {
+        High = 3
+    }
+
+    private enum NotificationChannel
+    {
+        Email = 1,
+        InApp = 4
     }
 }

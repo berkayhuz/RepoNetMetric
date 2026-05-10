@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using NetMetric.Auth.API.Permissions;
+using NetMetric.Auth.API.Security;
 using AuthorizationOptions = NetMetric.Auth.Application.Options.AuthorizationOptions;
 
 namespace NetMetric.Auth.API.Configurations;
@@ -11,13 +12,19 @@ public static class AuthorizationConfiguration
         AuthorizationOptions options)
     {
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, TrustedInternalSourceAuthorizationHandler>();
 
         services.AddAuthorization(builder =>
         {
-            builder.AddPolicy("tenant-user", policy =>
+            builder.AddPolicy(AuthAuthorizationPolicies.TenantUser, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim("tenant_id");
+            });
+
+            builder.AddPolicy(AuthAuthorizationPolicies.InternalService, policy =>
+            {
+                policy.Requirements.Add(new TrustedInternalSourceRequirement());
             });
 
             foreach (var definition in options.Policies)

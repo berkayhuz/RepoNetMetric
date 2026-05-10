@@ -148,8 +148,7 @@ public sealed class AuthLayeringTests
                 "NetMetric.Auth.Contracts.csproj",
                 "NetMetric.AspNetCore.csproj",
                 "NetMetric.AspNetCore.TrustedGateway.csproj",
-                "NetMetric.Messaging.RabbitMq.csproj",
-                "NetMetric.Notification.Contracts.csproj"
+                "NetMetric.Messaging.RabbitMq.csproj"
             ],
             ["NetMetric.Auth.API.csproj"] = ["NetMetric.Auth.Application.csproj", "NetMetric.Auth.Infrastructure.csproj", "NetMetric.Auth.Contracts.csproj"]
         };

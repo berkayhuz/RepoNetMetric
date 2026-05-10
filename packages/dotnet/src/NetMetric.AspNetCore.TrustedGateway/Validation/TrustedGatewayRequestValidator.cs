@@ -43,7 +43,7 @@ public sealed class TrustedGatewayRequestValidator(
         if (options.AllowedGatewayProxies.Length > 0 || options.AllowedGatewayNetworks.Length > 0)
         {
             var remoteAddress = context.Connection.RemoteIpAddress;
-            if (SecuritySupport.IsAllowedRemoteAddress(remoteAddress, options.AllowedGatewayProxies, options.AllowedGatewayNetworks))
+            if (!SecuritySupport.IsAllowedRemoteAddress(remoteAddress, options.AllowedGatewayProxies, options.AllowedGatewayNetworks))
             {
                 return TrustedGatewayValidationResult.Fail(TrustedGatewayFailureReason.InvalidRemoteAddress, "trusted_gateway_invalid_remote_address");
             }

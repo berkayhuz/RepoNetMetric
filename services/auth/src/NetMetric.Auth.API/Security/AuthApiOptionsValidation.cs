@@ -124,6 +124,15 @@ public sealed class TenantResolutionOptionsValidation(IHostEnvironment environme
             failures.Add("Security:TenantResolution:SlugHeaderName is required.");
         }
 
+        foreach (var prefix in options.TenantOptionalPathPrefixes)
+        {
+            if (string.IsNullOrWhiteSpace(prefix) || !prefix.StartsWith('/'))
+            {
+                failures.Add("Security:TenantResolution:TenantOptionalPathPrefixes entries must be absolute application paths.");
+                break;
+            }
+        }
+
         if (environment.IsProduction())
         {
             if (options.AllowBodyFallback)

@@ -422,9 +422,6 @@
           "RabbitMQ.Client": "[7.2.1, )"
         }
       },
-      "netmetric.notification.contracts": {
-        "type": "Project"
-      },
       "FluentValidation": {
         "type": "CentralTransitive",
         "requested": "[12.1.1, )",

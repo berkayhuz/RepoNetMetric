@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Options;
+namespace NetMetric.Auth.Application.Options;
 
 public sealed class TenantResolutionOptions
 {
@@ -13,4 +13,6 @@ public sealed class TenantResolutionOptions
     public string SlugHeaderName { get; set; } = "X-Tenant-Slug";
 
     public string[] TrustedHostSuffixes { get; set; } = [];
+
+    public string[] TenantOptionalPathPrefixes { get; set; } = ["/api/auth/register"];
 }

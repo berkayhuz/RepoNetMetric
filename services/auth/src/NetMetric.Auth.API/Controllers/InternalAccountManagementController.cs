@@ -14,7 +14,7 @@ using NetMetric.Auth.Contracts.Responses;
 namespace NetMetric.Auth.API.Controllers;
 
 [ApiController]
-[AllowAnonymous]
+[Authorize(Policy = AuthAuthorizationPolicies.InternalService)]
 [Route("api/v1/internal/account-management")]
 public sealed class InternalAccountManagementController(
     ISender sender,

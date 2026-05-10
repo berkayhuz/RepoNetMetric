@@ -14,7 +14,7 @@ using NetMetric.Auth.Contracts.Internal;
 namespace NetMetric.Auth.API.Controllers;
 
 [ApiController]
-[AllowAnonymous]
+[Authorize(Policy = AuthAuthorizationPolicies.InternalService)]
 [Route("api/v1/internal/identity/users/{userId:guid}")]
 public sealed class InternalIdentityController(
     ISender sender,

@@ -22,13 +22,13 @@ public sealed class TenantResolutionMiddleware(
 
     public async Task InvokeAsync(HttpContext context, ITenantRepository tenantRepository)
     {
-        if (AnonymousAllowedPrefixes.Any(prefix => context.Request.Path.StartsWithSegments(prefix)))
+        var value = options.Value;
+        if (IsTenantOptionalPath(context.Request.Path, value))
         {
             await next(context);
             return;
         }
 
-        var value = options.Value;
         var trustedRequest = TrustedGatewayMiddleware.IsTrustedGatewayRequest(context);
         TenantContext? tenantContext = null;
 
@@ -104,4 +104,11 @@ public sealed class TenantResolutionMiddleware(
         context.Items.TryGetValue(TenantContextItemName, out var value)
             ? value as TenantContext
             : null;
+
+    private static bool IsTenantOptionalPath(PathString path, TenantResolutionOptions options) =>
+        AnonymousAllowedPrefixes.Any(prefix => path.StartsWithSegments(prefix)) ||
+        options.TenantOptionalPathPrefixes
+            .Where(prefix => !string.IsNullOrWhiteSpace(prefix))
+            .Select(prefix => new PathString(prefix.Trim()))
+            .Any(prefix => path.StartsWithSegments(prefix));
 }
