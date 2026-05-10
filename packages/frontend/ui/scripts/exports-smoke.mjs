@@ -36,24 +36,121 @@ const allowedLibPublicExports = new Set([
 
 function collectReExports(sourceText) {
   const reExports = [];
-  const namedExportPattern = /export\s+(type\s+)?\{([\s\S]*?)\}\s+from\s+["']([^"']+)["']/g;
-  let match = null;
+  let index = 0;
 
-  while ((match = namedExportPattern.exec(sourceText)) !== null) {
-    const symbols = match[2]
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean)
-      .map((value) => value.replace(/^type\s+/, ""))
-      .map((value) => value.split(/\s+as\s+/)[1]?.trim() ?? value.split(/\s+as\s+/)[0].trim());
-
-    reExports.push({
-      source: match[3],
-      symbols,
-    });
+  while (index < sourceText.length) {
+    const parsed = parseReExportAt(sourceText, index);
+    if (!parsed) {
+      break;
+    }
+    index = parsed.nextIndex;
+    if (parsed.entry) {
+      reExports.push(parsed.entry);
+    }
   }
 
   return reExports;
+}
+
+function parseReExportAt(sourceText, index) {
+  const exportIndex = sourceText.indexOf("export", index);
+  if (exportIndex === -1) {
+    return null;
+  }
+
+  const parsed = parseReExportFromIndex(sourceText, exportIndex);
+  return {
+    entry: parsed?.entry,
+    nextIndex: parsed?.nextIndex ?? exportIndex + 1,
+  };
+}
+
+function parseReExportFromIndex(sourceText, exportIndex) {
+  let cursor = skipWhitespace(sourceText, exportIndex + "export".length);
+  cursor = skipOptionalTypeKeyword(sourceText, cursor);
+
+  if (sourceText[cursor] !== "{") {
+    return null;
+  }
+
+  const namesStart = cursor + 1;
+  const namesEnd = sourceText.indexOf("}", namesStart);
+  if (namesEnd === -1) {
+    return null;
+  }
+
+  cursor = skipWhitespace(sourceText, namesEnd + 1);
+  if (!sourceText.startsWith("from", cursor) || !isBoundary(sourceText, cursor + "from".length)) {
+    return { nextIndex: namesEnd + 1 };
+  }
+
+  cursor = skipWhitespace(sourceText, cursor + "from".length);
+  const quote = sourceText[cursor];
+  if (quote !== "'" && quote !== '"') {
+    return { nextIndex: cursor + 1 };
+  }
+
+  const sourceStart = cursor + 1;
+  const sourceEnd = sourceText.indexOf(quote, sourceStart);
+  if (sourceEnd === -1) {
+    return null;
+  }
+
+  return {
+    nextIndex: sourceEnd + 1,
+    entry: {
+      source: sourceText.slice(sourceStart, sourceEnd),
+      symbols: parseNamedSymbols(sourceText.slice(namesStart, namesEnd)),
+    },
+  };
+}
+
+function skipOptionalTypeKeyword(sourceText, index) {
+  if (!sourceText.startsWith("type", index) || !isBoundary(sourceText, index + "type".length)) {
+    return index;
+  }
+
+  return skipWhitespace(sourceText, index + "type".length);
+}
+
+function skipWhitespace(value, index) {
+  let cursor = index;
+  while (cursor < value.length && isWhitespace(value[cursor])) {
+    cursor += 1;
+  }
+  return cursor;
+}
+
+function isWhitespace(char) {
+  return char === " " || char === "\n" || char === "\r" || char === "\t";
+}
+
+function isBoundary(value, index) {
+  const char = value[index];
+  return !char || !isIdentifierChar(char);
+}
+
+function isIdentifierChar(char) {
+  const code = char.codePointAt(0) ?? -1;
+  return (
+    (code >= 65 && code <= 90) ||
+    (code >= 97 && code <= 122) ||
+    (code >= 48 && code <= 57) ||
+    char === "_" ||
+    char === "$"
+  );
+}
+
+function parseNamedSymbols(value) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const typeTrimmed = item.startsWith("type ") ? item.slice("type ".length).trim() : item;
+      const aliasParts = typeTrimmed.split(" as ");
+      return aliasParts[aliasParts.length - 1].trim();
+    });
 }
 
 function resolveSourceFile(fromFile, sourceSpecifier) {
@@ -77,7 +174,21 @@ function resolveSourceFile(fromFile, sourceSpecifier) {
 
 function hasUseClientDirective(filePath) {
   const source = fs.readFileSync(filePath, "utf-8");
-  return /^\s*["']use client["'];?/m.test(source);
+  for (const line of source.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0 || trimmed.startsWith("//")) {
+      continue;
+    }
+
+    return (
+      trimmed === '"use client"' ||
+      trimmed === "'use client'" ||
+      trimmed === '"use client";' ||
+      trimmed === "'use client';"
+    );
+  }
+
+  return false;
 }
 
 function walkFiles(dirPath, output = []) {
@@ -98,7 +209,7 @@ function walkFiles(dirPath, output = []) {
 for (const exportKey of requiredExports) {
   const exportPath = packageJson.exports?.[exportKey];
   if (typeof exportPath !== "string") {
-    throw new Error(`Missing export map entry: ${exportKey}`);
+    throw new TypeError(`Missing export map entry: ${exportKey}`);
   }
 
   const resolvedPath = path.join(__dirname, "..", exportPath);
@@ -170,7 +281,7 @@ for (const reExport of clientReExports) {
 }
 
 for (const symbol of requiredClientSymbols) {
-  const exported = new RegExp(`\\b${symbol}\\b`, "m").test(clientEntrySource);
+  const exported = new RegExp(String.raw`\b${symbol}\b`, "m").test(clientEntrySource);
   if (!exported) {
     throw new Error(`Missing client symbol in client entry source: ${symbol}`);
   }

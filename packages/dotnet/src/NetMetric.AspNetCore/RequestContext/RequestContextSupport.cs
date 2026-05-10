@@ -65,13 +65,16 @@ public static class RequestContextSupport
             new KeyValuePair<string, object?>("status_code", context.Response.StatusCode),
             new KeyValuePair<string, object?>("service", serviceLabel));
 
-        logger.LogInformation(
-            "{Service} request {Method} {Path} responded {StatusCode} in {ElapsedMs:0.000} ms.",
-            serviceLabel,
-            context.Request.Method,
-            context.Request.Path,
-            context.Response.StatusCode,
-            elapsedMilliseconds);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "{Service} request {Method} {Path} responded {StatusCode} in {ElapsedMs:0.000} ms.",
+                serviceLabel,
+                context.Request.Method,
+                context.Request.Path,
+                context.Response.StatusCode,
+                elapsedMilliseconds);
+        }
     }
 
     private static string? NormalizeCorrelationId(string? value)

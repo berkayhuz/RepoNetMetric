@@ -27,6 +27,15 @@ const commandAvailable = (command) => {
   return check.status === 0;
 };
 
+function resolveDotnetExecutable() {
+  const candidates =
+    process.platform === "win32"
+      ? [String.raw`C:\Program Files\dotnet\dotnet.exe`]
+      : ["/usr/bin/dotnet", "/usr/local/bin/dotnet"];
+
+  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+}
+
 const collectFiles = (directory, predicate, found = []) => {
   if (!existsSync(directory)) {
     return found;
@@ -129,13 +138,19 @@ if (!args) {
   process.exit(1);
 }
 
-if (!commandAvailable("dotnet")) {
+const dotnetExecutable = resolveDotnetExecutable();
+if (!dotnetExecutable && !commandAvailable("dotnet")) {
   statusError("blocked-missing-tooling", "dotnet CLI is required but not available on PATH.");
   process.exit(1);
 }
 
 statusInfo("executed", `Running dotnet ${args.join(" ")}`);
-const result = spawnSync("dotnet", args, { stdio: "inherit" });
+const safeCommand = dotnetExecutable ?? "dotnet";
+const safePath = dotnetExecutable ? path.dirname(dotnetExecutable) : process.env.PATH;
+const result = spawnSync(safeCommand, args, {
+  stdio: "inherit",
+  env: { ...process.env, PATH: safePath },
+});
 if (typeof result.status === "number") {
   process.exit(result.status);
 }

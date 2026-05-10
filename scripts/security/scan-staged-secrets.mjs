@@ -1,8 +1,25 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
-const stagedFiles = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACMR"], {
-  encoding: "utf8",
-})
+function resolveGitExecutable() {
+  const candidates =
+    process.platform === "win32"
+      ? [String.raw`C:\Program Files\Git\cmd\git.exe`, String.raw`C:\Program Files\Git\bin\git.exe`]
+      : ["/usr/bin/git", "/usr/local/bin/git"];
+
+  return candidates.find((candidate) => existsSync(candidate)) ?? "git";
+}
+
+const gitExecutable = resolveGitExecutable();
+const safePath = gitExecutable.includes(path.sep) ? path.dirname(gitExecutable) : process.env.PATH;
+const safeEnv = { ...process.env, PATH: safePath };
+
+const stagedFiles = execFileSync(
+  gitExecutable,
+  ["diff", "--cached", "--name-only", "--diff-filter=ACMR"],
+  { encoding: "utf8", env: safeEnv },
+)
   .split(/\r?\n/)
   .map((file) => file.trim())
   .filter(Boolean)
@@ -39,7 +56,7 @@ function isAllowlisted(line) {
 }
 
 function isScannerRuleDefinitionLine(file, line) {
-  const normalizedFile = file.replace(/\\/g, "/");
+  const normalizedFile = file.replaceAll("\\", "/");
   if (normalizedFile !== "scripts/security/scan-staged-secrets.mjs") {
     return false;
   }
@@ -62,11 +79,9 @@ function isGenericFalsePositive(line) {
   }
 
   // Ignore identifier/expression assignments (for example: Password = value.Password).
-  if (
-    /\b(TOKEN|PASSWORD|SECRET|PRIVATE[_-]?KEY)\b\s*[:=]\s*[A-Za-z_][A-Za-z0-9_.()]*\s*[,;)]?\s*$/i.test(
-      line,
-    )
-  ) {
+  const identifierAssignmentPattern =
+    /\b(?:TOKEN|PASSWORD|SECRET|PRIVATE[_-]?KEY)\b\s*[:=]\s*[A-Za-z_][A-Za-z0-9_.()]*(?:\s*[,;)])?\s*$/i;
+  if (identifierAssignmentPattern.test(line)) {
     return true;
   }
 
@@ -76,7 +91,10 @@ function isGenericFalsePositive(line) {
 const offenders = [];
 
 for (const file of stagedFiles) {
-  const content = execFileSync("git", ["show", `:${file}`], { encoding: "utf8" });
+  const content = execFileSync(gitExecutable, ["show", `:${file}`], {
+    encoding: "utf8",
+    env: safeEnv,
+  });
   const lines = content.split(/\r?\n/);
 
   for (let index = 0; index < lines.length; index += 1) {

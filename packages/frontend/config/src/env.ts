@@ -6,15 +6,15 @@ const baseFrontendEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ENV: environmentStageSchema.default("development"),
   NEXT_PUBLIC_APP_NAME: z.string().min(1),
-  NEXT_PUBLIC_API_BASE_URL: z.string().url(),
+  NEXT_PUBLIC_API_BASE_URL: z.url(),
 });
 
 const optionalFrontendEnvSchema = z.object({
-  SENTRY_DSN: z.string().url().optional(),
-  NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: z.url().optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
 });
 
-export const frontendEnvSchema = baseFrontendEnvSchema.merge(optionalFrontendEnvSchema);
+export const frontendEnvSchema = baseFrontendEnvSchema.extend(optionalFrontendEnvSchema.shape);
 
 export type FrontendEnv = z.infer<typeof frontendEnvSchema>;
 

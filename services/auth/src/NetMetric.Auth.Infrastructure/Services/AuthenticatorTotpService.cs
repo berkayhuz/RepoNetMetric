@@ -22,7 +22,7 @@ public sealed class AuthenticatorTotpService : IAuthenticatorTotpService
         var label = $"{safeIssuer}:{accountName}";
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={sharedKey}&issuer={Uri.EscapeDataString(safeIssuer)}&digits=6&period=30");
+            $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={sharedKey}&issuer={Uri.EscapeDataString(safeIssuer)}&algorithm=SHA256&digits=6&period=30");
     }
 
     public bool VerifyCode(string sharedKey, string verificationCode, DateTime utcNow)
@@ -59,7 +59,7 @@ public sealed class AuthenticatorTotpService : IAuthenticatorTotpService
             networkOrder >>= 8;
         }
 
-        using var hmac = new HMACSHA1(key);
+        using var hmac = new HMACSHA256(key);
         var hash = hmac.ComputeHash(counter.ToArray());
         var offset = hash[^1] & 0x0F;
         var binary =

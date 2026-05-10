@@ -7,31 +7,67 @@ $ErrorActionPreference = "Stop"
 
 function Invoke-Checked {
     param(
+        [Parameter(Mandatory = $true)]
         [string]$StepName,
+
+        [Parameter(Mandatory = $true)]
         [scriptblock]$Command
     )
 
+    Write-Host ""
     Write-Host "==> $StepName"
-    & $Command
+
+    try {
+        & $Command
+    }
+    catch {
+        Write-Error "$StepName failed. $($_.Exception.Message)"
+        exit 1
+    }
+
     if ($LASTEXITCODE -ne 0) {
         Write-Error "$StepName failed with exit code $LASTEXITCODE."
         exit $LASTEXITCODE
     }
 }
 
+function Test-PackageScriptExists {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Scripts,
+
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptName
+    )
+
+    if ($null -eq $Scripts) {
+        return $false
+    }
+
+    return $Scripts.PSObject.Properties.Name -contains $ScriptName
+}
+
 function Invoke-PnpmScriptIfExists {
     param(
+        [Parameter(Mandatory = $true)]
+        [object]$Scripts,
+
+        [Parameter(Mandatory = $true)]
         [string]$ScriptName,
+
         [switch]$ContinueOnFailure
     )
 
-    if ($null -eq $packageScripts.$ScriptName) {
+    if (-not (Test-PackageScriptExists -Scripts $Scripts -ScriptName $ScriptName)) {
         Write-Warning "package.json script '$ScriptName' not found. Skipping."
         return $false
     }
 
+    Write-Host ""
     Write-Host "==> pnpm run $ScriptName"
+
     pnpm run $ScriptName
+
     if ($LASTEXITCODE -ne 0) {
         if ($ContinueOnFailure) {
             Write-Warning "pnpm run $ScriptName failed with exit code $LASTEXITCODE. Continuing."
@@ -47,11 +83,6 @@ function Invoke-PnpmScriptIfExists {
 
 if ([string]::IsNullOrWhiteSpace($env:SONAR_TOKEN)) {
     Write-Error "SONAR_TOKEN environment variable is required. Set it first: `$env:SONAR_TOKEN='your-token'"
-    exit 1
-}
-
-if ($null -eq (Get-Command -Name "sonar-scanner" -ErrorAction SilentlyContinue)) {
-    Write-Error "sonar-scanner was not found in PATH. Install it first (example: npm install -g sonarqube-scanner), then retry."
     exit 1
 }
 
@@ -72,6 +103,7 @@ if (-not (Test-Path -LiteralPath ".\package.json")) {
 
 $package = Get-Content -Raw -LiteralPath ".\package.json" | ConvertFrom-Json
 $packageScripts = $package.scripts
+
 $ciFlag = [string]$env:CI
 $strictCoverageMode = $StrictCoverage -or ($ciFlag -match '^(?i:true|1|yes)$')
 
@@ -86,29 +118,30 @@ Invoke-Checked -StepName "pnpm install --frozen-lockfile" -Command {
     pnpm install --frozen-lockfile
 }
 
-if ($null -ne $packageScripts."frontend:check") {
-    Invoke-PnpmScriptIfExists -ScriptName "frontend:check" | Out-Null
+if (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "frontend:check") {
+    Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "frontend:check" | Out-Null
 }
 else {
-    if ($null -ne $packageScripts."frontend:typecheck") {
-        Invoke-PnpmScriptIfExists -ScriptName "frontend:typecheck" | Out-Null
+    if (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "frontend:typecheck") {
+        Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "frontend:typecheck" | Out-Null
     }
 
-    if ($null -ne $packageScripts."frontend:lint") {
-        Invoke-PnpmScriptIfExists -ScriptName "frontend:lint" | Out-Null
+    if (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "frontend:lint") {
+        Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "frontend:lint" | Out-Null
     }
 
-    if ($null -ne $packageScripts."frontend:test") {
-        Invoke-PnpmScriptIfExists -ScriptName "frontend:test" | Out-Null
+    if (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "frontend:test") {
+        Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "frontend:test" | Out-Null
     }
 }
 
 $coverageRan = $false
-if ($null -ne $packageScripts."frontend:coverage") {
-    $coverageRan = Invoke-PnpmScriptIfExists -ScriptName "frontend:coverage" -ContinueOnFailure
+
+if (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "frontend:coverage") {
+    $coverageRan = Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "frontend:coverage" -ContinueOnFailure
 }
-elseif ($null -ne $packageScripts."coverage") {
-    $coverageRan = Invoke-PnpmScriptIfExists -ScriptName "coverage" -ContinueOnFailure
+elseif (Test-PackageScriptExists -Scripts $packageScripts -ScriptName "coverage") {
+    $coverageRan = Invoke-PnpmScriptIfExists -Scripts $packageScripts -ScriptName "coverage" -ContinueOnFailure
 }
 else {
     if ($strictCoverageMode) {
@@ -117,6 +150,22 @@ else {
     }
 
     Write-Warning "No coverage script found in package.json. Sonar analysis will continue without new LCOV generation."
+}
+
+$lcovPaths = @(
+    ".\packages\frontend\ui\coverage\lcov.info",
+    ".\packages\frontend\config\coverage\lcov.info"
+)
+
+$existingLcovPaths = $lcovPaths | Where-Object { Test-Path -LiteralPath $_ }
+
+if ($strictCoverageMode -and $existingLcovPaths.Count -eq 0) {
+    Write-Error "Strict coverage mode: no LCOV report found. Expected at least one of: $($lcovPaths -join ', ')"
+    exit 1
+}
+
+if (-not $strictCoverageMode -and $existingLcovPaths.Count -eq 0) {
+    Write-Warning "No LCOV report found. Sonar analysis will continue; frontend coverage may appear as 0%."
 }
 
 if (-not $coverageRan) {
@@ -128,9 +177,11 @@ if (-not $coverageRan) {
     Write-Warning "Coverage step did not run successfully. Sonar analysis will continue; coverage may appear as 0%."
 }
 
-Invoke-Checked -StepName "sonar-scanner" -Command {
-    sonar-scanner `
-        -Dproject.settings=sonar-project.frontend.properties `
-        -Dsonar.host.url="$SonarUrl" `
-        -Dsonar.token="$env:SONAR_TOKEN"
+$env:SONAR_HOST_URL = $SonarUrl
+
+Invoke-Checked -StepName "SonarScanner for NPM" -Command {
+    node .\tools\sonar\scan-frontend.mjs
 }
+
+Write-Host ""
+Write-Host "SonarQube frontend analysis completed successfully."

@@ -11,6 +11,8 @@ import { Sheet, SheetContent } from "../overlay/sheet";
 import { SIDEBAR_WIDTH_MOBILE, SidebarProvider, useSidebar } from "./sidebar/provider";
 import { sidebarMenuButtonVariants } from "./sidebar/variants";
 
+const SIDEBAR_SKELETON_WIDTHS = ["56%", "64%", "72%", "60%", "68%"] as const;
+
 function Sidebar({
   side = "left",
   variant = "sidebar",
@@ -398,13 +400,13 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<"div">) 
 function SidebarMenuSkeleton({
   className,
   showIcon = false,
+  index = 0,
   ...props
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
+  index?: number;
 }) {
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const width = SIDEBAR_SKELETON_WIDTHS[Math.abs(index) % SIDEBAR_SKELETON_WIDTHS.length];
 
   return (
     <div

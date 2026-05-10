@@ -9,14 +9,14 @@ if (!fs.existsSync(coveragePath)) {
 }
 
 const targets = [
-  { name: "Button", file: "src\\components\\primitives\\button.tsx" },
-  { name: "Input", file: "src\\components\\primitives\\input.tsx" },
-  { name: "Select", file: "src\\components\\primitives\\select.tsx" },
-  { name: "Dialog", file: "src\\components\\overlay\\dialog.tsx" },
-  { name: "Dropdown", file: "src\\components\\overlay\\dropdown-menu.tsx" },
-  { name: "Sidebar", file: "src\\components\\navigation\\sidebar.tsx" },
-  { name: "ThemeProvider", file: "src\\components\\theme\\theme-provider.tsx" },
-  { name: "DataGrid", file: "src\\components\\data-display\\data-grid\\data-grid.tsx" },
+  { name: "Button", file: String.raw`src\components\primitives\button.tsx` },
+  { name: "Input", file: String.raw`src\components\primitives\input.tsx` },
+  { name: "Select", file: String.raw`src\components\primitives\select.tsx` },
+  { name: "Dialog", file: String.raw`src\components\overlay\dialog.tsx` },
+  { name: "Dropdown", file: String.raw`src\components\overlay\dropdown-menu.tsx` },
+  { name: "Sidebar", file: String.raw`src\components\navigation\sidebar.tsx` },
+  { name: "ThemeProvider", file: String.raw`src\components\theme\theme-provider.tsx` },
+  { name: "DataGrid", file: String.raw`src\components\data-display\data-grid\data-grid.tsx` },
 ];
 
 const lcov = fs.readFileSync(coveragePath, "utf8");

@@ -59,12 +59,15 @@ public sealed class RabbitMqIntegrationEventPublisher(
             body,
             cancellationToken);
 
-        logger.LogInformation(
-            "Published integration event {EventName} v{EventVersion}. EventId={EventId} Exchange={Exchange} RoutingKey={RoutingKey}",
-            metadata.EventName,
-            metadata.EventVersion,
-            metadata.EventId,
-            exchange,
-            routingKey);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Published integration event {EventName} v{EventVersion}. EventId={EventId} Exchange={Exchange} RoutingKey={RoutingKey}",
+                metadata.EventName,
+                metadata.EventVersion,
+                metadata.EventId,
+                exchange,
+                routingKey);
+        }
     }
 }

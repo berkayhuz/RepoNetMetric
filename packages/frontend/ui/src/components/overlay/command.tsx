@@ -58,8 +58,8 @@ function CommandInput({
   return (
     <div
       data-slot="command-input-wrapper"
+      data-cmdk-input-wrapper=""
       className="flex items-center border-b px-3"
-      cmdk-input-wrapper=""
     >
       <Search className="mr-2 size-4 shrink-0 opacity-50" />
 

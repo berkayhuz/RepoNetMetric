@@ -13,14 +13,10 @@ public sealed class TrustedGatewaySigner(TrustedGatewayOptions options) : ITrust
     public async Task<TrustedGatewaySignedHeaders> SignAsync(HttpRequest request, string correlationId, CancellationToken cancellationToken)
     {
         var signingKey = options.Keys.FirstOrDefault(x =>
-            x.Enabled &&
-            x.SignRequests &&
-            string.Equals(x.KeyId, options.CurrentKeyId, StringComparison.Ordinal));
-
-        if (signingKey is null)
-        {
-            throw new InvalidOperationException("Security:TrustedGateway current signing key is missing or disabled.");
-        }
+                x.Enabled &&
+                x.SignRequests &&
+                string.Equals(x.KeyId, options.CurrentKeyId, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("Security:TrustedGateway current signing key is missing or disabled.");
 
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
         var nonce = Guid.NewGuid().ToString("N");

@@ -2,6 +2,8 @@ import * as React from "react";
 
 import { cn } from "../../lib/utils";
 
+const FieldIdContext = React.createContext<string | undefined>(undefined);
+
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset data-slot="field-set" className={cn("flex flex-col gap-6", className)} {...props} />
@@ -43,25 +45,32 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
 function Field({
   className,
   orientation = "vertical",
+  id,
   ...props
 }: React.ComponentProps<"div"> & {
   orientation?: "vertical" | "horizontal" | "responsive";
 }) {
+  const generatedId = React.useId();
+  const fieldId = id ?? `field-${generatedId.replaceAll(":", "")}`;
+
   return (
-    <div
-      role="group"
-      data-slot="field"
-      data-orientation={orientation}
-      className={cn(
-        "group/field flex w-full gap-3",
-        orientation === "vertical" && "flex-col",
-        orientation === "horizontal" && "flex-row items-start",
-        orientation === "responsive" &&
-          "flex-col @md/field-group:flex-row @md/field-group:items-start",
-        className,
-      )}
-      {...props}
-    />
+    <FieldIdContext.Provider value={fieldId}>
+      <div
+        id={id}
+        role="group"
+        data-slot="field"
+        data-orientation={orientation}
+        className={cn(
+          "group/field flex w-full gap-3",
+          orientation === "vertical" && "flex-col",
+          orientation === "horizontal" && "flex-row items-start",
+          orientation === "responsive" &&
+            "flex-col @md/field-group:flex-row @md/field-group:items-start",
+          className,
+        )}
+        {...props}
+      />
+    </FieldIdContext.Provider>
   );
 }
 
@@ -75,10 +84,14 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function FieldLabel({ className, ...props }: React.ComponentProps<"label">) {
+function FieldLabel({ className, htmlFor, ...props }: React.ComponentProps<"label">) {
+  const fieldId = React.useContext(FieldIdContext);
+  const resolvedHtmlFor = htmlFor ?? fieldId;
+
   return (
     <label
       data-slot="field-label"
+      htmlFor={resolvedHtmlFor}
       className={cn(
         "text-sm leading-none font-medium select-none",
         "group-data-[disabled=true]/field:pointer-events-none group-data-[disabled=true]/field:opacity-50",

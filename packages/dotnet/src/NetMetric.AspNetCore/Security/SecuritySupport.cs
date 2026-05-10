@@ -24,18 +24,18 @@ public static class SecuritySupport
         void Apply()
         {
             var headers = context.Response.Headers;
-            headers["X-Content-Type-Options"] = "nosniff";
-            headers["X-Frame-Options"] = "DENY";
+            headers.XContentTypeOptions = "nosniff";
+            headers.XFrameOptions = "DENY";
             headers["Referrer-Policy"] = values.ReferrerPolicy;
-            headers["Content-Security-Policy"] = values.ContentSecurityPolicy;
+            headers.ContentSecurityPolicy = values.ContentSecurityPolicy;
             headers["Permissions-Policy"] = values.PermissionsPolicy;
             headers["X-Permitted-Cross-Domain-Policies"] = "none";
             headers["Cross-Origin-Opener-Policy"] = "same-origin";
 
             if (values.DisableResponseCaching)
             {
-                headers["Cache-Control"] = "no-store";
-                headers["Pragma"] = "no-cache";
+                headers.CacheControl = "no-store";
+                headers.Pragma = "no-cache";
             }
 
             if (context.Request.IsHttps && values.EnableHsts)
@@ -51,7 +51,7 @@ public static class SecuritySupport
                     hstsValue += "; preload";
                 }
 
-                headers["Strict-Transport-Security"] = hstsValue;
+                headers.StrictTransportSecurity = hstsValue;
             }
         }
     }

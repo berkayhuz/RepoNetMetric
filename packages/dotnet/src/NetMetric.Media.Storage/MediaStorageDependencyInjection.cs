@@ -95,7 +95,7 @@ public sealed class LocalFileMediaStorageProvider(IOptions<MediaOptions> options
 
 public sealed class CloudflareR2MediaStorageProvider : IMediaStorageProvider
 {
-    private readonly IAmazonS3 _s3;
+    private readonly AmazonS3Client _s3;
     private readonly MediaOptions _options;
 
     public CloudflareR2MediaStorageProvider(IOptions<MediaOptions> options)
