@@ -39,9 +39,20 @@ const patterns = [
     regex: /-----BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----/,
   },
   {
-    name: "Generic secret assignment",
+    name: "Known token/key format",
     regex:
-      /\b(API[_-]?KEY|SECRET|TOKEN|PASSWORD|PRIVATE[_-]?KEY)\b\s*[:=]\s*["']?(?!changeme|example|test|placeholder)[^\s"']{8,}/i,
+      /\b(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|sk-(?:live|test)?[A-Za-z0-9]{16,}|AIza[0-9A-Za-z\-_]{35}|ya29\.[0-9A-Za-z\-_]+)\b/,
+  },
+  {
+    name: "Credentialed connection string",
+    regex: /\b(?:postgres(?:ql)?|mysql|mssql|mongodb(?:\+srv)?|redis):\/\/[^:\s\/]+:[^@\s\/]+@/i,
+  },
+  {
+    // Intentionally strict: secret-like key names must be assigned to a quoted literal.
+    // This avoids false positives for form fields, schemas, route params, and FormData mappings.
+    name: "Hardcoded secret literal assignment",
+    regex:
+      /\b(API[_-]?KEY|SECRET|TOKEN|PASSWORD|PRIVATE[_-]?KEY|CLIENT[_-]?SECRET|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN)\b\s*[:=]\s*(["'`])([^"'`\r\n]*)\2/i,
   },
 ];
 
@@ -62,30 +73,86 @@ function isScannerRuleDefinitionLine(file, line) {
   }
 
   const selfRuleDefinitions = [
-    /name:\s*"Generic secret assignment"/,
+    /name:\s*"Hardcoded secret literal assignment"/,
     /\\b\(API\[_-\]\?KEY\|SECRET\|TOKEN\|PASSWORD\|PRIVATE\[_-\]\?KEY\)\\b/,
-    /\[\?&\]\(token\|secret\|password\)=/,
-    /\\b\(TOKEN\|PASSWORD\|SECRET\|PRIVATE\[_-\]\?KEY\)\\b\\s\*\[:=\]/,
+    /Known token\/key format/,
+    /Credentialed connection string/,
   ];
 
   return selfRuleDefinitions.some((pattern) => pattern.test(line));
 }
 
 function isGenericFalsePositive(line) {
-  // URL query fragments are allowlisted only when the credential value is clearly dynamic
-  // (for example placeholder/interpolated values), not for literal values.
-  if (/[?&](token|secret|password)=(\{[^}]+\}|\$\{[^}]+\})/i.test(line)) {
+  const secretAssignmentMatch =
+    /\b(API[_-]?KEY|SECRET|TOKEN|PASSWORD|PRIVATE[_-]?KEY|CLIENT[_-]?SECRET|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN)\b\s*[:=]\s*(["'`])([^"'`\r\n]*)\2/i.exec(
+      line,
+    );
+
+  if (!secretAssignmentMatch) {
+    return false;
+  }
+
+  const literalValue = secretAssignmentMatch[3].trim();
+  if (literalValue.length === 0) {
     return true;
   }
 
-  // Ignore identifier/expression assignments (for example: Password = value.Password).
-  const identifierAssignmentPattern =
-    /\b(?:TOKEN|PASSWORD|SECRET|PRIVATE[_-]?KEY)\b\s*[:=]\s*[A-Za-z_][A-Za-z0-9_.()]*(?:\s*[,;)])?\s*$/i;
-  if (identifierAssignmentPattern.test(line)) {
+  // Safe placeholders/sample values should not fail pre-commit.
+  if (
+    /^(?:changeme|change_me|example|sample|placeholder|dummy|test|redacted|your[_-]?value)$/i.test(
+      literalValue,
+    )
+  ) {
     return true;
+  }
+
+  // Non-secret text patterns commonly seen in app code.
+  if (/^(?:auth|form|validation|route|i18n)(?:[.:/][A-Za-z0-9_.:/-]+)+$/i.test(literalValue)) {
+    return true;
+  }
+
+  // Reject obvious expression-like values wrapped as strings.
+  if (/\$\{[^}]+\}|\{[^}]+\}|formData\.get\(|process\.env\./i.test(literalValue)) {
+    return true;
+  }
+
+  return !isSuspiciousSecretLiteral(literalValue);
+}
+
+function isSuspiciousSecretLiteral(value) {
+  if (value.length < 8) {
+    return false;
+  }
+
+  if (
+    /^(?:ghp_|github_pat_|xox[baprs]-|sk-(?:live|test)?|AIza|ya29\.)/i.test(value) ||
+    (/[A-Za-z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value))
+  ) {
+    return true;
+  }
+
+  // High-entropy heuristic for long opaque strings.
+  if (value.length >= 20) {
+    const entropy = calculateEntropy(value);
+    return entropy >= 3.5;
   }
 
   return false;
+}
+
+function calculateEntropy(input) {
+  const frequency = new Map();
+  for (const char of input) {
+    frequency.set(char, (frequency.get(char) ?? 0) + 1);
+  }
+
+  let entropy = 0;
+  for (const count of frequency.values()) {
+    const probability = count / input.length;
+    entropy -= probability * Math.log2(probability);
+  }
+
+  return entropy;
 }
 
 const offenders = [];
@@ -106,13 +173,16 @@ for (const file of stagedFiles) {
         }
 
         if (
-          pattern.name === "Generic secret assignment" &&
+          pattern.name === "Hardcoded secret literal assignment" &&
           isScannerRuleDefinitionLine(file, line)
         ) {
           continue;
         }
 
-        if (pattern.name === "Generic secret assignment" && isGenericFalsePositive(line)) {
+        if (
+          pattern.name === "Hardcoded secret literal assignment" &&
+          isGenericFalsePositive(line)
+        ) {
           continue;
         }
 
