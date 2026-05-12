@@ -17,7 +17,7 @@ public abstract class QuoteWorkflowHandlerBase(IQuoteManagementDbContext dbConte
         var entity = await QuoteHandlerHelpers.RequireQuoteAsync(DbContext, quoteId, cancellationToken);
         if (!predicate(entity.Status))
             throw new ConflictAppException(message);
-        QuoteHandlerHelpers.ApplyRowVersion(dbContext, entity, rowVersion);
+        QuoteHandlerHelpers.ApplyRowVersion(DbContext, entity, rowVersion);
         return entity;
     }
 }

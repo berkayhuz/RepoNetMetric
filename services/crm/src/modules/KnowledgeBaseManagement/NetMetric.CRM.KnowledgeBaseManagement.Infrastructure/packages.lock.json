@@ -43,12 +43,6 @@
           "Microsoft.EntityFrameworkCore.Relational": "10.0.7"
         }
       },
-      "Microsoft.Extensions.Diagnostics.HealthChecks": {
-        "type": "Direct",
-        "requested": "[10.0.7, )",
-        "resolved": "10.0.7",
-        "contentHash": "hs9YULcNhj1UiPjhNoJIDBWS92GvAVzT6DyuvbkoxvDcASZUQFVwQ9EAKtgrOfTaI0Vy6U6RwycXko1SIESM8w=="
-      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.47.1",

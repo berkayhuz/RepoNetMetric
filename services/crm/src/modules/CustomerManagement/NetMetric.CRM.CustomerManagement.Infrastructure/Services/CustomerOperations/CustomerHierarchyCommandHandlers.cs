@@ -74,9 +74,17 @@ public sealed class AddAccountHierarchyNodeCommandHandler(
         var visited = new HashSet<Guid>();
         while (visited.Add(cursor))
         {
-            if (cursor == companyId) return true;
-            var parent = edges.FirstOrDefault(x => x.CompanyId == cursor).ParentCompanyId;
-            if (!parent.HasValue) return false;
+            if (cursor == companyId)
+            {
+                return true;
+            }
+
+            var parent = edges.FirstOrDefault(x => x.CompanyId == cursor)?.ParentCompanyId;
+            if (!parent.HasValue)
+            {
+                return false;
+            }
+
             cursor = parent.Value;
         }
         return true;

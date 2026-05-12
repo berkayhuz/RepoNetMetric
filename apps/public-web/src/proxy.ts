@@ -1,0 +1,22 @@
+import { NextResponse } from "next/server";
+
+const securityHeaders = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+} as const;
+
+export function proxy() {
+  const response = NextResponse.next();
+
+  for (const [header, value] of Object.entries(securityHeaders)) {
+    response.headers.set(header, value);
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};

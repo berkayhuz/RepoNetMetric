@@ -48,7 +48,7 @@ public sealed class CustomerManagementDocumentSummaryProvider(ICustomerManagemen
             .ToListAsync(cancellationToken);
 }
 
-public sealed class DuplicateDetectionService(ICustomerManagementDbContext dbContext, ICustomerManagementSecurityService securityService) : IDuplicateDetectionService
+public sealed class DuplicateDetectionService(ICustomerManagementDbContext dbContext) : IDuplicateDetectionService
 {
     public string? NormalizeEmail(string? email) => string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
 
@@ -60,12 +60,21 @@ public sealed class DuplicateDetectionService(ICustomerManagementDbContext dbCon
         return digits.Length == 0 ? null : digits;
     }
 
-    public string? NormalizeDomain(string? websiteOrDomain)
+    public string? NormalizeDomain(string? websiteOrDomain) => NormalizeDomainValue(websiteOrDomain);
+
+    internal static string? NormalizeDomainValue(string? websiteOrDomain)
     {
-        if (string.IsNullOrWhiteSpace(websiteOrDomain)) return null;
+        if (string.IsNullOrWhiteSpace(websiteOrDomain))
+        {
+            return null;
+        }
+
         var value = websiteOrDomain.Trim().ToLowerInvariant();
         if (Uri.TryCreate(value.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? value : $"https://{value}", UriKind.Absolute, out var uri))
+        {
             value = uri.Host;
+        }
+
         return value.StartsWith("www.", StringComparison.Ordinal) ? value[4..] : value.Trim('/');
     }
 
@@ -131,11 +140,14 @@ public sealed class DuplicateDetectionService(ICustomerManagementDbContext dbCon
         for (var i = 0; i <= left.Length; i++) matrix[i, 0] = i;
         for (var j = 0; j <= right.Length; j++) matrix[0, j] = j;
         for (var i = 1; i <= left.Length; i++)
+        {
             for (var j = 1; j <= right.Length; j++)
             {
                 var cost = left[i - 1] == right[j - 1] ? 0 : 1;
                 matrix[i, j] = Math.Min(Math.Min(matrix[i - 1, j] + 1, matrix[i, j - 1] + 1), matrix[i - 1, j - 1] + cost);
             }
+        }
+
         return matrix[left.Length, right.Length];
     }
 }
@@ -279,9 +291,11 @@ public sealed class CustomerOwnershipRuleEvaluator(ICustomerManagementDbContext 
         {
             var condition = rule.ConditionJson.ToLowerInvariant();
             if ((company?.Sector is not null && condition.Contains(company.Sector.ToLowerInvariant(), StringComparison.Ordinal)) ||
-                (company?.Website is not null && condition.Contains(new DuplicateDetectionService(dbContext, null!).NormalizeDomain(company.Website) ?? string.Empty, StringComparison.Ordinal)) ||
+                (company?.Website is not null && condition.Contains(DuplicateDetectionService.NormalizeDomainValue(company.Website) ?? string.Empty, StringComparison.Ordinal)) ||
                 condition is "{}" or "")
+            {
                 return rule;
+            }
         }
 
         return null;
@@ -304,13 +318,16 @@ public sealed class CustomerSearchIndexer(ICustomerManagementDbContext dbContext
         existing.Domain = duplicateDetectionService.NormalizeDomain(customer.Company?.Website);
         existing.SearchText = string.Join(' ', new[] { customer.FullName, customer.Email, customer.MobilePhone, customer.Company?.Name, customer.Company?.Website }.Where(x => !string.IsNullOrWhiteSpace(x))).ToLowerInvariant();
         existing.LastIndexedAtUtc = DateTime.UtcNow;
-        if (created) await dbContext.CustomerSearchDocuments.AddAsync(existing, cancellationToken);
+        if (created)
+        {
+            await dbContext.CustomerSearchDocuments.AddAsync(existing, cancellationToken);
+        }
         await dbContext.SaveChangesAsync(cancellationToken);
         return existing;
     }
 }
 
-public sealed class CustomerSearchService(ICustomerManagementDbContext dbContext, ICustomerManagementSecurityService securityService) : ICustomerSearchService
+public sealed class CustomerSearchService(ICustomerManagementDbContext dbContext) : ICustomerSearchService
 {
     public async Task<IReadOnlyList<Customer360SummaryItemDto>> SearchAsync(string term, int take, CancellationToken cancellationToken)
     {

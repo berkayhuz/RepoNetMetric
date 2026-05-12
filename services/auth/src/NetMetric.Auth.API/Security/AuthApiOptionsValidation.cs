@@ -10,7 +10,7 @@ public sealed class ApiCorsOptionsValidation(IHostEnvironment? environment = nul
     public ValidateOptionsResult Validate(string? name, ApiCorsOptions options)
     {
         var failures = new List<string>();
-        var allowHttpLoopback = environment?.IsDevelopment() ?? true;
+        var allowHttpLoopback = environment?.IsProduction() != true;
 
         if (options.AllowedOrigins.Length == 0)
         {

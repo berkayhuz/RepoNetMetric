@@ -72,7 +72,9 @@ public sealed class PreviewCustomerImportMappingCommandHandler(ICustomerManageme
     {
         var batch = await CustomerImportBatchProjection.LoadBatchAsync(dbContext, currentUserService.EnsureTenant(), request.BatchId, cancellationToken);
         foreach (var row in batch.Rows.Where(x => x.Status == CustomerImportRowStatus.Pending))
+        {
             row.MappedDataJson = JsonSerializer.Serialize(CustomerImportMapper.Map(CustomerImportBatchProjection.ReadRaw(row.RawDataJson)));
+        }
 
         batch.Status = CustomerImportBatchStatus.Mapped;
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -205,7 +207,9 @@ public sealed class CommitCustomerImportBatchCommandHandler(
     private async Task WriteConsentIfPresentAsync(Guid tenantId, Guid customerId, CustomerImportMappedRow mapped, CancellationToken cancellationToken)
     {
         if (!mapped.MarketingConsent.HasValue)
+        {
             return;
+        }
 
         var consent = await dbContext.CustomerConsents.FirstOrDefaultAsync(x => x.TenantId == tenantId && x.EntityType == CustomerEntityType.Customer && x.EntityId == customerId && x.Channel == CustomerConsentChannel.Email && x.Purpose == CustomerConsentPurpose.Marketing, cancellationToken);
         var created = consent is null;
@@ -213,7 +217,9 @@ public sealed class CommitCustomerImportBatchCommandHandler(
         var previous = consent.Status;
         consent.Status = mapped.MarketingConsent.Value ? CustomerConsentStatus.OptedIn : CustomerConsentStatus.OptedOut;
         if (created)
+        {
             await dbContext.CustomerConsents.AddAsync(consent, cancellationToken);
+        }
         await dbContext.CustomerConsentHistories.AddAsync(new CustomerConsentHistory { TenantId = tenantId, ConsentId = consent.Id, PreviousStatus = previous, NewStatus = consent.Status, ChangedAtUtc = DateTime.UtcNow, Source = CustomerConsentSource.Import, Reason = "Import" }, cancellationToken);
     }
 
@@ -222,7 +228,9 @@ public sealed class CommitCustomerImportBatchCommandHandler(
         var snapshot = dataQualityService.Calculate(customer, [], 0, null);
         var existing = await dbContext.CustomerDataQualitySnapshots.FirstOrDefaultAsync(x => x.TenantId == customer.TenantId && x.EntityType == CustomerEntityType.Customer && x.EntityId == customer.Id, cancellationToken);
         if (existing is null)
+        {
             await dbContext.CustomerDataQualitySnapshots.AddAsync(snapshot, cancellationToken);
+        }
         else
         {
             existing.Score = snapshot.Score;

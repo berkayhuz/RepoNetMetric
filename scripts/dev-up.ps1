@@ -114,7 +114,9 @@ if (-not $SkipBuild) {
 
 if (-not $NoApiStart) {
   $sharedGatewaySecret = "NETMETRIC_DEV_GATEWAY_SIGNING_SECRET_2026_0001"
+  $accountInternalSecret = "NETMETRIC_DEV_ACCOUNT_LOCAL_SECRET_2026_0001"
   $authConnectionString = "Server=localhost,14333;Database=CRM.AuthDb;User Id=sa;Password=NetMetric.Dev.Sql.2026!;TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=True"
+  $accountConnectionString = "Server=localhost,14333;Database=CRM.AccountDb;User Id=sa;Password=NetMetric.Dev.Sql.2026!;TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=True"
 
   $commonEnv = @{
     ASPNETCORE_ENVIRONMENT = "Development"
@@ -136,7 +138,15 @@ if (-not $NoApiStart) {
       $envVars["Infrastructure__DistributedCache__Provider"] = "Redis"
       $envVars["Infrastructure__DistributedCache__RedisConnectionString"] = "localhost:6379,abortConnect=false"
       $envVars["Security__TrustedGateway__Keys__0__Secret"] = $sharedGatewaySecret
-      $envVars["Security__TrustedGateway__Keys__1__Secret"] = "NETMETRIC_DEV_ACCOUNT_LOCAL_SECRET_2026_0001"
+      $envVars["Security__TrustedGateway__Keys__1__Secret"] = $accountInternalSecret
+    }
+
+    if ($project.Name -match "account\.api$") {
+      $envVars["ConnectionStrings__AccountDb"] = $accountConnectionString
+      $envVars["Messaging__RabbitMq__Uri"] = "amqp://guest:guest@localhost:5672/"
+      $envVars["Security__TrustedGateway__Keys__0__Secret"] = $accountInternalSecret
+      $envVars["IdentityService__BaseUrl"] = "http://localhost:5297"
+      $envVars["MembershipService__BaseUrl"] = "http://localhost:5297"
     }
 
     Start-DotNetProject -Name $project.Name -ProjectPath $project.Path -EnvironmentVariables $envVars

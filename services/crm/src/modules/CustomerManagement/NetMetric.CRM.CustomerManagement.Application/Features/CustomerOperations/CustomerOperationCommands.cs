@@ -161,7 +161,10 @@ public sealed class RecalculateCustomerRelationshipHealthCommandHandler(ICustome
         var lifecycle = await dbContext.CustomerLifecycleStageHistories.AsNoTracking().Where(x => x.TenantId == tenantId && x.CustomerId == customer.Id).OrderByDescending(x => x.ChangedAtUtc).Select(x => (CustomerLifecycleStage?)x.NewStage).FirstOrDefaultAsync(cancellationToken);
         var snapshot = healthService.Calculate(customer, null, 0, 0, 0, 0, 0, null, lifecycle);
         var existing = await dbContext.CustomerRelationshipHealthSnapshots.FirstOrDefaultAsync(x => x.TenantId == tenantId && x.CustomerId == customer.Id, cancellationToken);
-        if (existing is null) await dbContext.CustomerRelationshipHealthSnapshots.AddAsync(snapshot, cancellationToken);
+        if (existing is null)
+        {
+            await dbContext.CustomerRelationshipHealthSnapshots.AddAsync(snapshot, cancellationToken);
+        }
         else
         {
             existing.Score = snapshot.Score;
@@ -316,13 +319,15 @@ public sealed class ReindexCustomerSearchDocumentCommandHandler(ICustomerSearchI
         => (await indexer.ReindexCustomerAsync(request.CustomerId, cancellationToken)).Id;
 }
 
-public sealed class UpsertEnrichmentProfileCommandHandler(ICustomerManagementDbContext dbContext, ICurrentUserService currentUserService, ICustomerEnrichmentService enrichmentService, IDuplicateDetectionService duplicateDetectionService) : IRequestHandler<UpsertEnrichmentProfileCommand, Guid>
+public sealed class UpsertEnrichmentProfileCommandHandler(ICurrentUserService currentUserService, ICustomerEnrichmentService enrichmentService, IDuplicateDetectionService duplicateDetectionService) : IRequestHandler<UpsertEnrichmentProfileCommand, Guid>
 {
     public async Task<Guid> Handle(UpsertEnrichmentProfileCommand request, CancellationToken cancellationToken)
     {
         var tenantId = currentUserService.EnsureTenant();
         if (!string.IsNullOrWhiteSpace(request.Website) && !Uri.TryCreate(request.Website.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? request.Website : $"https://{request.Website}", UriKind.Absolute, out _))
+        {
             throw new ValidationAppException("Website URL is invalid.");
+        }
         var profile = new CustomerEnrichmentProfile { TenantId = tenantId, EntityType = request.EntityType, EntityId = request.EntityId, Website = request.Website, Domain = duplicateDetectionService.NormalizeDomain(request.Domain ?? request.Website), LinkedInUrl = request.LinkedInUrl, Industry = request.Industry, EmployeeCount = request.EmployeeCount, AnnualRevenue = request.AnnualRevenue, Country = request.Country, City = request.City, SocialProfilesJson = request.SocialProfilesJson, Source = request.Source ?? "Manual", ConfidenceScore = request.ConfidenceScore, RawDataJson = request.RawDataJson };
         return (await enrichmentService.UpsertManualAsync(profile, cancellationToken)).Id;
     }

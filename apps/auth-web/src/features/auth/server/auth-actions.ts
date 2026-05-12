@@ -19,7 +19,7 @@ import { createSwitchWorkspaceSchema } from "../schemas/workspace.schema";
 import type { LoginResult, RegisterSuccessResult } from "../types/auth-session";
 import type { WorkspaceSwitchResult } from "../types/workspace";
 import { getAuthErrorMessage } from "../utils/auth-errors";
-import { getRedirectAfterAuth, getRedirectAfterLogout } from "../utils/redirect-after-auth";
+import { getRedirectAfterAuth } from "../utils/redirect-after-auth";
 
 function getStringValue(formData: FormData, key: string): string | undefined {
   const value = formData.get(key);
@@ -221,6 +221,6 @@ export async function logoutAction(): Promise<void> {
   try {
     await authApi.logout();
   } finally {
-    redirect(getRedirectAfterLogout());
+    redirect(authRoutes.login);
   }
 }

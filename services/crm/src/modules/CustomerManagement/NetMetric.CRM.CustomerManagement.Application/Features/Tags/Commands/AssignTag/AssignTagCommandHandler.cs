@@ -19,12 +19,14 @@ public sealed class AssignTagCommandHandler(ICustomerManagementDbContext dbConte
 
         var entityName = request.EntityName.Trim().ToLowerInvariant();
         if (!EntityNames.IsSupported(entityName))
+        {
             throw new ValidationAppException(
                 "Unsupported entity name.",
                 new Dictionary<string, string[]>
                 {
                     [nameof(request.EntityName)] = ["Entity name must be company, contact or customer."]
                 });
+        }
 
         var exists = await _dbContext.Set<TagMap>()
             .AnyAsync(x => !x.IsDeleted
@@ -33,7 +35,9 @@ public sealed class AssignTagCommandHandler(ICustomerManagementDbContext dbConte
                 && x.EntityId == request.EntityId, cancellationToken);
 
         if (exists)
+        {
             return tag.Id;
+        }
 
         var tagMap = new TagMap(tag.Id, new EntityReference(entityName, request.EntityId));
 

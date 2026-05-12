@@ -17,7 +17,3 @@ export function getRedirectAfterAuth(returnUrl?: string | null): string {
 
   return safePath;
 }
-
-export function getRedirectAfterLogout(): string {
-  return authRoutes.login;
-}

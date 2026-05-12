@@ -1,7 +1,7 @@
 import type { DataGridMode } from "./data-grid-types";
 import type { PaginationState } from "@tanstack/react-table";
 
-export const DATA_GRID_DEFAULT_PAGE_SIZE = 10;
+const DATA_GRID_DEFAULT_PAGE_SIZE = 10;
 
 export function getPaginationDefaults(state?: PaginationState): PaginationState {
   return {
@@ -29,12 +29,4 @@ export function resolveTotalRows(
   }
 
   return fallbackLength;
-}
-
-export function getPageCount(totalRows: number, pageSize: number): number {
-  if (pageSize <= 0) {
-    return 1;
-  }
-
-  return Math.max(1, Math.ceil(totalRows / pageSize));
 }

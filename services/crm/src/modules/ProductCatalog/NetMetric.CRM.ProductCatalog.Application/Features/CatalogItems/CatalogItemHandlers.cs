@@ -101,13 +101,13 @@ public sealed class ExportCatalogItemsQueryHandler(CatalogItemService service) :
         => service.ExportAsync(request.Kind, request.Search, request.Code, request.Name, request.IsActive, cancellationToken);
 }
 
-public sealed class ExportCatalogItemsTemplateQueryHandler(CatalogItemService service) : IRequestHandler<ExportCatalogItemsTemplateQuery, ExportFileDto>
+public sealed class ExportCatalogItemsTemplateQueryHandler : IRequestHandler<ExportCatalogItemsTemplateQuery, ExportFileDto>
 {
     public Task<ExportFileDto> Handle(ExportCatalogItemsTemplateQuery request, CancellationToken cancellationToken)
         => Task.FromResult(CatalogItemService.ExportTemplate(request.Kind));
 }
 
-public sealed class GetProductCatalogMetaQueryHandler(CatalogItemService service) : IRequestHandler<GetProductCatalogMetaQuery, ProductCatalogMetaDto>
+public sealed class GetProductCatalogMetaQueryHandler : IRequestHandler<GetProductCatalogMetaQuery, ProductCatalogMetaDto>
 {
     public Task<ProductCatalogMetaDto> Handle(GetProductCatalogMetaQuery request, CancellationToken cancellationToken)
         => Task.FromResult(CatalogItemService.GetMeta());

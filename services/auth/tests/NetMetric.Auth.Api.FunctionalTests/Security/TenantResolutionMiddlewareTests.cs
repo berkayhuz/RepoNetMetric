@@ -22,6 +22,7 @@ public sealed class TenantResolutionMiddlewareTests : IAsyncLifetime
         overrides["Security:TenantResolution:RequireResolvedTenant"] = "true";
         overrides["Security:TenantResolution:AllowBodyFallback"] = "false";
         overrides["Security:TenantResolution:TenantOptionalPathPrefixes:0"] = "/api/auth/register";
+        overrides["Security:TenantResolution:TenantOptionalPathPrefixes:1"] = "/__tenant-required-test-placeholder";
 
         _factory = new AuthWebApplicationFactory(overrides);
         await _factory.InitializeAsync();
@@ -59,7 +60,7 @@ public sealed class TenantResolutionMiddlewareTests : IAsyncLifetime
     [Fact]
     public async Task Tenant_Required_Endpoint_Should_Be_Blocked_When_Tenant_Is_Not_Resolved()
     {
-        var response = await _client.GetAsync("/api/auth/session-status");
+        var response = await _client.GetAsync("/api/auth/workspaces");
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }

@@ -34,7 +34,7 @@ public sealed class LeadRoutingService(
         // In a real scenario, this would load RoutingRules from the database (e.g., matching by Geography, Source, Industry)
         // and evaluate them. Here we simulate assigning it to a default user or based on Source.
 
-        Guid? assignedUserId = ResolveOwnerByRules(lead);
+        Guid? assignedUserId = ResolveOwnerByRules();
         string ruleId = "DefaultRule_V1";
         string assignmentReason = "Assigned via auto-routing based on fallback logic.";
 
@@ -68,7 +68,7 @@ public sealed class LeadRoutingService(
         logger.LogInformation("Successfully routed Lead {LeadId} to User {UserId}", leadId, assignedUserId);
     }
 
-    private static Guid? ResolveOwnerByRules(Lead lead)
+    private static Guid? ResolveOwnerByRules()
     {
         // Dummy fallback GUID for demo
         return Guid.NewGuid();
