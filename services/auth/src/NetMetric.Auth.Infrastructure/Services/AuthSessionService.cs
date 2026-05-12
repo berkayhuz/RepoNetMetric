@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -22,9 +23,9 @@ public sealed class AuthSessionService(
             .OrderByDescending(x => x.LastSeenAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
 
-        foreach (var expired in activeSessions.Where(x => IsExpired(x, clock.UtcNow)))
+        foreach (var expired in activeSessions.Where(x => IsExpired(x, clock.UtcDateTime)))
         {
-            expired.Revoke(clock.UtcNow, "session_expired");
+            expired.Revoke(clock.UtcDateTime, "session_expired");
             revokedSessionIds.Add(expired.Id);
         }
 
@@ -35,7 +36,7 @@ public sealed class AuthSessionService(
 
         foreach (var overflow in survivors.Skip(Math.Max(0, value.MaxActiveSessions - 1)))
         {
-            overflow.Revoke(clock.UtcNow, "max_active_sessions_exceeded");
+            overflow.Revoke(clock.UtcDateTime, "max_active_sessions_exceeded");
             revokedSessionIds.Add(overflow.Id);
         }
 

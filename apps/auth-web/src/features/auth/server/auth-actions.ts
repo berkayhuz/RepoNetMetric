@@ -156,7 +156,8 @@ export async function resetPasswordAction(formData: FormData): Promise<ApiResult
   const { t, validation } = await getMessages();
 
   const parsed = createResetPasswordSchema(validation).safeParse({
-    email: getStringValue(formData, "email"),
+    tenantId: getStringValue(formData, "tenantId"),
+    userId: getStringValue(formData, "userId"),
     token: getStringValue(formData, "token"),
     password: getStringValue(formData, "password"),
     confirmPassword: getStringValue(formData, "confirmPassword"),
@@ -170,11 +171,14 @@ export async function resetPasswordAction(formData: FormData): Promise<ApiResult
     });
   }
 
-  const { confirmPassword: _confirmPassword, ...input } = parsed.data;
+  const { confirmPassword: _confirmPassword, password, ...input } = parsed.data;
   void _confirmPassword;
 
   try {
-    await authApi.resetPassword(input);
+    await authApi.resetPassword({
+      ...input,
+      newPassword: password,
+    });
     return ok(undefined);
   } catch (error) {
     return fail({ status: 400, message: getAuthErrorMessage(error) });

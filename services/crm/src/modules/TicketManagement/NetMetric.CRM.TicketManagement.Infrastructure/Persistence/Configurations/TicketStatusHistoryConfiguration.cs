@@ -1,0 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.Support;
+
+namespace NetMetric.CRM.TicketManagement.Infrastructure.Persistence.Configurations;
+
+public sealed class TicketStatusHistoryConfiguration : IEntityTypeConfiguration<TicketStatusHistory>
+{
+    public void Configure(EntityTypeBuilder<TicketStatusHistory> builder)
+    {
+        builder.ToTable("TicketStatusHistories", "ticketing");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Note).HasMaxLength(1000);
+    }
+}

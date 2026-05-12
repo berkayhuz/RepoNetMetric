@@ -25,7 +25,6 @@ public sealed class AuthController(
     [HttpPost("register")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.RegisterPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
@@ -49,7 +48,6 @@ public sealed class AuthController(
 
     [HttpPost("workspaces")]
     [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateWorkspace([FromBody] CreateWorkspaceRequest request, CancellationToken cancellationToken)
@@ -73,7 +71,6 @@ public sealed class AuthController(
 
     [HttpPost("workspaces/switch")]
     [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> SwitchWorkspace([FromBody] SwitchWorkspaceRequest request, CancellationToken cancellationToken)
@@ -97,7 +94,6 @@ public sealed class AuthController(
     [HttpPost("invitations/accept")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.RegisterPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> AcceptInvitation([FromBody] AcceptTenantInvitationRequest request, CancellationToken cancellationToken)
     {
@@ -124,7 +120,6 @@ public sealed class AuthController(
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
@@ -148,7 +143,6 @@ public sealed class AuthController(
     [HttpPost("forgot-password")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
@@ -169,7 +163,6 @@ public sealed class AuthController(
     [HttpPost("reset-password")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
     {
@@ -193,7 +186,6 @@ public sealed class AuthController(
     [HttpPost("confirm-email")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request, CancellationToken cancellationToken)
     {
@@ -215,7 +207,6 @@ public sealed class AuthController(
     [HttpPost("resend-confirm-email")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> ResendConfirmEmail([FromBody] ResendEmailConfirmationRequest request, CancellationToken cancellationToken)
     {
@@ -236,7 +227,6 @@ public sealed class AuthController(
     [HttpPost("refresh")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.RefreshPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
@@ -260,7 +250,6 @@ public sealed class AuthController(
     [HttpPost("logout")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LogoutPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
     {
@@ -281,7 +270,6 @@ public sealed class AuthController(
     [HttpPost("confirm-email-change")]
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
-    [RequestSizeLimit(AuthRequestSizeLimits.AuthBodyBytes)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ConfirmEmailChange([FromBody] ConfirmEmailChangeRequest request, CancellationToken cancellationToken)
     {

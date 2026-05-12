@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Descriptors;
 using NetMetric.Auth.Application.Options;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -14,7 +15,7 @@ public sealed class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IClock 
         Span<byte> bytes = stackalloc byte[64];
         RandomNumberGenerator.Fill(bytes);
         var token = Convert.ToBase64String(bytes);
-        return new RefreshTokenDescriptor(token, Hash(token), clock.UtcNow.AddDays(jwtOptions.Value.RefreshTokenDays));
+        return new RefreshTokenDescriptor(token, Hash(token), clock.UtcDateTime.AddDays(jwtOptions.Value.RefreshTokenDays));
     }
 
     public bool Verify(string refreshToken, string refreshTokenHash)

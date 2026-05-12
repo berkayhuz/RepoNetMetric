@@ -5,7 +5,12 @@ import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.
 import { createAuthMetadata } from "@/features/auth/i18n/auth-metadata";
 
 type MfaPageProps = {
-  searchParams: Promise<{ email?: string; challengeId?: string; returnUrl?: string }>;
+  searchParams: Promise<{
+    identifier?: string;
+    email?: string;
+    challengeId?: string;
+    returnUrl?: string;
+  }>;
 };
 
 export async function generateMetadata() {
@@ -21,7 +26,8 @@ export default async function MfaPage({ searchParams }: MfaPageProps) {
     <AuthPageShell title={t("auth.mfa.pageTitle")} description={t("auth.mfa.pageDescription")}>
       <AuthCard title={t("auth.mfa.cardTitle")} description={t("auth.mfa.cardDescription")}>
         <MfaForm
-          email={params.email ?? ""}
+          locale={locale}
+          identifier={params.identifier ?? params.email ?? ""}
           challengeId={params.challengeId ?? ""}
           returnUrl={params.returnUrl ?? ""}
         />

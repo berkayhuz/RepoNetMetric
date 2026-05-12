@@ -1,0 +1,17 @@
+﻿using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace NetMetric.CRM.SupportInboxIntegration.Infrastructure.Persistence.Configurations;
+
+public sealed class SupportInboxRuleConfiguration : IEntityTypeConfiguration<SupportInboxRule>
+{
+    public void Configure(EntityTypeBuilder<SupportInboxRule> builder)
+    {
+        builder.ToTable("SupportInboxRules");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).HasMaxLength(120).IsRequired();
+        builder.Property(x => x.MatchSender).HasMaxLength(320);
+        builder.Property(x => x.MatchSubjectContains).HasMaxLength(250);
+    }
+}

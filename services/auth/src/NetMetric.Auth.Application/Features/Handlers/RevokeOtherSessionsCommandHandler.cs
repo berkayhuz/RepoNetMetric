@@ -1,7 +1,8 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Records;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -17,7 +18,7 @@ public sealed class RevokeOtherSessionsCommandHandler(
         var revokedSessionIds = await userSessionRepository.RevokeAllAsync(
             request.TenantId,
             request.UserId,
-            clock.UtcNow,
+            clock.UtcDateTime,
             "user_revoked_other_sessions",
             request.CurrentSessionId,
             cancellationToken);

@@ -37,7 +37,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </p>
         }
       >
-        <LoginForm returnUrl={params.returnUrl ?? ""} />
+        <LoginForm locale={locale} returnUrl={params.returnUrl ?? ""} />
       </AuthCard>
     </AuthPageShell>
   );

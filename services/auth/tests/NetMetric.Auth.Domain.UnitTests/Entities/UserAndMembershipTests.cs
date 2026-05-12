@@ -1,6 +1,6 @@
 using FluentAssertions;
-using NetMetric.Auth.Domain.Common;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.UnitTests.Entities;
 
@@ -46,4 +46,3 @@ public sealed class UserAndMembershipTests
 
     private sealed class TestEntity : EntityBase;
 }
-

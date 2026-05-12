@@ -26,7 +26,7 @@ export default async function WorkspaceSelectPage({ searchParams }: WorkspaceSel
         title={t("auth.workspace.cardTitle")}
         description={t("auth.workspace.cardDescription")}
       >
-        <WorkspaceSelectPanel returnUrl={params.returnUrl ?? ""} />
+        <WorkspaceSelectPanel locale={locale} returnUrl={params.returnUrl ?? ""} />
       </AuthCard>
     </AuthPageShell>
   );

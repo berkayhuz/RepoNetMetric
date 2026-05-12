@@ -21,6 +21,7 @@ using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;
 using NetMetric.Auth.Infrastructure.Services;
+using NetMetric.Clock;
 using NetMetric.Messaging.RabbitMq.DependencyInjection;
 using StackExchange.Redis;
 
@@ -352,7 +353,15 @@ public static class InfrastructureDependencyInjection
 
         if (databaseOptions.ApplyMigrationsOnStartup && environment.IsDevelopment())
         {
-            await dbContext.Database.MigrateAsync(cancellationToken);
+            var hasMigrations = dbContext.Database.GetMigrations().Any();
+            if (hasMigrations)
+            {
+                await dbContext.Database.MigrateAsync(cancellationToken);
+            }
+            else
+            {
+                await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+            }
         }
 
         if (!await dbContext.Database.CanConnectAsync(cancellationToken))
@@ -378,7 +387,7 @@ public static class InfrastructureDependencyInjection
             return;
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
 
         dbContext.Tenants.Add(new Tenant
         {

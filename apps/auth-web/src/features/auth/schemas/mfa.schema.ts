@@ -4,7 +4,7 @@ import type { ValidationText } from "./validation-text";
 
 export function createMfaSchema(v: ValidationText) {
   return z.object({
-    email: z.string().trim().min(1, v.emailRequired).email(v.emailInvalid),
+    identifier: z.string().trim().min(1, v.emailRequired),
     password: z.string().min(1, v.passwordRequired),
     code: z.string().trim().min(6, v.codeMin).max(12, v.codeMax),
     challengeId: z.string().trim().optional(),

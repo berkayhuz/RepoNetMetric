@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +13,7 @@ using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -37,7 +38,7 @@ public sealed class CreateTenantInvitationCommandHandler(
 
         var inviter = await GetAuthorizedInviteManagerAsync(request.TenantId, request.InvitedByUserId, cancellationToken);
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var normalizedEmail = AuthenticationNormalization.Normalize(request.Email);
         var invitedUser = await users.FindByIdentityAsync(normalizedEmail, cancellationToken);
         if (await users.ExistsByEmailAsync(request.TenantId, normalizedEmail, cancellationToken))
@@ -179,7 +180,7 @@ public sealed class ListTenantInvitationsCommandHandler(
     public async Task<IReadOnlyCollection<TenantInvitationSummaryResponse>> Handle(ListTenantInvitationsCommand request, CancellationToken cancellationToken)
     {
         await EnsureCanManageInvitesAsync(users, request.TenantId, request.RequestedByUserId, cancellationToken);
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var items = await invitations.ListForTenantAsync(request.TenantId, cancellationToken);
         return items.Select(invitation => CreateTenantInvitationCommandHandler.ToSummary(invitation, utcNow)).ToArray();
     }
@@ -222,7 +223,7 @@ public sealed class ResendTenantInvitationCommandHandler(
         var invitation = await invitations.GetByIdAsync(request.TenantId, request.InvitationId, cancellationToken)
             ?? throw new AuthApplicationException("Invitation not found", "Invitation could not be found.", (int)HttpStatusCode.NotFound, errorCode: "invitation_not_found");
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         if (invitation.AcceptedAtUtc is not null)
         {
             throw new AuthApplicationException("Invitation cannot be resent", "Accepted invitations cannot be resent.", (int)HttpStatusCode.Conflict, errorCode: "invitation_already_accepted");
@@ -308,7 +309,7 @@ public sealed class RevokeTenantInvitationCommandHandler(
         var invitation = await invitations.GetByIdAsync(request.TenantId, request.InvitationId, cancellationToken)
             ?? throw new AuthApplicationException("Invitation not found", "Invitation could not be found.", (int)HttpStatusCode.NotFound, errorCode: "invitation_not_found");
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         if (invitation.AcceptedAtUtc is not null)
         {
             throw new AuthApplicationException("Invitation cannot be revoked", "Accepted invitations cannot be revoked.", (int)HttpStatusCode.Conflict, errorCode: "invitation_already_accepted");
@@ -352,7 +353,7 @@ public sealed class AcceptTenantInvitationCommandHandler(
 {
     public async Task<AuthenticationTokenResponse> Handle(AcceptTenantInvitationCommand request, CancellationToken cancellationToken)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var tenant = await tenants.GetByIdAsync(request.TenantId, cancellationToken);
         if (tenant is null)
         {

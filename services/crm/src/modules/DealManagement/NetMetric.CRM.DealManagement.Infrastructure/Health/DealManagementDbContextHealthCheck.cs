@@ -1,0 +1,14 @@
+﻿using NetMetric.CRM.DealManagement.Infrastructure.Persistence;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+namespace NetMetric.CRM.DealManagement.Infrastructure.Health;
+
+public sealed class DealManagementDbContextHealthCheck(DealManagementDbContext dbContext) : IHealthCheck
+{
+    public async Task<HealthCheckResult> CheckHealthAsync(
+        HealthCheckContext context,
+        CancellationToken cancellationToken = default)
+        => await dbContext.Database.CanConnectAsync(cancellationToken)
+            ? HealthCheckResult.Healthy()
+            : HealthCheckResult.Unhealthy();
+}

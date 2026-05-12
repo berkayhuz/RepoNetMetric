@@ -27,4 +27,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="All" />
   </ItemGroup>
+  <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Infrastructure')) and $([System.String]::Copy('$(MSBuildProjectDirectory)').Contains('\services\crm\src\modules\'))">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 </Project>

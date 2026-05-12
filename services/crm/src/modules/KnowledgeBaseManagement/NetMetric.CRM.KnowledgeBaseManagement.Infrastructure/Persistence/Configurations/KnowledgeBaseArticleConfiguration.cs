@@ -1,0 +1,19 @@
+﻿using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace NetMetric.CRM.KnowledgeBaseManagement.Infrastructure.Persistence.Configurations;
+
+public sealed class KnowledgeBaseArticleConfiguration : IEntityTypeConfiguration<KnowledgeBaseArticle>
+{
+    public void Configure(EntityTypeBuilder<KnowledgeBaseArticle> builder)
+    {
+        builder.ToTable("KnowledgeBaseArticles");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Title).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.Slug).HasMaxLength(220).IsRequired();
+        builder.Property(x => x.Summary).HasMaxLength(1000);
+        builder.Property(x => x.Content).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.Slug }).IsUnique().HasFilter("[IsDeleted] = 0");
+    }
+}

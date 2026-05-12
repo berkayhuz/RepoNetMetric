@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public class User : EntityBase
+public class User : AuditableEntity
 {
     public string UserName { get; set; } = null!;
     public string NormalizedUserName { get; set; } = null!;

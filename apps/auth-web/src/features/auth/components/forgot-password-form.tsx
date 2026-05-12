@@ -14,10 +14,12 @@ import {
   FieldSet,
   Input,
 } from "@netmetric/ui";
+import { toast } from "@netmetric/ui/client";
 
 import { authBrowserApi } from "@/features/auth/api/auth-browser-api";
 import { authRoutes } from "@/features/auth/config/auth-routes";
-import { getClientLocale, tClient } from "@/features/auth/i18n/auth-i18n.client";
+import { getTranslator } from "@/features/auth/i18n/auth-i18n.client";
+import type { Locale } from "@/features/auth/i18n/auth-i18n.shared";
 import {
   createForgotPasswordSchema,
   type ForgotPasswordInput,
@@ -26,13 +28,16 @@ import { getValidationText } from "@/features/auth/schemas/validation-text";
 import { getAuthErrorMessage } from "@/features/auth/utils/auth-errors";
 import { toFieldErrors } from "@/lib/validation/zod-error-map";
 
-export function ForgotPasswordForm() {
+type ForgotPasswordFormProps = { locale: Locale };
+
+export function ForgotPasswordForm({ locale }: ForgotPasswordFormProps) {
   const [isPending, startTransition] = useTransition();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
-  const schema = createForgotPasswordSchema(getValidationText(getClientLocale()));
+  const t = getTranslator(locale);
+  const schema = createForgotPasswordSchema(getValidationText(locale));
 
   function submitForgotPassword(input: ForgotPasswordInput): void {
     startTransition(async () => {
@@ -42,9 +47,13 @@ export function ForgotPasswordForm() {
 
       try {
         await authBrowserApi.forgotPassword(input);
-        setSuccessMessage(tClient("success.forgotPasswordSent"));
+        const message = t("success.forgotPasswordSent");
+        setSuccessMessage(message);
+        toast.success(message, { id: "forgot-password-success" });
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "forgot-password-error" });
       }
     });
   }
@@ -57,7 +66,7 @@ export function ForgotPasswordForm() {
 
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error));
-      setFormError(tClient("form.fixErrors"));
+      setFormError(t("form.fixErrors"));
       return;
     }
 
@@ -79,7 +88,7 @@ export function ForgotPasswordForm() {
 
       <FieldSet>
         <Field>
-          <FieldLabel htmlFor="email">{tClient("field.email")}</FieldLabel>
+          <FieldLabel htmlFor="email">{t("field.email")}</FieldLabel>
           <FieldContent>
             <Input
               id="email"
@@ -94,16 +103,16 @@ export function ForgotPasswordForm() {
       </FieldSet>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? tClient("form.sending") : tClient("action.sendResetLink")}
+        {isPending ? t("form.sending") : t("action.sendResetLink")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        {tClient("auth.forgot.backToLoginPrefix")}{" "}
+        {t("auth.forgot.backToLoginPrefix")}{" "}
         <Link
           href={authRoutes.login}
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          {tClient("link.login")}
+          {t("link.login")}
         </Link>
       </p>
     </form>

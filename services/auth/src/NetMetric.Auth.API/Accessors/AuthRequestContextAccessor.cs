@@ -46,23 +46,22 @@ public sealed class AuthRequestContextAccessor(
     public (Guid SessionId, string RefreshToken) ResolveRefreshContext(HttpRequest request, Guid requestedSessionId, string? requestedRefreshToken)
     {
         var options = tokenTransportOptions.Value;
-        var refreshToken = requestedRefreshToken;
+        var allowBodyTransport =
+            string.Equals(options.Mode, TokenTransportModes.BodyOnly, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(options.Mode, TokenTransportModes.HybridDevelopment, StringComparison.OrdinalIgnoreCase);
 
-        if (string.IsNullOrWhiteSpace(refreshToken))
-        {
-            refreshToken = request.Cookies[cookieService.RefreshCookieName];
-        }
+        var refreshToken = allowBodyTransport
+            ? requestedRefreshToken
+            : request.Cookies[cookieService.RefreshCookieName];
 
         if (string.IsNullOrWhiteSpace(refreshToken) && options.AllowRefreshTokenFromRequestBody)
         {
             refreshToken = requestedRefreshToken;
         }
 
-        var sessionId = requestedSessionId;
-        if (sessionId == Guid.Empty)
-        {
-            sessionId = ReadSessionIdFromCookie(request);
-        }
+        var sessionId = allowBodyTransport
+            ? requestedSessionId
+            : ReadSessionIdFromCookie(request);
 
         if (sessionId == Guid.Empty && options.AllowSessionIdFromRequestBody)
         {

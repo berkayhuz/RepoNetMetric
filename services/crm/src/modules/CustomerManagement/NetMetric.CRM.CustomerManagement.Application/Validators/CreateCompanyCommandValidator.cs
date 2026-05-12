@@ -1,0 +1,21 @@
+﻿using NetMetric.CRM.CustomerManagement.Application.Commands.Companies;
+using FluentValidation;
+
+namespace NetMetric.CRM.CustomerManagement.Application.Validators;
+
+public sealed class CreateCompanyCommandValidator : AbstractValidator<CreateCompanyCommand>
+{
+    public CreateCompanyCommandValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Email).MaximumLength(200).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
+        RuleFor(x => x.Website).MaximumLength(500);
+        RuleFor(x => x.Phone).MaximumLength(50);
+        RuleFor(x => x.TaxNumber).MaximumLength(50);
+        RuleFor(x => x.TaxOffice).MaximumLength(100);
+        RuleFor(x => x.Sector).MaximumLength(100);
+        RuleFor(x => x.EmployeeCountRange).MaximumLength(100);
+        RuleFor(x => x.Description).MaximumLength(2000);
+        RuleFor(x => x.Notes).MaximumLength(4000);
+    }
+}

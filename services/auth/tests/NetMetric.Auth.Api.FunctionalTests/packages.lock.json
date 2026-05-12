@@ -10,9 +10,12 @@
       },
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[8.9.0, )",
-        "resolved": "8.9.0",
-        "contentHash": "Y5RDjxaVlxWX2yy0X/ay1tJjSKMOtjepSb83mmfngFS63hm3LsoZNj6nhmImzm1ifRmpF9ouvmHjx9nNwnkpDg=="
+        "requested": "[6.12.2, )",
+        "resolved": "6.12.2",
+        "contentHash": "8YE+xJmT8wgzEpFuzJ4S62oFhEL/AKouMz1RWPEMEUhy9H11aRQlGIWcHurH5BEy7tbF6gb0CJrs0wOw/AtDcQ==",
+        "dependencies": {
+          "System.Configuration.ConfigurationManager": "4.4.0"
+        }
       },
       "Microsoft.AspNetCore.Mvc.Testing": {
         "type": "Direct",
@@ -199,23 +202,6 @@
         "type": "Transitive",
         "resolved": "18.4.0",
         "contentHash": "9O0BtCfzCWrkAmK187ugKdq72HHOXoOUjuWFDVc2LsZZ0pOnA9bTt+Sg9q4cF+MoAaUU+MuWtvBuFsnduviJow=="
-      },
-      "Microsoft.Data.SqlClient": {
-        "type": "Transitive",
-        "resolved": "6.1.1",
-        "contentHash": "syGQmIUPAYYHAHyTD8FCkTNThpQWvoA7crnIQRMfp8dyB5A2cWU3fQexlRTFkVmV7S0TjVmthi0LJEFVjHo8AQ==",
-        "dependencies": {
-          "Azure.Core": "1.47.1",
-          "Azure.Identity": "1.14.2",
-          "Microsoft.Bcl.Cryptography": "9.0.4",
-          "Microsoft.Data.SqlClient.SNI.runtime": "6.0.2",
-          "Microsoft.Extensions.Caching.Memory": "9.0.4",
-          "Microsoft.IdentityModel.JsonWebTokens": "7.7.1",
-          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "7.7.1",
-          "Microsoft.SqlServer.Server": "1.0.0",
-          "System.Configuration.ConfigurationManager": "9.0.4",
-          "System.Security.Cryptography.Pkcs": "9.0.4"
-        }
       },
       "Microsoft.Data.SqlClient.SNI.runtime": {
         "type": "Transitive",
@@ -819,7 +805,8 @@
           "Microsoft.EntityFrameworkCore": "[10.0.7, )",
           "NetMetric.AspNetCore": "[1.0.0, )",
           "NetMetric.Auth.Contracts": "[1.0.0, )",
-          "NetMetric.Auth.Domain": "[1.0.0, )"
+          "NetMetric.Auth.Domain": "[1.0.0, )",
+          "NetMetric.Clock": "[1.0.0, )"
         }
       },
       "netmetric.auth.contracts": {
@@ -829,7 +816,10 @@
         }
       },
       "netmetric.auth.domain": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities": "[1.0.0, )"
+        }
       },
       "netmetric.auth.infrastructure": {
         "type": "Project",
@@ -851,7 +841,7 @@
       "netmetric.auth.testkit": {
         "type": "Project",
         "dependencies": {
-          "FluentAssertions": "[8.9.0, )",
+          "FluentAssertions": "[6.12.2, )",
           "Microsoft.AspNetCore.Mvc.Testing": "[10.0.7, )",
           "Microsoft.EntityFrameworkCore.Design": "[10.0.7, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[10.0.7, )",
@@ -863,6 +853,18 @@
           "NetMetric.Auth.Infrastructure": "[1.0.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.17.0, )"
         }
+      },
+      "netmetric.clock": {
+        "type": "Project"
+      },
+      "netmetric.entities": {
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities.Abstractions": "[1.0.0, )"
+        }
+      },
+      "netmetric.entities.abstractions": {
+        "type": "Project"
       },
       "netmetric.localization": {
         "type": "Project"
@@ -921,6 +923,24 @@
         "contentHash": "g8klpd7OFJfJOq1EJKcBO8C8I8Dp0QUWoKDPUvvJYe+xunVyBHq6YxfF2CAc6+rkniV25iaWl+6RK87c25n4lA==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.1"
+        }
+      },
+      "Microsoft.Data.SqlClient": {
+        "type": "CentralTransitive",
+        "requested": "[6.1.1, )",
+        "resolved": "6.1.1",
+        "contentHash": "syGQmIUPAYYHAHyTD8FCkTNThpQWvoA7crnIQRMfp8dyB5A2cWU3fQexlRTFkVmV7S0TjVmthi0LJEFVjHo8AQ==",
+        "dependencies": {
+          "Azure.Core": "1.47.1",
+          "Azure.Identity": "1.14.2",
+          "Microsoft.Bcl.Cryptography": "9.0.4",
+          "Microsoft.Data.SqlClient.SNI.runtime": "6.0.2",
+          "Microsoft.Extensions.Caching.Memory": "9.0.4",
+          "Microsoft.IdentityModel.JsonWebTokens": "7.7.1",
+          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "7.7.1",
+          "Microsoft.SqlServer.Server": "1.0.0",
+          "System.Configuration.ConfigurationManager": "9.0.4",
+          "System.Security.Cryptography.Pkcs": "9.0.4"
         }
       },
       "Microsoft.EntityFrameworkCore": {

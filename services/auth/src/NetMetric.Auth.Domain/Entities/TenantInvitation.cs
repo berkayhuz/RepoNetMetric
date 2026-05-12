@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class TenantInvitation : EntityBase
+public sealed class TenantInvitation : AuditableEntity
 {
     public Guid InvitedByUserId { get; set; }
     public string Email { get; set; } = null!;

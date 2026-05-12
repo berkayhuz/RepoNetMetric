@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class AuthVerificationToken : EntityBase
+public sealed class AuthVerificationToken : AuditableEntity
 {
     public Guid UserId { get; set; }
     public string Purpose { get; set; } = null!;

@@ -1,0 +1,15 @@
+﻿using NetMetric.CRM.SalesForecasting.Infrastructure.Persistence;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+namespace NetMetric.CRM.SalesForecasting.Infrastructure.Health;
+
+public sealed class SalesForecastingDbContextHealthCheck(SalesForecastingDbContext dbContext) : IHealthCheck
+{
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        var canConnect = await dbContext.Database.CanConnectAsync(cancellationToken);
+        return canConnect
+            ? HealthCheckResult.Healthy("SalesForecasting database is reachable.")
+            : HealthCheckResult.Unhealthy("SalesForecasting database is not reachable.");
+    }
+}

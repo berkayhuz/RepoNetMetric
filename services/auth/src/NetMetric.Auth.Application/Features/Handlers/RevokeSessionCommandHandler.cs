@@ -1,7 +1,8 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Records;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -18,7 +19,7 @@ public sealed class RevokeSessionCommandHandler(
             request.TenantId,
             request.UserId,
             request.SessionId,
-            clock.UtcNow,
+            clock.UtcDateTime,
             request.SessionId == request.CurrentSessionId
                 ? "user_revoked_current_session"
                 : "user_revoked_session",

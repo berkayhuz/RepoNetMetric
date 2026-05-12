@@ -1,16 +1,25 @@
-using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.TestKit.Fakes;
 
-public sealed class FakeClock(DateTime? utcNow = null) : IClock
+public sealed class FakeClock(DateTimeOffset? utcNow = null) : IClock
 {
-    private DateTime _utcNow = utcNow ?? new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private DateTimeOffset _utcNow = utcNow ?? new DateTimeOffset(
+        2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-    public DateTime UtcNow => _utcNow;
+    public DateTimeOffset UtcNow => _utcNow;
+
+    public DateTime UtcDateTime => _utcNow.UtcDateTime;
+
+    public void Set(DateTimeOffset utcNow)
+    {
+        _utcNow = utcNow.ToUniversalTime();
+    }
 
     public void Set(DateTime utcNow)
     {
-        _utcNow = DateTime.SpecifyKind(utcNow, DateTimeKind.Utc);
+        _utcNow = new DateTimeOffset(
+            DateTime.SpecifyKind(utcNow, DateTimeKind.Utc));
     }
 
     public void Advance(TimeSpan delta)
@@ -18,4 +27,3 @@ public sealed class FakeClock(DateTime? utcNow = null) : IClock
         _utcNow = _utcNow.Add(delta);
     }
 }
-

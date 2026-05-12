@@ -1,0 +1,16 @@
+﻿using NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace NetMetric.CRM.TenantManagement.Application.Commands.UpdateTenantBranding;
+
+public sealed class UpdateTenantBrandingCommandHandler(ITenantManagementDbContext dbContext)
+    : IRequestHandler<UpdateTenantBrandingCommand>
+{
+    public async Task Handle(UpdateTenantBrandingCommand request, CancellationToken cancellationToken)
+    {
+        var tenant = await dbContext.TenantProfiles.FirstAsync(x => x.TenantId == request.TenantId, cancellationToken);
+        tenant.UpdateBranding(request.PrimaryDomain, request.Locale, request.TimeZone, request.BrandPrimaryColor, request.LogoUrl);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}

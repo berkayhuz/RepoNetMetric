@@ -5,7 +5,7 @@ import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.
 import { createAuthMetadata } from "@/features/auth/i18n/auth-metadata";
 
 type ConfirmEmailPageProps = {
-  searchParams: Promise<{ userId?: string; token?: string; email?: string }>;
+  searchParams: Promise<{ tenantId?: string; userId?: string; token?: string; email?: string }>;
 };
 
 export async function generateMetadata() {
@@ -24,6 +24,8 @@ export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPag
     >
       <AuthCard title={t("auth.confirm.cardTitle")} description={t("auth.confirm.cardDescription")}>
         <ConfirmEmailPanel
+          locale={locale}
+          tenantId={params.tenantId ?? ""}
           userId={params.userId ?? ""}
           token={params.token ?? ""}
           email={params.email ?? ""}

@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetMetric.Auth.Domain.Abstractions;
-using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Domain.Entities;
+using NetMetric.Entities.Abstractions;
 
 namespace NetMetric.Auth.Infrastructure.Persistence;
 

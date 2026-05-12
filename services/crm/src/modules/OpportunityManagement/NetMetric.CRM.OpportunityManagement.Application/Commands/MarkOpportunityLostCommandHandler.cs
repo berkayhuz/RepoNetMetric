@@ -1,0 +1,28 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.OpportunityManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.Types;
+using NetMetric.CurrentUser;
+using NetMetric.Exceptions;
+
+namespace NetMetric.CRM.OpportunityManagement.Application.Commands;
+
+public sealed class MarkOpportunityLostCommandHandler(IOpportunityManagementDbContext dbContext, ICurrentUserService currentUserService) : IRequestHandler<MarkOpportunityLostCommand>
+{
+    public async Task Handle(MarkOpportunityLostCommand request, CancellationToken cancellationToken)
+    {
+        var opportunity = await dbContext.Opportunities.FirstOrDefaultAsync(x => x.TenantId == currentUserService.TenantId && x.Id == request.OpportunityId, cancellationToken)
+            ?? throw new NotFoundAppException("Opportunity not found.");
+
+        if (!string.IsNullOrWhiteSpace(request.RowVersion))
+            opportunity.RowVersion = Convert.FromBase64String(request.RowVersion);
+
+        opportunity.Stage = OpportunityStageType.Lost;
+        opportunity.Status = OpportunityStatusType.Lost;
+        opportunity.LostReasonId = request.LostReasonId;
+        opportunity.LostNote = string.IsNullOrWhiteSpace(request.LostNote) ? null : request.LostNote.Trim();
+        opportunity.UpdatedAt = DateTime.UtcNow;
+        opportunity.UpdatedBy = currentUserService.UserName;
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}

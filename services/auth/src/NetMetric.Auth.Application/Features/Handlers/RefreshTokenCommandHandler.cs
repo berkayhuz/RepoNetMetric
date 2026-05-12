@@ -10,6 +10,7 @@ using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Helpers;
 using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Responses;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -47,7 +48,7 @@ public sealed class RefreshTokenCommandHandler(
         var session = await userSessionRepository.GetWithUserAsync(request.TenantId, request.SessionId, cancellationToken)
             ?? throw InvalidRefreshToken();
 
-        if (session.IsRevoked || authSessionService.IsExpired(session, clock.UtcNow))
+        if (session.IsRevoked || authSessionService.IsExpired(session, clock.UtcDateTime))
         {
             AuthMetrics.RefreshFailed.Add(1, new KeyValuePair<string, object?>("reason", "revoked_or_expired_session"));
             throw InvalidRefreshToken();
@@ -83,14 +84,14 @@ public sealed class RefreshTokenCommandHandler(
 
         if (user.MfaEnabled && (user.MfaEnabledAt.HasValue && session.CreatedAt < user.MfaEnabledAt.Value))
         {
-            session.Revoke(clock.UtcNow, "mfa_reauthentication_required");
+            session.Revoke(clock.UtcDateTime, "mfa_reauthentication_required");
             await unitOfWork.SaveChangesAsync(cancellationToken);
             userSessionStateValidator.Evict(request.TenantId, session.Id);
             AuthMetrics.RefreshFailed.Add(1, new KeyValuePair<string, object?>("reason", "mfa_reauthentication_required"));
             throw InvalidRefreshToken();
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var refreshToken = refreshTokenService.Generate();
 
         session.RefreshTokenHash = refreshToken.Hash;
@@ -157,7 +158,7 @@ public sealed class RefreshTokenCommandHandler(
         CancellationToken cancellationToken)
     {
         var userForReuse = await userRepository.GetByIdAsync(request.TenantId, session.UserId, cancellationToken);
-        var utcNowForReuse = clock.UtcNow;
+        var utcNowForReuse = clock.UtcDateTime;
         IReadOnlyCollection<Guid> revokedSessionIds = [];
 
         session.MarkRefreshTokenReuse(utcNowForReuse, "refresh_token_reuse_detected");

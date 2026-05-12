@@ -12,10 +12,22 @@ type ProxyOptions = {
   method: ProxyMethod;
 };
 
+type FetchErrorWithCause = Error & {
+  cause?: {
+    code?: string;
+  };
+};
+
+function getCorrelationId(request: NextRequest): string | null {
+  return request.headers.get("x-request-id") ?? request.headers.get("x-correlation-id");
+}
+
 function buildGatewayUrl(endpoint: string): string {
   const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const gatewayBaseUrl =
+    serverEnv.NEXT_PUBLIC_API_GATEWAY_BASE_URL ?? serverEnv.NEXT_PUBLIC_API_BASE_URL;
 
-  return `${serverEnv.NEXT_PUBLIC_API_BASE_URL}${normalizedEndpoint}`;
+  return `${gatewayBaseUrl}${normalizedEndpoint}`;
 }
 
 function getSetCookieHeaders(headers: Headers): string[] {
@@ -55,6 +67,7 @@ export async function proxyToGateway(
   request: NextRequest,
   options: ProxyOptions,
 ): Promise<NextResponse> {
+  const correlationId = getCorrelationId(request);
   const requestHeaders = new Headers();
 
   requestHeaders.set("accept", "application/json");
@@ -71,10 +84,26 @@ export async function proxyToGateway(
     requestHeaders.set("cookie", cookie);
   }
 
+  const origin = request.headers.get("origin") ?? request.nextUrl.origin;
+
+  if (origin) {
+    requestHeaders.set("origin", origin);
+  }
+
+  const referer = request.headers.get("referer");
+
+  if (referer) {
+    requestHeaders.set("referer", referer);
+  }
+
   const userAgent = request.headers.get("user-agent");
 
   if (userAgent) {
     requestHeaders.set("user-agent", userAgent);
+  }
+
+  if (correlationId) {
+    requestHeaders.set("x-request-id", correlationId);
   }
 
   const body =
@@ -91,7 +120,34 @@ export async function proxyToGateway(
     requestInit.body = body;
   }
 
-  const upstream = await fetch(buildGatewayUrl(options.endpoint), requestInit);
+  let upstream: Response;
+
+  try {
+    upstream = await fetch(buildGatewayUrl(options.endpoint), requestInit);
+  } catch (error) {
+    const fetchError = error as FetchErrorWithCause;
+    const code = fetchError.cause?.code;
+    const isUpstreamUnavailable = code === "ECONNREFUSED" || code === "EHOSTUNREACH";
+    const status = isUpstreamUnavailable ? 503 : 502;
+
+    const response = NextResponse.json(
+      {
+        type: "about:blank",
+        title: "Gateway unavailable",
+        status,
+        detail: "Auth service is temporarily unavailable. Please try again shortly.",
+        errorCode: "upstream_unavailable",
+        correlationId: correlationId ?? undefined,
+      },
+      { status },
+    );
+
+    if (correlationId) {
+      response.headers.set("x-request-id", correlationId);
+    }
+
+    return response;
+  }
 
   const responseBody = await upstream.text();
 
@@ -101,6 +157,10 @@ export async function proxyToGateway(
   });
 
   copyResponseHeaders(upstream, response);
+
+  if (correlationId) {
+    response.headers.set("x-request-id", correlationId);
+  }
 
   return response;
 }

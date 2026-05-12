@@ -1,0 +1,20 @@
+﻿using NetMetric.CRM.CustomerManagement.Application.Commands.Customers;
+using FluentValidation;
+
+namespace NetMetric.CRM.CustomerManagement.Application.Validators;
+
+public sealed class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
+{
+    public CreateCustomerCommandValidator()
+    {
+        RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Email).MaximumLength(200).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
+        RuleFor(x => x.MobilePhone).MaximumLength(50);
+        RuleFor(x => x.WorkPhone).MaximumLength(50);
+        RuleFor(x => x.PersonalPhone).MaximumLength(50);
+        RuleFor(x => x.IdentityNumber).MaximumLength(50);
+        RuleFor(x => x.Description).MaximumLength(2000);
+        RuleFor(x => x.Notes).MaximumLength(4000);
+    }
+}

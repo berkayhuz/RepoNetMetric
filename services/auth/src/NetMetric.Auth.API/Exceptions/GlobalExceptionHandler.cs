@@ -11,19 +11,13 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        var logLevel = exception switch
-        {
-            ValidationException => LogLevel.Warning,
-            AuthApplicationException authException when authException.StatusCode >= 500 => LogLevel.Error,
-            AuthApplicationException => LogLevel.Warning,
-            DbUpdateConcurrencyException => LogLevel.Warning,
-            _ => LogLevel.Error
-        };
-
-        logger.Log(logLevel, exception, "Unhandled exception for auth request {Path}.", httpContext.Request.Path);
-
         if (exception is ValidationException validationException)
         {
+            logger.LogWarning(
+                "Auth request {Path} failed validation. Fields={Fields}",
+                httpContext.Request.Path,
+                string.Join(",", validationException.Errors.Select(error => error.PropertyName).Distinct()));
+
             var problemDetailsService = httpContext.RequestServices.GetRequiredService<IProblemDetailsService>();
             var problemDetails = new ValidationProblemDetails(
                 validationException.Errors
@@ -52,6 +46,22 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
 
         if (exception is AuthApplicationException applicationException)
         {
+            if (applicationException.StatusCode >= StatusCodes.Status500InternalServerError)
+            {
+                logger.LogError(
+                    exception,
+                    "Unhandled exception for auth request {Path}.",
+                    httpContext.Request.Path);
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Auth request {Path} failed with {StatusCode}. ErrorCode={ErrorCode}",
+                    httpContext.Request.Path,
+                    applicationException.StatusCode,
+                    applicationException.ErrorCode);
+            }
+
             await ProblemDetailsSupport.WriteProblemAsync(
                 httpContext,
                 applicationException.StatusCode,
@@ -66,6 +76,11 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
 
         if (exception is DbUpdateConcurrencyException)
         {
+            logger.LogWarning(
+                exception,
+                "Auth request {Path} encountered a concurrency conflict.",
+                httpContext.Request.Path);
+
             await ProblemDetailsSupport.WriteProblemAsync(
                 httpContext,
                 StatusCodes.Status409Conflict,
@@ -76,6 +91,8 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
 
             return true;
         }
+
+        logger.LogError(exception, "Unhandled exception for auth request {Path}.", httpContext.Request.Path);
 
         await ProblemDetailsSupport.WriteProblemAsync(
             httpContext,

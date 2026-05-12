@@ -1,0 +1,36 @@
+using NetMetric.CRM.ProductCatalog.Domain.Common;
+using NetMetric.Entities;
+using NetMetric.Guards;
+
+namespace NetMetric.CRM.ProductCatalog.Domain.Entities.Products;
+
+public class CatalogProduct : AuditableEntity, ICatalogItemEntity
+{
+    public string Code { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
+    public string? Description { get; private set; }
+    public Guid? PrimaryImageMediaAssetId { get; private set; }
+    public string? PrimaryImageUrl { get; private set; }
+
+    private CatalogProduct() { }
+
+    public CatalogProduct(string code, string name, string? description = null)
+    {
+        Code = Guard.AgainstNullOrWhiteSpace(code);
+        Name = Guard.AgainstNullOrWhiteSpace(name);
+        Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+    }
+
+    public void Update(string code, string name, string? description)
+    {
+        Code = Guard.AgainstNullOrWhiteSpace(code);
+        Name = Guard.AgainstNullOrWhiteSpace(name);
+        Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+    }
+
+    public void SetPrimaryImage(Guid? mediaAssetId, string? imageUrl)
+    {
+        PrimaryImageMediaAssetId = mediaAssetId;
+        PrimaryImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+    }
+}

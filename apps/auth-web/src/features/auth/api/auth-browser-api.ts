@@ -1,7 +1,7 @@
 ﻿import { ApiError } from "@/lib/api/api-error";
 import { isProblemDetails } from "@/lib/api/problem-details";
 
-import type { ConfirmEmailInput } from "../schemas/confirm-email.schema";
+import type { ConfirmEmailInput, ResendConfirmEmailInput } from "../schemas/confirm-email.schema";
 import type { ForgotPasswordInput } from "../schemas/forgot-password.schema";
 import type { LoginInput } from "../schemas/login.schema";
 import type { MfaInput } from "../schemas/mfa.schema";
@@ -15,6 +15,68 @@ type BrowserRequestOptions = {
   method?: "GET" | "POST";
   body?: unknown;
 };
+
+const tenantStorageKey = "nm_auth_tenant_id";
+
+function readStoredTenantId(): string | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  const value = window.localStorage.getItem(tenantStorageKey);
+  return value && value.trim().length > 0 ? value : undefined;
+}
+
+function storeTenantId(value: unknown): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return;
+  }
+
+  window.localStorage.setItem(tenantStorageKey, value);
+}
+
+function toLoginPayload(input: {
+  email?: string;
+  identifier?: string;
+  password: string;
+  tenantId?: string | undefined;
+}) {
+  const emailOrUserName = (input.identifier ?? input.email ?? "").trim();
+
+  return {
+    tenantId: input.tenantId ?? readStoredTenantId(),
+    emailOrUserName,
+    password: input.password,
+  };
+}
+
+function toRegisterPayload(input: RegisterInput) {
+  const fullName = input.fullName.trim();
+  const [firstName = "", ...rest] = fullName.split(/\s+/);
+  const lastName = rest.join(" ").trim();
+  const derivedUserName = input.email.trim();
+  const tenantName = input.workspaceName?.trim() || `${fullName || derivedUserName}'s workspace`;
+
+  return {
+    tenantName,
+    userName: derivedUserName,
+    email: input.email.trim(),
+    password: input.password,
+    firstName: firstName || null,
+    lastName: lastName || null,
+  };
+}
+
+function toTenantScopedEmailPayload(input: { email: string; tenantId?: string }) {
+  return {
+    tenantId: input.tenantId ?? readStoredTenantId(),
+    email: input.email.trim(),
+  };
+}
 
 async function readResponsePayload(response: Response): Promise<unknown> {
   const text = await response.text();
@@ -67,78 +129,104 @@ async function browserRequest<TResponse>(
 }
 
 export const authBrowserApi = {
-  login(input: LoginInput): Promise<LoginResult> {
-    const { returnUrl: _returnUrl, ...payload } = input;
+  async login(input: LoginInput): Promise<LoginResult> {
+    const { returnUrl: _returnUrl } = input;
 
     void _returnUrl;
 
-    return browserRequest<LoginResult>("/api/auth/login", {
+    const result = await browserRequest<LoginResult>("/api/auth/login", {
       method: "POST",
-      body: payload,
+      body: toLoginPayload(input),
     });
+
+    if ("tenantId" in result) {
+      storeTenantId(result.tenantId);
+    }
+
+    return result;
   },
 
-  verifyMfa(input: MfaInput): Promise<LoginResult> {
+  async verifyMfa(input: MfaInput): Promise<LoginResult> {
     const { code, returnUrl: _returnUrl, ...rest } = input;
 
     void _returnUrl;
 
-    return browserRequest<LoginResult>("/api/auth/login", {
+    const result = await browserRequest<LoginResult>("/api/auth/login", {
       method: "POST",
       body: {
-        ...rest,
+        ...toLoginPayload(rest),
         mfaCode: code,
       },
     });
+
+    if ("tenantId" in result) {
+      storeTenantId(result.tenantId);
+    }
+
+    return result;
   },
 
-  verifyRecoveryCode(input: RecoveryCodeInput): Promise<LoginResult> {
+  async verifyRecoveryCode(input: RecoveryCodeInput): Promise<LoginResult> {
     const { recoveryCode, returnUrl: _returnUrl, ...rest } = input;
 
     void _returnUrl;
 
-    return browserRequest<LoginResult>("/api/auth/login", {
+    const result = await browserRequest<LoginResult>("/api/auth/login", {
       method: "POST",
       body: {
-        ...rest,
+        ...toLoginPayload(rest),
         recoveryCode,
       },
     });
+
+    if ("tenantId" in result) {
+      storeTenantId(result.tenantId);
+    }
+
+    return result;
   },
 
-  register(input: RegisterInput): Promise<RegisterSuccessResult> {
+  async register(input: RegisterInput): Promise<RegisterSuccessResult> {
     const {
       confirmPassword: _confirmPassword,
       acceptTerms: _acceptTerms,
       returnUrl: _returnUrl,
-      ...payload
     } = input;
 
     void _confirmPassword;
     void _acceptTerms;
     void _returnUrl;
 
-    return browserRequest<RegisterSuccessResult>("/api/auth/register", {
+    const result = await browserRequest<RegisterSuccessResult>("/api/auth/register", {
       method: "POST",
-      body: payload,
+      body: toRegisterPayload(input),
     });
+
+    if ("tenantId" in result) {
+      storeTenantId(result.tenantId);
+    }
+
+    return result;
   },
 
   forgotPassword(input: ForgotPasswordInput): Promise<void> {
     return browserRequest<void>("/api/auth/forgot-password", {
       method: "POST",
-      body: input,
+      body: toTenantScopedEmailPayload(input),
     });
   },
 
   resetPassword(input: ResetPasswordInput): Promise<void> {
-    const { confirmPassword: _confirmPassword, ...payload } = input;
+    const { confirmPassword: _confirmPassword, password, ...payload } = input;
 
     void _confirmPassword;
 
     return browserRequest<void>("/api/auth/reset-password", {
       method: "POST",
-      body: payload,
+      body: {
+        ...payload,
+        newPassword: password,
+      },
     });
   },
 
@@ -149,7 +237,7 @@ export const authBrowserApi = {
     });
   },
 
-  resendConfirmEmail(input: ForgotPasswordInput): Promise<void> {
+  resendConfirmEmail(input: ResendConfirmEmailInput): Promise<void> {
     return browserRequest<void>("/api/auth/resend-confirm-email", {
       method: "POST",
       body: input,

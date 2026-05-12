@@ -1,0 +1,3 @@
+﻿namespace NetMetric.CRM.TicketWorkflowManagement.Domain.Common;
+
+public interface ITicketWorkflowManagementModuleMarker;

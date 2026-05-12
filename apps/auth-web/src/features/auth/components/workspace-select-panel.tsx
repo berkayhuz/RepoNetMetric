@@ -4,21 +4,25 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { Alert, AlertDescription, Button, Spinner } from "@netmetric/ui";
+import { toast } from "@netmetric/ui/client";
 
 import { authBrowserApi } from "@/features/auth/api/auth-browser-api";
-import { tClient } from "@/features/auth/i18n/auth-i18n.client";
+import { getTranslator } from "@/features/auth/i18n/auth-i18n.client";
+import type { Locale } from "@/features/auth/i18n/auth-i18n.shared";
 import { getAuthErrorMessage } from "@/features/auth/utils/auth-errors";
 import { getRedirectAfterAuth } from "@/features/auth/utils/redirect-after-auth";
 import type { WorkspaceSummary } from "@/features/auth/types/workspace";
 
-type WorkspaceSelectPanelProps = { returnUrl?: string };
+type WorkspaceSelectPanelProps = { locale: Locale; returnUrl?: string };
 
-export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
+export function WorkspaceSelectPanel({ locale, returnUrl }: WorkspaceSelectPanelProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [workspaces, setWorkspaces] = useState<WorkspaceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const t = getTranslator(locale);
 
   useEffect(() => {
     let active = true;
@@ -32,7 +36,9 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
       })
       .catch((error: unknown) => {
         if (active) {
-          setFormError(getAuthErrorMessage(error));
+          const message = getAuthErrorMessage(error, locale);
+          setFormError(message);
+          toast.error(message, { id: "workspace-load-error" });
         }
       })
       .finally(() => {
@@ -44,7 +50,7 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
 
   function switchWorkspace(tenantId: string): void {
     startTransition(async () => {
@@ -52,9 +58,12 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
 
       try {
         const result = await authBrowserApi.switchWorkspace(tenantId);
+        toast.success(t("success.workspaceSelected"), { id: "workspace-selected-success" });
         router.replace(result.redirectUrl ?? getRedirectAfterAuth(returnUrl));
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "workspace-switch-error" });
       }
     });
   }
@@ -66,7 +75,7 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
         aria-live="polite"
         className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground"
       >
-        <Spinner /> {tClient("workspace.loading")}
+        <Spinner /> {t("workspace.loading")}
       </div>
     );
   }
@@ -81,7 +90,7 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
 
       {workspaces.length === 0 ? (
         <Alert>
-          <AlertDescription>{tClient("workspace.none")}</AlertDescription>
+          <AlertDescription>{t("workspace.none")}</AlertDescription>
         </Alert>
       ) : (
         <div className="space-y-3">
@@ -97,11 +106,11 @@ export function WorkspaceSelectPanel({ returnUrl }: WorkspaceSelectPanelProps) {
               <span>
                 <span className="block text-sm font-medium">{workspace.name}</span>
                 <span className="mt-1 block text-xs text-muted-foreground">
-                  {workspace.role ?? tClient("workspace.defaultRole")}
+                  {workspace.role ?? t("workspace.defaultRole")}
                 </span>
               </span>
               <span className="text-xs font-medium text-muted-foreground">
-                {tClient("action.select")}
+                {t("action.select")}
               </span>
             </Button>
           ))}

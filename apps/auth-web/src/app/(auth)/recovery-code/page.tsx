@@ -5,7 +5,12 @@ import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.
 import { createAuthMetadata } from "@/features/auth/i18n/auth-metadata";
 
 type RecoveryCodePageProps = {
-  searchParams: Promise<{ email?: string; challengeId?: string; returnUrl?: string }>;
+  searchParams: Promise<{
+    identifier?: string;
+    email?: string;
+    challengeId?: string;
+    returnUrl?: string;
+  }>;
 };
 
 export async function generateMetadata() {
@@ -27,7 +32,8 @@ export default async function RecoveryCodePage({ searchParams }: RecoveryCodePag
         description={t("auth.recovery.cardDescription")}
       >
         <RecoveryCodeForm
-          email={params.email ?? ""}
+          locale={locale}
+          identifier={params.identifier ?? params.email ?? ""}
           challengeId={params.challengeId ?? ""}
           returnUrl={params.returnUrl ?? ""}
         />

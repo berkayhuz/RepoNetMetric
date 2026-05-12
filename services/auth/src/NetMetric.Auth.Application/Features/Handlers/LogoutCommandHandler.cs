@@ -5,6 +5,7 @@ using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Records;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -38,7 +39,7 @@ public sealed class LogoutCommandHandler(
             throw new AuthApplicationException("Invalid refresh token", "Session could not be revoked.", (int)HttpStatusCode.Unauthorized, errorCode: "invalid_refresh_token");
         }
 
-        session.Revoke(clock.UtcNow, "logout");
+        session.Revoke(clock.UtcDateTime, "logout");
         await auditTrail.WriteAsync(
             new AuthAuditRecord(
                 request.TenantId,

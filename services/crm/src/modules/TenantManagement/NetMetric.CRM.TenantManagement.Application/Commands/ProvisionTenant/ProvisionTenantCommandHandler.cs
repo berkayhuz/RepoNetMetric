@@ -1,0 +1,25 @@
+﻿using NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TenantManagement.Domain.Entities;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace NetMetric.CRM.TenantManagement.Application.Commands.ProvisionTenant;
+
+public sealed class ProvisionTenantCommandHandler(ITenantManagementDbContext dbContext)
+    : IRequestHandler<ProvisionTenantCommand, Guid>
+{
+    public async Task<Guid> Handle(ProvisionTenantCommand request, CancellationToken cancellationToken)
+    {
+        var existing = await dbContext.TenantProfiles.AnyAsync(x => x.TenantId == request.TenantId, cancellationToken);
+        if (existing)
+            return request.TenantId;
+
+        var tenant = new TenantProfile(request.TenantId, request.Name);
+        tenant.MarkProvisioned();
+
+        await dbContext.TenantProfiles.AddAsync(tenant, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return request.TenantId;
+    }
+}

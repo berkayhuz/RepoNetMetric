@@ -4,7 +4,7 @@ import type { ValidationText } from "./validation-text";
 
 export function createRecoveryCodeSchema(v: ValidationText) {
   return z.object({
-    email: z.string().trim().min(1, v.emailRequired).email(v.emailInvalid),
+    identifier: z.string().trim().min(1, v.emailRequired),
     password: z.string().min(1, v.passwordRequired),
     recoveryCode: z.string().trim().min(6, v.recoveryCodeMin).max(64, v.recoveryCodeMax),
     challengeId: z.string().trim().optional(),

@@ -1,0 +1,203 @@
+using System.Net;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Moq;
+using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Descriptors;
+using NetMetric.Auth.Application.Exceptions;
+using NetMetric.Auth.Application.Features.Commands;
+using NetMetric.Auth.Application.Features.Handlers;
+using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Contracts.IntegrationEvents;
+using NetMetric.Auth.Domain.Entities;
+using NetMetric.Auth.TestKit.Fakes;
+
+namespace NetMetric.Auth.Application.UnitTests.Handlers;
+
+public sealed class RegisterCommandHandlerTests
+{
+    [Fact]
+    public async Task Handle_Should_Map_DbUpdateException_To_RegistrationConflict()
+    {
+        var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
+        var command = new RegisterCommand(
+            "Acme Workspace",
+            "berkay",
+            "berkay@example.com",
+            "Str0ng!Pass123",
+            "Berkay",
+            "Test",
+            "en-US",
+            "127.0.0.1",
+            "unit-test");
+
+        var fixture = new Fixture(utcNow);
+        fixture.UseSaveConflict();
+        var sut = fixture.CreateSut();
+
+        var action = async () => await sut.Handle(command, CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.Conflict);
+        exception.Which.ErrorCode.Should().Be("registration_conflict");
+    }
+
+    [Fact]
+    public async Task Handle_Should_Publish_Email_Confirmation_Event_On_Successful_Registration()
+    {
+        var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
+        var command = new RegisterCommand(
+            "Acme Workspace",
+            "berkay",
+            "berkay@example.com",
+            "Str0ng!Pass123",
+            "Berkay",
+            "Test",
+            "en-US",
+            "127.0.0.1",
+            "unit-test");
+
+        var fixture = new Fixture(utcNow);
+        var sut = fixture.CreateSut();
+
+        var response = await sut.Handle(command, CancellationToken.None);
+
+        response.AccessToken.Should().Be("access-token");
+        response.RefreshToken.Should().Be("refresh-token");
+        response.Email.Should().Be("berkay@example.com");
+
+        OutboxShouldContainEmailConfirmationEvent(fixture);
+    }
+
+    private static void OutboxShouldContainEmailConfirmationEvent(Fixture fixture)
+    {
+        fixture.Outbox.Verify(outbox => outbox.AddAsync(
+                It.IsAny<Guid>(),
+                AuthEmailConfirmationRequestedV1.EventName,
+                AuthEmailConfirmationRequestedV1.EventVersion,
+                AuthEmailConfirmationRequestedV1.RoutingKey,
+                "NetMetric.Auth",
+                It.Is<AuthEmailConfirmationRequestedV1>(message =>
+                    message.Email == "berkay@example.com" &&
+                    message.UserName == "berkay" &&
+                    message.Token == "email-confirm-token"),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private sealed class Fixture
+    {
+        private readonly FakeClock _clock;
+
+        public Fixture(DateTime utcNow)
+        {
+            _clock = new FakeClock(utcNow);
+
+            TenantRepository.Setup(repository => repository.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            UserRepository.Setup(repository => repository.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            UserRepository.Setup(repository => repository.AddMembershipAsync(It.IsAny<UserTenantMembership>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            UserSessionRepository.Setup(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            VerificationTokenRepository.Setup(repository => repository.AddAsync(It.IsAny<AuthVerificationToken>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            VerificationTokenService.Setup(service => service.GenerateToken()).Returns("email-confirm-token");
+            VerificationTokenService.Setup(service => service.HashToken("email-confirm-token")).Returns("email-confirm-token-hash");
+            PasswordHasher.Setup(hasher => hasher.HashPassword(It.IsAny<User>(), It.IsAny<string>())).Returns("hashed-password");
+            RefreshTokenService.Setup(service => service.Generate()).Returns(new RefreshTokenDescriptor("refresh-token", "refresh-token-hash", utcNow.AddDays(14)));
+            AccessTokenFactory.Setup(factory => factory.Create(It.IsAny<User>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Returns(new AccessTokenDescriptor("access-token", utcNow.AddMinutes(15)));
+            AuthSessionService.Setup(service => service.EnforceSessionLimitsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Array.Empty<Guid>());
+            AuditTrail.Setup(trail => trail.WriteAsync(It.IsAny<NetMetric.Auth.Application.Records.AuthAuditRecord>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            Outbox.Setup(outbox => outbox.AddAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<UserRegisteredV1>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            Outbox.Setup(outbox => outbox.AddAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AuthEmailConfirmationRequestedV1>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            UnitOfWork.Setup(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+        }
+
+        public Mock<ITenantRepository> TenantRepository { get; } = new();
+        public Mock<IUserRepository> UserRepository { get; } = new();
+        public Mock<IUserSessionRepository> UserSessionRepository { get; } = new();
+        public Mock<IAuthUnitOfWork> UnitOfWork { get; } = new();
+        public Mock<IAuthAuditTrail> AuditTrail { get; } = new();
+        public Mock<IIntegrationEventOutbox> Outbox { get; } = new();
+        public Mock<IAuthVerificationTokenRepository> VerificationTokenRepository { get; } = new();
+        public Mock<IAuthVerificationTokenService> VerificationTokenService { get; } = new();
+        public Mock<IPasswordHasher<User>> PasswordHasher { get; } = new();
+        public Mock<IAccessTokenFactory> AccessTokenFactory { get; } = new();
+        public Mock<IRefreshTokenService> RefreshTokenService { get; } = new();
+        public Mock<IAuthSessionService> AuthSessionService { get; } = new();
+        public Mock<IUserSessionStateValidator> UserSessionStateValidator { get; } = new();
+        public Mock<IHttpContextAccessor> HttpContextAccessor { get; } = new();
+
+        public void UseSaveConflict()
+        {
+            UnitOfWork.Setup(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new DbUpdateException("Unique constraint violation."));
+        }
+
+        public RegisterCommandHandler CreateSut() =>
+            new(
+                TenantRepository.Object,
+                UserRepository.Object,
+                UserSessionRepository.Object,
+                UnitOfWork.Object,
+                AuditTrail.Object,
+                Outbox.Object,
+                VerificationTokenRepository.Object,
+                VerificationTokenService.Object,
+                PasswordHasher.Object,
+                AccessTokenFactory.Object,
+                RefreshTokenService.Object,
+                _clock,
+                Microsoft.Extensions.Options.Options.Create(new AuthorizationOptions
+                {
+                    BootstrapFirstUserAsTenantOwner = true,
+                    BootstrapFirstUserRoles = ["tenant-owner", "tenant-user"],
+                    BootstrapFirstUserPermissions = ["*"]
+                }),
+                Microsoft.Extensions.Options.Options.Create(new AccountLifecycleOptions
+                {
+                    EmailConfirmationTokenMinutes = 60,
+                    PublicAppBaseUrl = "https://auth.example.com",
+                    ConfirmEmailPath = "/confirm-email"
+                }),
+                AuthSessionService.Object,
+                UserSessionStateValidator.Object,
+                HttpContextAccessor.Object);
+    }
+}

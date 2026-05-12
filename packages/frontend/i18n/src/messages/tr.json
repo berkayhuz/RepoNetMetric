@@ -129,8 +129,15 @@
   "hint.emailConfirmedLogin": "E-postanızı doğruladıysanız",
 
   "success.forgotPasswordSent": "Eğer bu e-posta ile kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi.",
+  "success.passwordReset": "Şifreniz başarıyla güncellendi.",
   "success.emailConfirmed": "E-posta adresiniz başarıyla doğrulandı.",
   "success.confirmationSent": "Eğer bu e-posta ile kayıtlı bir hesap varsa doğrulama bağlantısı gönderildi.",
+  "success.login": "Giriş başarılı.",
+  "success.loginMfaRequired": "Giriş doğrulandı. Devam etmek için MFA adımını tamamlayın.",
+  "success.register": "Kayıt başarılı.",
+  "success.mfaVerified": "MFA doğrulaması başarılı.",
+  "success.recoveryCodeVerified": "Kurtarma kodu başarıyla doğrulandı.",
+  "success.workspaceSelected": "Workspace başarıyla seçildi.",
 
   "workspace.loading": "Workspace bilgileri yükleniyor...",
   "workspace.none": "Kullanılabilir workspace bulunamadı.",
@@ -146,6 +153,7 @@
   "auth.error.access_denied": "Bu işlem için yetkiniz bulunmuyor.",
   "auth.error.mfa_invalid": "Kod doğrulanamadı. Lütfen tekrar deneyin.",
   "auth.error.recovery_invalid": "Kurtarma kodu doğrulanamadı. Lütfen tekrar deneyin.",
+  "auth.error.registration_conflict": "Bu bilgilerle zaten bir hesap mevcut.",
   "auth.error.request_failed": "İstek başarısız oldu.",
 
   "validation.email.required": "E-posta adresi zorunludur.",

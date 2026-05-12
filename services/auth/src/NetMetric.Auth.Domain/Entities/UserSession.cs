@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class UserSession : EntityBase
+public sealed class UserSession : AuditableEntity
 {
     public Guid UserId { get; set; }
     public Guid RefreshTokenFamilyId { get; set; }

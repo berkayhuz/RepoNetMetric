@@ -15,7 +15,9 @@ type ApiClientOptions = {
 
 function buildUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${serverEnv.NEXT_PUBLIC_API_BASE_URL}${normalizedPath}`;
+  const gatewayBaseUrl =
+    serverEnv.NEXT_PUBLIC_API_GATEWAY_BASE_URL ?? serverEnv.NEXT_PUBLIC_API_BASE_URL;
+  return `${gatewayBaseUrl}${normalizedPath}`;
 }
 
 async function readJson(response: Response): Promise<unknown> {

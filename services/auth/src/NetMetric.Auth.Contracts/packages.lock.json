@@ -9,6 +9,18 @@
         "contentHash": "ZC4WsiOnzyUHIZ3uGN4popaYPh2NgYcXZ/CpMpAb3mVF/HvBGlBtlredzZMKgcHqlm+ygqJh6qfhUSc/OJ0hWQ=="
       },
       "netmetric.auth.domain": {
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities": "[1.0.0, )"
+        }
+      },
+      "netmetric.entities": {
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities.Abstractions": "[1.0.0, )"
+        }
+      },
+      "netmetric.entities.abstractions": {
         "type": "Project"
       }
     }

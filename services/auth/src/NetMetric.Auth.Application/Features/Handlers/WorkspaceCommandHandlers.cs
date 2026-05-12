@@ -14,6 +14,7 @@ using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Contracts.Internal;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 using NetMetric.Localization;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
@@ -43,7 +44,7 @@ public sealed partial class CreateWorkspaceCommandHandler(
         var actor = await userRepository.GetByIdAsync(request.CurrentTenantId, request.UserId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Authenticated user membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var culture = NetMetricCultures.NormalizeOrDefault(request.Culture);
         var tenant = new Tenant
         {
@@ -114,7 +115,7 @@ public sealed partial class CreateWorkspaceCommandHandler(
         CancellationToken cancellationToken)
     {
         var refreshToken = refreshTokenService.Generate();
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var session = new UserSession
         {
             TenantId = tenant.Id,
@@ -198,7 +199,7 @@ public sealed class SwitchWorkspaceCommandHandler(
             ?? throw new AuthApplicationException("Forbidden", "You are not a member of the selected workspace.", (int)HttpStatusCode.Forbidden, errorCode: "workspace_membership_forbidden");
 
         var refreshToken = refreshTokenService.Generate();
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var session = new UserSession
         {
             TenantId = tenant.Id,

@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Infrastructure.Persistence;
+using NetMetric.Clock;
 using NetMetric.Messaging.Abstractions;
 using NetMetric.Messaging.RabbitMq.Options;
 
@@ -51,7 +51,7 @@ public sealed class OutboxPublisherService(
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
         var publisher = scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>();
         var outboxOptions = options.Value;
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var lockId = Guid.NewGuid();
         var lockedUntil = utcNow.AddSeconds(outboxOptions.LockSeconds);
 
@@ -100,7 +100,7 @@ public sealed class OutboxPublisherService(
                         message.Payload),
                     cancellationToken);
 
-                message.PublishedAtUtc = clock.UtcNow;
+                message.PublishedAtUtc = clock.UtcDateTime;
                 message.LockId = null;
                 message.LockedUntilUtc = null;
                 message.LastError = null;
@@ -111,7 +111,7 @@ public sealed class OutboxPublisherService(
                 message.LastError = exception.ToString();
                 message.LockId = null;
                 message.LockedUntilUtc = null;
-                message.NextAttemptAtUtc = clock.UtcNow.Add(ComputeBackoff(message.Attempts));
+                message.NextAttemptAtUtc = clock.UtcDateTime.Add(ComputeBackoff(message.Attempts));
 
                 logger.LogError(
                     exception,

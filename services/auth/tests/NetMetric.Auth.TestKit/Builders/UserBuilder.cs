@@ -21,8 +21,8 @@ public sealed class UserBuilder
 
     public UserBuilder WithId(Guid id)
     {
-        typeof(NetMetric.Auth.Domain.Common.EntityBase)
-            .GetProperty(nameof(NetMetric.Auth.Domain.Common.EntityBase.Id))!
+        typeof(NetMetric.Entities.EntityBase)
+            .GetProperty(nameof(NetMetric.Entities.EntityBase.Id))!
             .SetValue(_user, id);
         return this;
     }

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -11,6 +11,7 @@ using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -35,7 +36,7 @@ public sealed class ForgotPasswordCommandHandler(
         }
 
         var options = lifecycleOptions.Value;
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var rawToken = tokenService.GenerateToken();
         var expiresAt = utcNow.AddMinutes(options.PasswordResetTokenMinutes);
 
@@ -101,7 +102,7 @@ public sealed class ResetPasswordCommandHandler(
 {
     public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var user = await userRepository.GetByIdAsync(request.TenantId, request.UserId, cancellationToken)
             ?? throw InvalidToken();
 
@@ -149,7 +150,7 @@ public sealed class ConfirmEmailCommandHandler(
 {
     public async Task Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var user = await userRepository.GetByIdAsync(request.TenantId, request.UserId, cancellationToken)
             ?? throw InvalidToken();
 
@@ -201,7 +202,7 @@ public sealed class ResendEmailConfirmationCommandHandler(
         }
 
         var options = lifecycleOptions.Value;
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var rawToken = tokenService.GenerateToken();
         var expiresAt = utcNow.AddMinutes(options.EmailConfirmationTokenMinutes);
 
@@ -265,7 +266,7 @@ public sealed class ChangePasswordCommandHandler(
             throw new AuthApplicationException("Invalid password", "Current password is invalid.", (int)HttpStatusCode.BadRequest, errorCode: "invalid_current_password");
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
         user.PasswordChangedAt = utcNow;
         user.SecurityStamp = Guid.NewGuid().ToString("N");
@@ -318,7 +319,7 @@ public sealed class ChangeEmailCommandHandler(
         }
 
         var options = lifecycleOptions.Value;
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var rawToken = tokenService.GenerateToken();
         var expiresAt = utcNow.AddMinutes(options.EmailChangeTokenMinutes);
 
@@ -375,7 +376,7 @@ public sealed class ConfirmEmailChangeCommandHandler(
 {
     public async Task Handle(ConfirmEmailChangeCommand request, CancellationToken cancellationToken)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var user = await userRepository.GetByIdAsync(request.TenantId, request.UserId, cancellationToken)
             ?? throw InvalidToken();
 
@@ -463,7 +464,7 @@ public sealed class UpdateProfileCommandHandler(
 
         user.FirstName = AuthenticationNormalization.CleanOrNull(request.FirstName);
         user.LastName = AuthenticationNormalization.CleanOrNull(request.LastName);
-        user.UpdatedAt = clock.UtcNow;
+        user.UpdatedAt = clock.UtcDateTime;
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return GetUserProfileCommandHandler.Map(user, membership);
     }

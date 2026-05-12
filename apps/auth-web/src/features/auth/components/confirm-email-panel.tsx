@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import type { Locale } from "@netmetric/i18n";
 
 import {
   Alert,
@@ -14,35 +15,51 @@ import {
   FieldSet,
   Input,
 } from "@netmetric/ui";
+import { toast } from "@netmetric/ui/client";
 
 import { authBrowserApi } from "@/features/auth/api/auth-browser-api";
 import { authRoutes } from "@/features/auth/config/auth-routes";
-import { getClientLocale, tClient } from "@/features/auth/i18n/auth-i18n.client";
-import { createConfirmEmailSchema } from "@/features/auth/schemas/confirm-email.schema";
-import { createForgotPasswordSchema } from "@/features/auth/schemas/forgot-password.schema";
+import { getTranslator } from "@/features/auth/i18n/auth-i18n.client";
+import {
+  createConfirmEmailSchema,
+  createResendConfirmEmailSchema,
+} from "@/features/auth/schemas/confirm-email.schema";
 import { getValidationText } from "@/features/auth/schemas/validation-text";
 import { getAuthErrorMessage } from "@/features/auth/utils/auth-errors";
 import { toFieldErrors } from "@/lib/validation/zod-error-map";
 
-type ConfirmEmailPanelProps = { userId?: string; token?: string; email?: string };
+type ConfirmEmailPanelProps = {
+  locale: Locale;
+  tenantId?: string;
+  userId?: string;
+  token?: string;
+  email?: string;
+};
 
-export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: ConfirmEmailPanelProps) {
+export function ConfirmEmailPanel({
+  locale,
+  tenantId = "",
+  userId = "",
+  token = "",
+  email = "",
+}: ConfirmEmailPanelProps) {
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const validation = getValidationText(getClientLocale());
+  const t = getTranslator(locale);
+  const validation = getValidationText(locale);
   const confirmSchema = createConfirmEmailSchema(validation);
-  const resendSchema = createForgotPasswordSchema(validation);
-  const canConfirm = userId.length > 0 && token.length > 0;
+  const resendSchema = createResendConfirmEmailSchema(validation);
+  const canConfirm = tenantId.length > 0 && userId.length > 0 && token.length > 0;
 
   function confirmEmail(): void {
-    const parsed = confirmSchema.safeParse({ userId, token });
+    const parsed = confirmSchema.safeParse({ tenantId, userId, token });
 
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error));
-      setFormError(tClient("form.invalidVerificationLink"));
+      setFormError(t("form.invalidVerificationLink"));
       return;
     }
 
@@ -51,9 +68,13 @@ export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: Confi
       setSuccessMessage(null);
       try {
         await authBrowserApi.confirmEmail(parsed.data);
-        setSuccessMessage(tClient("success.emailConfirmed"));
+        const message = t("success.emailConfirmed");
+        setSuccessMessage(message);
+        toast.success(message, { id: "confirm-email-success" });
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "confirm-email-error" });
       }
     });
   }
@@ -61,11 +82,16 @@ export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: Confi
   function resendConfirmation(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const parsed = resendSchema.safeParse({ email: formData.get("email") });
+    const parsed = resendSchema.safeParse({
+      tenantId,
+      email: formData.get("email"),
+    });
 
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error));
-      setFormError(tClient("form.enterValidEmail"));
+      setFormError(
+        tenantId.length > 0 ? t("form.enterValidEmail") : t("form.invalidVerificationLink"),
+      );
       return;
     }
 
@@ -74,9 +100,13 @@ export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: Confi
       setSuccessMessage(null);
       try {
         await authBrowserApi.resendConfirmEmail(parsed.data);
-        setSuccessMessage(tClient("success.confirmationSent"));
+        const message = t("success.confirmationSent");
+        setSuccessMessage(message);
+        toast.success(message, { id: "resend-confirmation-success" });
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "resend-confirmation-error" });
       }
     });
   }
@@ -96,13 +126,13 @@ export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: Confi
 
       {canConfirm ? (
         <Button type="button" onClick={confirmEmail} disabled={isPending} className="w-full">
-          {isPending ? tClient("form.verifying") : tClient("action.confirmEmail")}
+          {isPending ? t("form.verifying") : t("action.confirmEmail")}
         </Button>
       ) : (
         <form onSubmit={resendConfirmation} className="space-y-4" noValidate>
           <FieldSet>
             <Field>
-              <FieldLabel htmlFor="email">{tClient("field.email")}</FieldLabel>
+              <FieldLabel htmlFor="email">{t("field.email")}</FieldLabel>
               <FieldContent>
                 <Input
                   id="email"
@@ -116,18 +146,18 @@ export function ConfirmEmailPanel({ userId = "", token = "", email = "" }: Confi
             </Field>
           </FieldSet>
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? tClient("form.sending") : tClient("action.resendEmailConfirmation")}
+            {isPending ? t("form.sending") : t("action.resendEmailConfirmation")}
           </Button>
         </form>
       )}
 
       <p className="text-center text-sm text-muted-foreground">
-        {tClient("hint.emailConfirmedLogin")}{" "}
+        {t("hint.emailConfirmedLogin")}{" "}
         <Link
           href={authRoutes.login}
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          {tClient("link.login")}
+          {t("link.login")}
         </Link>
       </p>
     </div>

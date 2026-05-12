@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, useEffect } from "react";
 
 import {
   Alert,
@@ -15,29 +15,64 @@ import {
   FieldSet,
   Input,
 } from "@netmetric/ui";
-import { Checkbox } from "@netmetric/ui/client";
+import { Checkbox, toast } from "@netmetric/ui/client";
 
 import { authBrowserApi } from "@/features/auth/api/auth-browser-api";
 import { authRoutes } from "@/features/auth/config/auth-routes";
-import { getClientLocale, tClient } from "@/features/auth/i18n/auth-i18n.client";
+import { getTranslator } from "@/features/auth/i18n/auth-i18n.client";
+import type { Locale } from "@/features/auth/i18n/auth-i18n.shared";
 import { createLoginSchema, type LoginInput } from "@/features/auth/schemas/login.schema";
 import { getValidationText } from "@/features/auth/schemas/validation-text";
 import { getAuthErrorMessage } from "@/features/auth/utils/auth-errors";
 import { getRedirectAfterAuth } from "@/features/auth/utils/redirect-after-auth";
+import { ApiError } from "@/lib/api/api-error";
 import { toFieldErrors } from "@/lib/validation/zod-error-map";
 
 type LoginFormProps = {
+  locale: Locale;
   returnUrl?: string;
 };
 
-export function LoginForm({ returnUrl }: LoginFormProps) {
+export function LoginForm({ locale, returnUrl }: LoginFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const resolvedReturnUrl = useMemo(() => returnUrl ?? "", [returnUrl]);
-  const schema = useMemo(() => createLoginSchema(getValidationText(getClientLocale())), []);
+  const t = useMemo(() => getTranslator(locale), [locale]);
+  const schema = useMemo(() => createLoginSchema(getValidationText(locale)), [locale]);
+
+  function isMfaRequiredError(error: unknown): boolean {
+    return error instanceof ApiError && error.problem?.errorCode === "mfa_required";
+  }
+
+  function navigateToMfa(input: LoginInput, challengeId?: string): void {
+    const params = new URLSearchParams();
+    params.set("identifier", input.email);
+
+    if (challengeId) {
+      params.set("challengeId", challengeId);
+    }
+
+    if (input.returnUrl) {
+      params.set("returnUrl", input.returnUrl);
+    }
+
+    router.replace(`${authRoutes.mfa}?${params.toString()}`);
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("passwordReset") === "success") {
+      toast.success(t("success.passwordReset"), { id: "login-password-reset-success" });
+      params.delete("passwordReset");
+      const query = params.toString();
+      const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+      window.history.replaceState({}, "", nextUrl);
+    }
+  }, [t]);
 
   function submitLogin(input: LoginInput): void {
     startTransition(async () => {
@@ -48,25 +83,24 @@ export function LoginForm({ returnUrl }: LoginFormProps) {
         const result = await authBrowserApi.login(input);
 
         if ("mfaRequired" in result && result.mfaRequired) {
-          const params = new URLSearchParams();
-          params.set("email", input.email);
-
-          if (result.challengeId) {
-            params.set("challengeId", result.challengeId);
-          }
-
-          if (input.returnUrl) {
-            params.set("returnUrl", input.returnUrl);
-          }
-
-          router.replace(`${authRoutes.mfa}?${params.toString()}`);
+          toast.success(t("success.loginMfaRequired"), { id: "login-mfa-required" });
+          navigateToMfa(input, result.challengeId);
           return;
         }
 
         const redirectUrl = "redirectUrl" in result ? result.redirectUrl : undefined;
+        toast.success(t("success.login"), { id: "login-success" });
         router.replace(redirectUrl ?? getRedirectAfterAuth(input.returnUrl));
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        if (isMfaRequiredError(error)) {
+          toast.success(t("success.loginMfaRequired"), { id: "login-mfa-required" });
+          navigateToMfa(input);
+          return;
+        }
+
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "login-error" });
       }
     });
   }
@@ -75,17 +109,18 @@ export function LoginForm({ returnUrl }: LoginFormProps) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const tenantIdValue = formData.get("tenantId");
     const parsed = schema.safeParse({
       email: formData.get("email"),
       password: formData.get("password"),
       rememberMe: formData.get("rememberMe") === "on",
-      tenantId: formData.get("tenantId"),
+      tenantId: typeof tenantIdValue === "string" ? tenantIdValue : undefined,
       returnUrl: resolvedReturnUrl,
     });
 
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error));
-      setFormError(tClient("form.fixErrors"));
+      setFormError(t("form.fixErrors"));
       return;
     }
 
@@ -104,7 +139,7 @@ export function LoginForm({ returnUrl }: LoginFormProps) {
 
       <FieldSet>
         <Field>
-          <FieldLabel htmlFor="email">{tClient("field.email")}</FieldLabel>
+          <FieldLabel htmlFor="email">{t("field.email")}</FieldLabel>
           <FieldContent>
             <Input
               id="email"
@@ -119,12 +154,12 @@ export function LoginForm({ returnUrl }: LoginFormProps) {
 
         <Field>
           <div className="flex items-center justify-between gap-4">
-            <FieldLabel htmlFor="password">{tClient("field.password")}</FieldLabel>
+            <FieldLabel htmlFor="password">{t("field.password")}</FieldLabel>
             <Link
               href={authRoutes.forgotPassword}
               className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
             >
-              {tClient("link.forgotPassword")}
+              {t("link.forgotPassword")}
             </Link>
           </div>
           <FieldContent>
@@ -142,11 +177,11 @@ export function LoginForm({ returnUrl }: LoginFormProps) {
 
       <label className="flex items-center gap-2 text-sm text-muted-foreground">
         <Checkbox name="rememberMe" />
-        {tClient("field.rememberMe")}
+        {t("field.rememberMe")}
       </label>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? tClient("action.loggingIn") : tClient("action.login")}
+        {isPending ? t("action.loggingIn") : t("action.login")}
       </Button>
     </form>
   );

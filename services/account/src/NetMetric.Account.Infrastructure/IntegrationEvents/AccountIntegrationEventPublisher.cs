@@ -1,0 +1,76 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NetMetric.Messaging.Abstractions;
+using NetMetric.Messaging.RabbitMq.Options;
+using NetMetric.Notification.Contracts.IntegrationEvents.V1;
+
+namespace NetMetric.Account.Infrastructure.IntegrationEvents;
+
+public interface IAccountIntegrationEventPublisher
+{
+    Task PublishAsync(string type, string payloadJson, string? correlationId, CancellationToken cancellationToken = default);
+}
+
+public sealed class LoggingAccountIntegrationEventPublisher(ILogger<LoggingAccountIntegrationEventPublisher> logger)
+    : IAccountIntegrationEventPublisher
+{
+    public Task PublishAsync(string type, string payloadJson, string? correlationId, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation(
+            "Account integration event queued for broker publishing. Type={EventType} CorrelationId={CorrelationId}",
+            type,
+            correlationId);
+
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class RabbitMqAccountIntegrationEventPublisher(
+    IIntegrationEventPublisher publisher,
+    IOptions<RabbitMqOptions> rabbitMqOptions,
+    ILogger<RabbitMqAccountIntegrationEventPublisher> logger)
+    : IAccountIntegrationEventPublisher
+{
+    public async Task PublishAsync(string type, string payloadJson, string? correlationId, CancellationToken cancellationToken = default)
+    {
+        var eventId = Guid.NewGuid();
+        var eventName = MapEventName(type);
+        await publisher.PublishAsync(
+            rabbitMqOptions.Value.Exchange,
+            MapRoutingKey(type),
+            new IntegrationMessage(
+                new IntegrationEventMetadata(
+                    eventId,
+                    eventName,
+                    1,
+                    "NetMetric.Account",
+                    DateTime.UtcNow,
+                    correlationId,
+                    null),
+                payloadJson),
+            cancellationToken);
+
+        logger.LogInformation(
+            "Published Account integration event. EventId={EventId} Type={EventType} EventName={EventName} CorrelationId={CorrelationId}",
+            eventId,
+            type,
+            eventName,
+            correlationId);
+    }
+
+    private static string MapEventName(string type) =>
+        type switch
+        {
+            Outbox.OutboxEventTypes.SecurityNotificationRequested => SecurityNotificationRequestedV1.EventName,
+            Outbox.OutboxEventTypes.SecurityEventRaised => "account.security_event.raised",
+            _ => type
+        };
+
+    private static string MapRoutingKey(string type) =>
+        type switch
+        {
+            Outbox.OutboxEventTypes.SecurityNotificationRequested => SecurityNotificationRequestedV1.RoutingKey,
+            Outbox.OutboxEventTypes.SecurityEventRaised => "account.security_event.raised.v1",
+            _ => type
+        };
+}

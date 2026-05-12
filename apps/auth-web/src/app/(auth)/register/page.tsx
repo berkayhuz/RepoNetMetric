@@ -40,7 +40,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           </p>
         }
       >
-        <RegisterForm returnUrl={params.returnUrl ?? ""} />
+        <RegisterForm locale={locale} returnUrl={params.returnUrl ?? ""} />
       </AuthCard>
     </AuthPageShell>
   );

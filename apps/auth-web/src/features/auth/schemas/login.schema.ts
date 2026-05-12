@@ -4,8 +4,10 @@ import type { ValidationText } from "./validation-text";
 
 export function createLoginSchema(v: ValidationText) {
   return z.object({
-    email: z.string().trim().min(1, v.emailRequired).email(v.emailInvalid),
-    password: z.string().min(1, v.passwordRequired).min(8, v.passwordMin),
+    // Backend accepts email or username via `emailOrUserName`.
+    // Keep only required validation to avoid client-side false negatives.
+    email: z.string().trim().min(1, v.emailRequired),
+    password: z.string().min(1, v.passwordRequired),
     tenantId: z.string().trim().optional(),
     rememberMe: z.coerce.boolean().default(false),
     returnUrl: z.string().trim().optional(),

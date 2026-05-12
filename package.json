@@ -3,10 +3,11 @@
   "private": true,
   "packageManager": "pnpm@11.0.9",
   "engines": {
-    "node": "22.15.0",
+    "node": ">=22.15.0 <25",
     "pnpm": ">=11 <12"
   },
   "scripts": {
+    "restart": "pnpm dev:clean && pnpm frontend:stop:auth && pnpm dev:up && pnpm frontend:dev:auth",
     "prepare": "husky",
     "repo:validate": "node ./scripts/workspace/validate-workspace.mjs",
     "repo:format": "prettier . --write",
@@ -22,7 +23,7 @@
     "frontend:health": "pnpm run health:dead-imports && pnpm run health:unused-exports && pnpm run health:circular-deps && pnpm run health:deps-consistency && pnpm run governance:validate && pnpm run contract:validate",
     "frontend:auth-web:dev": "pnpm --filter auth-web dev",
     "frontend:stop:auth": "node ./scripts/dev/kill-port.mjs 7002",
-    "frontend:dev:auth": "pnpm stop:auth && pnpm --filter auth-web dev",
+    "frontend:dev:auth": "pnpm frontend:stop:auth && pnpm --filter auth-web dev",
     "dotnet:restore": "node ./scripts/orchestration/run-dotnet-task.mjs restore",
     "dotnet:build": "node ./scripts/orchestration/run-dotnet-task.mjs build",
     "dotnet:test": "node ./scripts/orchestration/run-dotnet-task.mjs test",
@@ -65,7 +66,11 @@
     "sonar:frontend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-frontend.ps1",
     "sonar:frontend:strict": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-frontend.ps1 -StrictCoverage",
     "sonar:all": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-all.ps1",
-    "sonar:all:strict": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-all.ps1 -StrictCoverage"
+    "sonar:all:strict": "powershell -ExecutionPolicy Bypass -File .\\scripts\\sonar-all.ps1 -StrictCoverage",
+    "dev:up": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-up.ps1",
+    "dev:seed:auth": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-seed-auth.ps1",
+    "dev:auth:seed": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-auth-seed.ps1",
+    "dev:clean": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-clean.ps1"
   },
   "workspaces": [
     "apps/*",

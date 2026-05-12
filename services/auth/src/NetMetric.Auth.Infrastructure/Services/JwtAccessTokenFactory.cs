@@ -1,10 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
-using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Descriptors;
 using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -34,7 +35,7 @@ public sealed class JwtAccessTokenFactory(
         Guid tenantId,
         Guid sessionId)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var expiresAt = utcNow.AddMinutes(jwtOptions.Value.AccessTokenMinutes);
         var credentials = tokenSigningKeyProvider.GetCurrentSigningCredentials();
 

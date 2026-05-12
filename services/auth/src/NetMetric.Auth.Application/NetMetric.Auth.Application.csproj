@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\packages\dotnet\src\NetMetric.AspNetCore\NetMetric.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\NetMetric.Clock\NetMetric.Clock.csproj" />
     <ProjectReference Include="..\NetMetric.Auth.Contracts\NetMetric.Auth.Contracts.csproj" />
     <ProjectReference Include="..\NetMetric.Auth.Domain\NetMetric.Auth.Domain.csproj" />
   </ItemGroup>

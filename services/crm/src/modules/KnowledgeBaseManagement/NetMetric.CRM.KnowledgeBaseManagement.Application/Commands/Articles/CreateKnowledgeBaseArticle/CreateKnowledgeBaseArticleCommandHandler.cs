@@ -1,0 +1,19 @@
+﻿using NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
+using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Articles.CreateKnowledgeBaseArticle;
+
+public sealed class CreateKnowledgeBaseArticleCommandHandler(IKnowledgeBaseManagementDbContext dbContext) : IRequestHandler<CreateKnowledgeBaseArticleCommand, KnowledgeBaseArticleDetailDto>
+{
+    public async Task<KnowledgeBaseArticleDetailDto> Handle(CreateKnowledgeBaseArticleCommand request, CancellationToken cancellationToken)
+    {
+        var category = await dbContext.Categories.FirstAsync(x => x.Id == request.CategoryId, cancellationToken);
+        var entity = new KnowledgeBaseArticle(request.CategoryId, request.Title, request.Summary, request.Content, request.IsPublic);
+        await dbContext.Articles.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return new KnowledgeBaseArticleDetailDto(entity.Id, entity.CategoryId, category.Name, entity.Title, entity.Slug, entity.Summary, entity.Content, entity.Status.ToString(), entity.IsPublic, entity.PublishedAt);
+    }
+}

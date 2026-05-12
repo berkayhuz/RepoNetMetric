@@ -5,7 +5,7 @@ import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.
 import { createAuthMetadata } from "@/features/auth/i18n/auth-metadata";
 
 type ResetPasswordPageProps = {
-  searchParams: Promise<{ email?: string; token?: string }>;
+  searchParams: Promise<{ tenantId?: string; userId?: string; token?: string; email?: string }>;
 };
 
 export async function generateMetadata() {
@@ -20,7 +20,12 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   return (
     <AuthPageShell title={t("auth.reset.pageTitle")} description={t("auth.reset.pageDescription")}>
       <AuthCard title={t("auth.reset.cardTitle")} description={t("auth.reset.cardDescription")}>
-        <ResetPasswordForm email={params.email ?? ""} token={params.token ?? ""} />
+        <ResetPasswordForm
+          locale={locale}
+          tenantId={params.tenantId ?? ""}
+          userId={params.userId ?? ""}
+          token={params.token ?? ""}
+        />
       </AuthCard>
     </AuthPageShell>
   );

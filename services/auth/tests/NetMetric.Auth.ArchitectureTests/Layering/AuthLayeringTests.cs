@@ -138,9 +138,15 @@ public sealed class AuthLayeringTests
         var repoRoot = ResolveRepositoryRoot();
         var expectedReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
-            ["NetMetric.Auth.Domain.csproj"] = [],
+            ["NetMetric.Auth.Domain.csproj"] = ["NetMetric.Entities.csproj"],
             ["NetMetric.Auth.Contracts.csproj"] = ["NetMetric.Auth.Domain.csproj"],
-            ["NetMetric.Auth.Application.csproj"] = ["NetMetric.Auth.Domain.csproj", "NetMetric.Auth.Contracts.csproj", "NetMetric.AspNetCore.csproj"],
+            ["NetMetric.Auth.Application.csproj"] =
+            [
+                "NetMetric.Auth.Domain.csproj",
+                "NetMetric.Auth.Contracts.csproj",
+                "NetMetric.AspNetCore.csproj",
+                "NetMetric.Clock.csproj"
+            ],
             ["NetMetric.Auth.Infrastructure.csproj"] =
             [
                 "NetMetric.Auth.Domain.csproj",

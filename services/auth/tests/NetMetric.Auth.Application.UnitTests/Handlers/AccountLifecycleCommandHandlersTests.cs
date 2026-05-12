@@ -49,12 +49,14 @@ public sealed class AccountLifecycleCommandHandlersTests
         var tenantId = Guid.NewGuid();
         var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
         user.EmailConfirmed = true;
+        const string rawToken = "raw+token/with-slash";
+        var encodedToken = Uri.EscapeDataString(rawToken);
 
         var fixture = new LifecycleFixture(new FakeClock(now));
         fixture.UserRepository.Setup(repository => repository.FindByTenantAndIdentityAsync(tenantId, user.NormalizedEmail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
-        fixture.TokenService.Setup(service => service.GenerateToken()).Returns("raw-token");
-        fixture.TokenService.Setup(service => service.HashToken("raw-token")).Returns("raw-token-hash");
+        fixture.TokenService.Setup(service => service.GenerateToken()).Returns(rawToken);
+        fixture.TokenService.Setup(service => service.HashToken(rawToken)).Returns("raw-token-hash");
         var sut = fixture.CreateForgotPasswordHandler();
 
         await sut.Handle(new ForgotPasswordCommand(tenantId, user.Email!, "127.0.0.1", "unit-test", "corr", "trace"), CancellationToken.None);
@@ -72,7 +74,14 @@ public sealed class AccountLifecycleCommandHandlersTests
             1,
             AuthPasswordResetRequestedV1.RoutingKey,
             "NetMetric.Auth",
-            It.IsAny<AuthPasswordResetRequestedV1>(),
+            It.Is<AuthPasswordResetRequestedV1>(evt =>
+                evt.UserId == user.Id &&
+                evt.TenantId == user.TenantId &&
+                evt.Email == user.Email &&
+                evt.Token == rawToken &&
+                evt.ResetUrl.Contains($"tenantId={tenantId:D}", StringComparison.Ordinal) &&
+                evt.ResetUrl.Contains($"userId={user.Id:D}", StringComparison.Ordinal) &&
+                evt.ResetUrl.Contains($"token={encodedToken}", StringComparison.Ordinal)),
             "corr",
             "trace",
             now,
@@ -102,6 +111,25 @@ public sealed class AccountLifecycleCommandHandlersTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((AuthVerificationToken?)null);
         fixture.TokenService.Setup(service => service.HashToken("token")).Returns("token-hash");
+        var sut = fixture.CreateResetPasswordHandler();
+
+        var action = async () => await sut.Handle(
+            new ResetPasswordCommand(tenantId, userId, "token", "NewPassword123!", null, null, null, null),
+            CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        exception.Which.ErrorCode.Should().Be("invalid_password_reset_token");
+    }
+
+    [Fact]
+    public async Task ResetPassword_Should_Reject_Unknown_User_With_Invalid_Token_Error()
+    {
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var fixture = new LifecycleFixture(new FakeClock(new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc)));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
         var sut = fixture.CreateResetPasswordHandler();
 
         var action = async () => await sut.Handle(
@@ -165,6 +193,156 @@ public sealed class AccountLifecycleCommandHandlersTests
         fixture.UserTokenStateValidator.Verify(validator => validator.Evict(tenantId, userId), Times.Once);
     }
 
+    [Fact]
+    public async Task ConfirmEmail_Should_Confirm_User_When_Token_Is_Valid()
+    {
+        var now = new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User()
+            .WithId(userId)
+            .WithTenant(tenantId)
+            .WithIdentity("jane", "jane@example.com")
+            .Build();
+        user.EmailConfirmed = false;
+
+        var token = new AuthVerificationToken
+        {
+            TenantId = tenantId,
+            UserId = userId,
+            Purpose = AuthVerificationTokenPurpose.EmailConfirmation,
+            TokenHash = "confirm-token-hash",
+            ExpiresAtUtc = now.AddMinutes(30)
+        };
+
+        var fixture = new LifecycleFixture(new FakeClock(now));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.TokenRepository.Setup(repository => repository.GetValidAsync(
+                tenantId,
+                userId,
+                AuthVerificationTokenPurpose.EmailConfirmation,
+                "confirm-token-hash",
+                now,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(token);
+        fixture.TokenService.Setup(service => service.HashToken("confirm-token"))
+            .Returns("confirm-token-hash");
+
+        var sut = fixture.CreateConfirmEmailHandler();
+
+        await sut.Handle(new ConfirmEmailCommand(tenantId, userId, "confirm-token", "127.0.0.1", "unit-test", "corr", "trace"), CancellationToken.None);
+
+        token.IsConsumed.Should().BeTrue();
+        user.EmailConfirmed.Should().BeTrue();
+        user.EmailConfirmedAt.Should().Be(now);
+        fixture.AuditTrail.Verify(trail => trail.WriteAsync(
+            It.Is<NetMetric.Auth.Application.Records.AuthAuditRecord>(record => record.EventType == "auth.email.confirmed"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ConfirmEmail_Should_Reject_Unknown_User_With_Invalid_Token_Error()
+    {
+        var now = new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var fixture = new LifecycleFixture(new FakeClock(now));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+
+        var sut = fixture.CreateConfirmEmailHandler();
+
+        var action = async () => await sut.Handle(
+            new ConfirmEmailCommand(tenantId, userId, "confirm-token", null, null, null, null),
+            CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        exception.Which.ErrorCode.Should().Be("invalid_email_confirmation_token");
+    }
+
+    [Fact]
+    public async Task ConfirmEmail_Should_Reject_Invalid_Or_Expired_Token()
+    {
+        var now = new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User()
+            .WithId(userId)
+            .WithTenant(tenantId)
+            .WithIdentity("jane", "jane@example.com")
+            .Build();
+        var fixture = new LifecycleFixture(new FakeClock(now));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.TokenRepository.Setup(repository => repository.GetValidAsync(
+                tenantId,
+                userId,
+                AuthVerificationTokenPurpose.EmailConfirmation,
+                "confirm-token-hash",
+                now,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AuthVerificationToken?)null);
+        fixture.TokenService.Setup(service => service.HashToken("confirm-token"))
+            .Returns("confirm-token-hash");
+
+        var sut = fixture.CreateConfirmEmailHandler();
+
+        var action = async () => await sut.Handle(
+            new ConfirmEmailCommand(tenantId, userId, "confirm-token", null, null, null, null),
+            CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        exception.Which.ErrorCode.Should().Be("invalid_email_confirmation_token");
+    }
+
+    [Fact]
+    public async Task ConfirmEmail_Should_Allow_Already_Confirmed_User_When_Token_Is_Valid()
+    {
+        var now = new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User()
+            .WithId(userId)
+            .WithTenant(tenantId)
+            .WithIdentity("jane", "jane@example.com")
+            .Build();
+        user.EmailConfirmed = true;
+        user.EmailConfirmedAt = now.AddDays(-1);
+
+        var token = new AuthVerificationToken
+        {
+            TenantId = tenantId,
+            UserId = userId,
+            Purpose = AuthVerificationTokenPurpose.EmailConfirmation,
+            TokenHash = "confirm-token-hash",
+            ExpiresAtUtc = now.AddMinutes(30)
+        };
+
+        var fixture = new LifecycleFixture(new FakeClock(now));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.TokenRepository.Setup(repository => repository.GetValidAsync(
+                tenantId,
+                userId,
+                AuthVerificationTokenPurpose.EmailConfirmation,
+                "confirm-token-hash",
+                now,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(token);
+        fixture.TokenService.Setup(service => service.HashToken("confirm-token"))
+            .Returns("confirm-token-hash");
+
+        var sut = fixture.CreateConfirmEmailHandler();
+
+        await sut.Handle(new ConfirmEmailCommand(tenantId, userId, "confirm-token", null, null, null, null), CancellationToken.None);
+
+        token.IsConsumed.Should().BeTrue();
+        user.EmailConfirmed.Should().BeTrue();
+    }
+
     private sealed class LifecycleFixture(FakeClock clock)
     {
         public Mock<IUserRepository> UserRepository { get; } = new();
@@ -203,6 +381,15 @@ public sealed class AccountLifecycleCommandHandlersTests
                 AuditTrail.Object,
                 AuthUnitOfWork.Object,
                 UserTokenStateValidator.Object,
+                clock);
+
+        public ConfirmEmailCommandHandler CreateConfirmEmailHandler() =>
+            new(
+                UserRepository.Object,
+                TokenRepository.Object,
+                TokenService.Object,
+                AuditTrail.Object,
+                AuthUnitOfWork.Object,
                 clock);
     }
 }

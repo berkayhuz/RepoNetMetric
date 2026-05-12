@@ -100,9 +100,23 @@ internal sealed class JwtOptionsValidation(IHostEnvironment environment) : IVali
 
 internal sealed class IdentitySecurityOptionsValidation : IValidateOptions<IdentitySecurityOptions>
 {
+    private readonly IHostEnvironment environment;
+
+    public IdentitySecurityOptionsValidation(IHostEnvironment environment)
+    {
+        this.environment = environment;
+    }
+
     public ValidateOptionsResult Validate(string? name, IdentitySecurityOptions options)
     {
         var failures = new List<string>();
+
+        if (environment.IsDevelopment() &&
+            options.MaxFailedAccessAttempts == 0 &&
+            options.LockoutMinutes == 0)
+        {
+            return ValidateOptionsResult.Success;
+        }
 
         if (options.MaxFailedAccessAttempts is < 3 or > 20)
         {

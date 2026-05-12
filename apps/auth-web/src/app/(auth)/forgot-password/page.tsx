@@ -35,7 +35,7 @@ export default async function ForgotPasswordPage() {
           </p>
         }
       >
-        <ForgotPasswordForm />
+        <ForgotPasswordForm locale={locale} />
       </AuthCard>
     </AuthPageShell>
   );

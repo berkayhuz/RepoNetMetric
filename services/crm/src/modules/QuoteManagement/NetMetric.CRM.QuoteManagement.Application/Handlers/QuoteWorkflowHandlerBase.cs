@@ -1,0 +1,23 @@
+using NetMetric.CRM.QuoteManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.Sales;
+using NetMetric.CRM.Types;
+using NetMetric.CurrentUser;
+using NetMetric.Exceptions;
+
+namespace NetMetric.CRM.QuoteManagement.Application.Handlers;
+
+public abstract class QuoteWorkflowHandlerBase(IQuoteManagementDbContext dbContext, ICurrentUserService currentUserService)
+{
+    protected IQuoteManagementDbContext DbContext { get; } = dbContext;
+    protected ICurrentUserService CurrentUserService { get; } = currentUserService;
+
+    protected async Task<Quote> LoadAndCheckAsync(Guid quoteId, string? rowVersion, Func<QuoteStatusType, bool> predicate, string message, CancellationToken cancellationToken)
+    {
+        CurrentUserService.EnsureAuthenticated();
+        var entity = await QuoteHandlerHelpers.RequireQuoteAsync(DbContext, quoteId, cancellationToken);
+        if (!predicate(entity.Status))
+            throw new ConflictAppException(message);
+        QuoteHandlerHelpers.ApplyRowVersion(dbContext, entity, rowVersion);
+        return entity;
+    }
+}

@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class UserMfaRecoveryCode : EntityBase
+public sealed class UserMfaRecoveryCode : AuditableEntity
 {
     public Guid UserId { get; set; }
     public string CodeHash { get; set; } = null!;

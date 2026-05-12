@@ -1,0 +1,16 @@
+﻿using NetMetric.CRM.SalesForecasting.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace NetMetric.CRM.SalesForecasting.Infrastructure.Persistence.Configurations;
+
+internal sealed class ForecastAdjustmentConfiguration : IEntityTypeConfiguration<ForecastAdjustment>
+{
+    public void Configure(EntityTypeBuilder<ForecastAdjustment> builder)
+    {
+        builder.ToTable("ForecastAdjustments");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Reason).HasMaxLength(256).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.PeriodStart, x.PeriodEnd, x.OwnerUserId });
+    }
+}

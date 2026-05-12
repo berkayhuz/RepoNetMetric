@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class AuthAuditEvent : EntityBase
+public sealed class AuthAuditEvent : AuditableEntity
 {
     public Guid? UserId { get; set; }
     public Guid? SessionId { get; set; }

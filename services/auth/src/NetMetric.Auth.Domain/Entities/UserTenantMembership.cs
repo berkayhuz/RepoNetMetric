@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class UserTenantMembership : EntityBase
+public sealed class UserTenantMembership : AuditableEntity
 {
     public Guid UserId { get; set; }
     public string Roles { get; set; } = "tenant-user";

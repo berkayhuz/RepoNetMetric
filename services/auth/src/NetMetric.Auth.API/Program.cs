@@ -218,11 +218,12 @@ builder.Services.AddAuthInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
 app.UseMiddleware<RequestContextMiddleware>();
+app.UseExceptionHandler();
+app.UseMiddleware<AuthRequestBodySizeLimitMiddleware>();
 app.UseMiddleware<TrustedGatewayMiddleware>();
 app.UseForwardedHeaders();
-if (!app.Environment.IsDevelopment() || !app.Configuration.GetValue<bool>("LocalDevelopment:DisableHttpsRedirection"))
+if (ShouldUseHttpsRedirection(app))
 {
     app.UseHttpsRedirection();
 }
@@ -320,6 +321,24 @@ static void AddOpenTelemetry(IServiceCollection services, IConfiguration configu
             metrics.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
         }
     });
+}
+
+static bool ShouldUseHttpsRedirection(WebApplication app)
+{
+    if (app.Configuration.GetValue<bool>("LocalDevelopment:DisableHttpsRedirection"))
+    {
+        return false;
+    }
+
+    if (int.TryParse(app.Configuration["HTTPS_PORT"] ?? app.Configuration["ASPNETCORE_HTTPS_PORT"], out _))
+    {
+        return true;
+    }
+
+    return app.Configuration
+        .GetSection("Kestrel:Endpoints")
+        .GetChildren()
+        .Any(endpoint => endpoint["Url"]?.StartsWith("https://", StringComparison.OrdinalIgnoreCase) == true);
 }
 
 public partial class Program;

@@ -1,0 +1,10 @@
+﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Notes;
+using MediatR;
+
+namespace NetMetric.CRM.CustomerManagement.Application.Features.Notes.Queries.ListNotes;
+
+public sealed class ListNotesQuery : IRequest<IReadOnlyList<NoteDto>>
+{
+    public required string EntityName { get; init; }
+    public required Guid EntityId { get; init; }
+}

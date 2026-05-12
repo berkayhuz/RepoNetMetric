@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Diagnostics;
 using NetMetric.Auth.Application.Options;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -41,7 +42,7 @@ public sealed class UserSessionStateValidator(
         var isValid = session is not null &&
                       session.UserId == userId &&
                       !session.IsRevoked &&
-                      !authSessionService.IsExpired(session, clock.UtcNow);
+                      !authSessionService.IsExpired(session, clock.UtcDateTime);
 
         if (value.EnableCache && !isValid)
         {

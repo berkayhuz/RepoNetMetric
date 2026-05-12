@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using MediatR;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Exceptions;
@@ -6,6 +6,7 @@ using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Internal;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -53,9 +54,9 @@ public sealed class SetupMfaCommandHandler(
         var sharedKey = totpService.GenerateSharedKey();
 
         user.AuthenticatorKeyProtected = keyProtector.Protect(sharedKey);
-        user.AuthenticatorKeyCreatedAt = clock.UtcNow;
+        user.AuthenticatorKeyCreatedAt = clock.UtcDateTime;
         user.AuthenticatorKeyConfirmedAt = null;
-        user.UpdatedAt = clock.UtcNow;
+        user.UpdatedAt = clock.UtcDateTime;
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -88,12 +89,12 @@ public sealed class ConfirmMfaCommandHandler(
         }
 
         var sharedKey = keyProtector.Unprotect(user.AuthenticatorKeyProtected);
-        if (!totpService.VerifyCode(sharedKey, request.VerificationCode, clock.UtcNow))
+        if (!totpService.VerifyCode(sharedKey, request.VerificationCode, clock.UtcDateTime))
         {
             throw new AuthApplicationException("Invalid MFA code", "The supplied authenticator code is invalid.", (int)HttpStatusCode.BadRequest, errorCode: "invalid_mfa_code");
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var rawCodes = recoveryCodeService.GenerateCodes(10);
         var entities = rawCodes
             .Select(code => new UserMfaRecoveryCode
@@ -145,12 +146,12 @@ public sealed class DisableMfaCommandHandler(
         }
 
         var sharedKey = keyProtector.Unprotect(user.AuthenticatorKeyProtected);
-        if (!totpService.VerifyCode(sharedKey, request.VerificationCode, clock.UtcNow))
+        if (!totpService.VerifyCode(sharedKey, request.VerificationCode, clock.UtcDateTime))
         {
             throw new AuthApplicationException("Invalid MFA code", "The supplied authenticator code is invalid.", (int)HttpStatusCode.BadRequest, errorCode: "invalid_mfa_code");
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         user.MfaEnabled = false;
         user.MfaEnabledAt = null;
         user.AuthenticatorKeyProtected = null;
@@ -187,7 +188,7 @@ public sealed class RegenerateRecoveryCodesCommandHandler(
             throw new AuthApplicationException("MFA is disabled", "Recovery codes can only be generated when MFA is enabled.", (int)HttpStatusCode.BadRequest, errorCode: "mfa_disabled");
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var rawCodes = recoveryCodeService.GenerateCodes(10);
         var entities = rawCodes
             .Select(code => new UserMfaRecoveryCode
@@ -239,7 +240,7 @@ public sealed class RevokeTrustedDeviceCommandHandler(
 {
     public async Task<bool> Handle(RevokeTrustedDeviceCommand request, CancellationToken cancellationToken)
     {
-        var revoked = await trustedDevices.RevokeAsync(request.TenantId, request.UserId, request.DeviceId, clock.UtcNow, "user_revoked_trusted_device", cancellationToken);
+        var revoked = await trustedDevices.RevokeAsync(request.TenantId, request.UserId, request.DeviceId, clock.UtcDateTime, "user_revoked_trusted_device", cancellationToken);
         if (!revoked)
         {
             return false;
@@ -263,7 +264,7 @@ public sealed class ConfirmEmailChangeForAccountCommandHandler(
 {
     public async Task<EmailChangeConfirmIdentityResult> Handle(ConfirmEmailChangeForAccountCommand request, CancellationToken cancellationToken)
     {
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var user = await users.GetByIdAsync(request.TenantId, request.UserId, cancellationToken) ?? throw InvalidToken();
         var token = await tokenRepository.GetValidAsync(
                 request.TenantId,

@@ -15,27 +15,29 @@ import {
   FieldSet,
   Input,
 } from "@netmetric/ui";
-import { Checkbox } from "@netmetric/ui/client";
+import { Checkbox, toast } from "@netmetric/ui/client";
 
 import { authBrowserApi } from "@/features/auth/api/auth-browser-api";
 import { authRoutes, externalRoutes } from "@/features/auth/config/auth-routes";
-import { getClientLocale, tClient } from "@/features/auth/i18n/auth-i18n.client";
+import { getTranslator } from "@/features/auth/i18n/auth-i18n.client";
+import type { Locale } from "@/features/auth/i18n/auth-i18n.shared";
 import { createRegisterSchema, type RegisterInput } from "@/features/auth/schemas/register.schema";
 import { getValidationText } from "@/features/auth/schemas/validation-text";
 import { getAuthErrorMessage } from "@/features/auth/utils/auth-errors";
 import { getRedirectAfterAuth } from "@/features/auth/utils/redirect-after-auth";
 import { toFieldErrors } from "@/lib/validation/zod-error-map";
 
-type RegisterFormProps = { returnUrl?: string };
+type RegisterFormProps = { locale: Locale; returnUrl?: string };
 
-export function RegisterForm({ returnUrl }: RegisterFormProps) {
+export function RegisterForm({ locale, returnUrl }: RegisterFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
-  const schema = useMemo(() => createRegisterSchema(getValidationText(getClientLocale())), []);
+  const t = useMemo(() => getTranslator(locale), [locale]);
+  const schema = useMemo(() => createRegisterSchema(getValidationText(locale)), [locale]);
 
   function submitRegister(input: RegisterInput): void {
     startTransition(async () => {
@@ -44,17 +46,25 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
 
       try {
         const result = await authBrowserApi.register(input);
+        toast.success(t("success.register"), { id: "register-success" });
 
         if (result.emailConfirmationRequired) {
           const params = new URLSearchParams();
           params.set("email", input.email);
+          const tenantId =
+            "tenantId" in result && typeof result.tenantId === "string" ? result.tenantId : "";
+          if (tenantId) {
+            params.set("tenantId", tenantId);
+          }
           router.replace(`${authRoutes.confirmEmail}?${params.toString()}`);
           return;
         }
 
         router.replace(result.redirectUrl ?? getRedirectAfterAuth(input.returnUrl));
       } catch (error) {
-        setFormError(getAuthErrorMessage(error));
+        const message = getAuthErrorMessage(error, locale);
+        setFormError(message);
+        toast.error(message, { id: "register-error" });
       }
     });
   }
@@ -75,7 +85,7 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
 
     if (!parsed.success) {
       setFieldErrors(toFieldErrors(parsed.error));
-      setFormError(tClient("form.fixErrors"));
+      setFormError(t("form.fixErrors"));
       return;
     }
 
@@ -92,28 +102,28 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
 
       <FieldSet>
         <Field>
-          <FieldLabel htmlFor="fullName">{tClient("field.fullName")}</FieldLabel>
+          <FieldLabel htmlFor="fullName">{t("field.fullName")}</FieldLabel>
           <FieldContent>
             <Input id="fullName" name="fullName" autoComplete="name" />
             <FieldError>{fieldErrors.fullName?.[0]}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="email">{tClient("field.email")}</FieldLabel>
+          <FieldLabel htmlFor="email">{t("field.email")}</FieldLabel>
           <FieldContent>
             <Input id="email" name="email" type="email" autoComplete="email" />
             <FieldError>{fieldErrors.email?.[0]}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="password">{tClient("field.password")}</FieldLabel>
+          <FieldLabel htmlFor="password">{t("field.password")}</FieldLabel>
           <FieldContent>
             <Input id="password" name="password" type="password" autoComplete="new-password" />
             <FieldError>{fieldErrors.password?.[0]}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="confirmPassword">{tClient("field.newPasswordAgain")}</FieldLabel>
+          <FieldLabel htmlFor="confirmPassword">{t("field.newPasswordAgain")}</FieldLabel>
           <FieldContent>
             <Input
               id="confirmPassword"
@@ -125,7 +135,7 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="workspaceName">{tClient("field.workspaceName")}</FieldLabel>
+          <FieldLabel htmlFor="workspaceName">{t("field.workspaceName")}</FieldLabel>
           <FieldContent>
             <Input id="workspaceName" name="workspaceName" />
             <FieldError>{fieldErrors.workspaceName?.[0]}</FieldError>
@@ -139,9 +149,9 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
           onCheckedChange={(checked) => setAcceptTerms(checked === true)}
         />
         <span>
-          {tClient("field.acceptTerms")} (
+          {t("field.acceptTerms")} (
           <Link href={externalRoutes.terms} className="underline">
-            {tClient("nav.terms")}
+            {t("nav.terms")}
           </Link>
           )
         </span>
@@ -149,16 +159,16 @@ export function RegisterForm({ returnUrl }: RegisterFormProps) {
       <FieldError>{fieldErrors.acceptTerms?.[0]}</FieldError>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? tClient("action.registering") : tClient("action.register")}
+        {isPending ? t("action.registering") : t("action.register")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        {tClient("auth.register.hasAccount")}{" "}
+        {t("auth.register.hasAccount")}{" "}
         <Link
           href={authRoutes.login}
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          {tClient("auth.register.goLogin")}
+          {t("auth.register.goLogin")}
         </Link>
       </p>
     </form>

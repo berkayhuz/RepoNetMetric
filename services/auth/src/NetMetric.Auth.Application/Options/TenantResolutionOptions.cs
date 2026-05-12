@@ -14,5 +14,5 @@ public sealed class TenantResolutionOptions
 
     public string[] TrustedHostSuffixes { get; set; } = [];
 
-    public string[] TenantOptionalPathPrefixes { get; set; } = ["/api/auth/register"];
+    public string[] TenantOptionalPathPrefixes { get; set; } = ["/api/auth/register", "/api/auth/session-status"];
 }

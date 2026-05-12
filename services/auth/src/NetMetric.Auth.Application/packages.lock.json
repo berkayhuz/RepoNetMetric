@@ -84,6 +84,21 @@
         }
       },
       "netmetric.auth.domain": {
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities": "[1.0.0, )"
+        }
+      },
+      "netmetric.clock": {
+        "type": "Project"
+      },
+      "netmetric.entities": {
+        "type": "Project",
+        "dependencies": {
+          "NetMetric.Entities.Abstractions": "[1.0.0, )"
+        }
+      },
+      "netmetric.entities.abstractions": {
         "type": "Project"
       },
       "netmetric.localization": {

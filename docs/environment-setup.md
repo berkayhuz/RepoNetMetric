@@ -27,7 +27,7 @@ Minimum required frontend variables:
 - `NODE_ENV`
 - `APP_ENV`
 - `NEXT_PUBLIC_APP_NAME`
-- `NEXT_PUBLIC_API_BASE_URL`
+- `NEXT_PUBLIC_API_GATEWAY_BASE_URL` (preferred) or `NEXT_PUBLIC_API_BASE_URL` (legacy fallback)
 
 Optional monitoring:
 

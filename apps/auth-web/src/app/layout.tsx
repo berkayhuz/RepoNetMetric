@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "@netmetric/ui/client";
+import { ThemeProvider, Toaster } from "@netmetric/ui/client";
 
 import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.server";
 
@@ -40,7 +40,10 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

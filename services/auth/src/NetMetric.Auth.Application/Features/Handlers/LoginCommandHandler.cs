@@ -13,6 +13,7 @@ using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -61,6 +62,9 @@ public sealed class LoginCommandHandler(
         var httpContext = httpContextAccessor.HttpContext;
         var correlationId = httpContext?.Items[RequestContextSupport.CorrelationIdHeaderName]?.ToString();
         var traceId = httpContext?.TraceIdentifier;
+        var lockoutEnabled =
+            securityOptions.Value.MaxFailedAccessAttempts > 0 &&
+            securityOptions.Value.LockoutMinutes > 0;
 
         var tenant = await tenantRepository.GetByIdAsync(request.TenantId, cancellationToken);
         if (tenant is null)
@@ -89,7 +93,7 @@ public sealed class LoginCommandHandler(
             throw InvalidCredentials();
         }
 
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
 
         if (!user.IsActive || user.IsDeleted)
         {
@@ -126,7 +130,7 @@ public sealed class LoginCommandHandler(
             throw new AuthApplicationException("Email confirmation required", "Confirm your email address before signing in.", (int)HttpStatusCode.Forbidden, errorCode: "email_confirmation_required");
         }
 
-        if (user.IsLocked && user.LockoutEndAt.HasValue && user.LockoutEndAt > utcNow)
+        if (lockoutEnabled && user.IsLocked && user.LockoutEndAt.HasValue && user.LockoutEndAt > utcNow)
         {
             AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", "locked"));
             await securityAlertPublisher.PublishAsync(
@@ -146,14 +150,18 @@ public sealed class LoginCommandHandler(
         var verificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (verificationResult == PasswordVerificationResult.Failed)
         {
-            var lockedAfterFailure = user.AccessFailedCount + 1 >= securityOptions.Value.MaxFailedAccessAttempts;
-            await userRepository.RecordFailedLoginAsync(
-                request.TenantId,
-                user.Id,
-                securityOptions.Value.MaxFailedAccessAttempts,
-                utcNow.AddMinutes(securityOptions.Value.LockoutMinutes),
-                utcNow,
-                cancellationToken);
+            var lockedAfterFailure = lockoutEnabled &&
+                                     user.AccessFailedCount + 1 >= securityOptions.Value.MaxFailedAccessAttempts;
+            if (lockoutEnabled)
+            {
+                await userRepository.RecordFailedLoginAsync(
+                    request.TenantId,
+                    user.Id,
+                    securityOptions.Value.MaxFailedAccessAttempts,
+                    utcNow.AddMinutes(securityOptions.Value.LockoutMinutes),
+                    utcNow,
+                    cancellationToken);
+            }
 
             AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", lockedAfterFailure ? "locked_after_failure" : "invalid_credentials"));
             await auditTrail.WriteAsync(

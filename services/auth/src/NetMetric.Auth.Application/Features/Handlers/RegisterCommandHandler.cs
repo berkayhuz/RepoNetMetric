@@ -17,6 +17,7 @@ using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
 using NetMetric.Localization;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -45,7 +46,7 @@ public sealed partial class RegisterCommandHandler(
         var httpContext = httpContextAccessor.HttpContext;
         var correlationId = httpContext?.Items[RequestContextSupport.CorrelationIdHeaderName]?.ToString();
         var traceId = httpContext?.TraceIdentifier;
-        var utcNow = clock.UtcNow;
+        var utcNow = clock.UtcDateTime;
         var culture = NetMetricCultures.NormalizeOrDefault(request.Culture);
 
         var tenant = new Tenant

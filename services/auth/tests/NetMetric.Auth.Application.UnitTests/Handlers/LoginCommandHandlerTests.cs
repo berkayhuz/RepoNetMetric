@@ -19,6 +19,28 @@ namespace NetMetric.Auth.Application.UnitTests.Handlers;
 public sealed class LoginCommandHandlerTests
 {
     [Fact]
+    public async Task Handle_Should_Reject_Unknown_User_As_InvalidCredentials()
+    {
+        var now = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var command = new LoginCommand(tenantId, "unknown@example.com", "StrongPassword123!", null, null, "127.0.0.1", "unit-test");
+
+        var fixture = CreateFixture(now);
+        fixture.TenantRepository.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Tenant { Id = tenantId, IsActive = true });
+        fixture.UserRepository.Setup(repository => repository.FindByTenantAndIdentityAsync(tenantId, "UNKNOWN@EXAMPLE.COM", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+
+        var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
+
+        var action = async () => await sut.Handle(command, CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
+        exception.Which.ErrorCode.Should().Be("invalid_credentials");
+    }
+
+    [Fact]
     public async Task Handle_Should_Reject_Unconfirmed_Email_When_Required()
     {
         var now = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
@@ -160,6 +182,90 @@ public sealed class LoginCommandHandlerTests
                 cancellationToken),
             Times.Once);
         fixture.UserSessionStateValidator.Verify(validator => validator.Evict(tenantId, evictedSession), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Reject_Invalid_Mfa_Code()
+    {
+        var now = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        user.EmailConfirmed = true;
+        user.MfaEnabled = true;
+        user.AuthenticatorKeyProtected = "protected-key";
+        var membership = AuthTestDataBuilder.Membership(tenantId, user.Id);
+        var command = new LoginCommand(tenantId, user.Email!, "StrongPassword123!", "123456", null, "127.0.0.1", "unit-test");
+
+        var fixture = CreateFixture(now);
+        fixture.TenantRepository.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Tenant { Id = tenantId, IsActive = true });
+        fixture.UserRepository.Setup(repository => repository.FindByTenantAndIdentityAsync(tenantId, user.NormalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.UserRepository.Setup(repository => repository.GetMembershipAsync(tenantId, user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(membership);
+        fixture.PasswordHasher.Setup(hasher => hasher.VerifyHashedPassword(user, user.PasswordHash, command.Password))
+            .Returns(PasswordVerificationResult.Success);
+        fixture.AuthenticatorKeyProtector.Setup(protector => protector.Unprotect("protected-key"))
+            .Returns("shared-key");
+        fixture.TotpService.Setup(service => service.VerifyCode("shared-key", "123456", now))
+            .Returns(false);
+
+        var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
+
+        var action = async () => await sut.Handle(command, CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
+        exception.Which.ErrorCode.Should().Be("invalid_mfa_code");
+        fixture.UserSessionRepository.Verify(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Login_With_Valid_Mfa_Code()
+    {
+        var now = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        user.EmailConfirmed = true;
+        user.MfaEnabled = true;
+        user.AuthenticatorKeyProtected = "protected-key";
+        var membership = AuthTestDataBuilder.Membership(tenantId, user.Id);
+        var command = new LoginCommand(tenantId, user.Email!, "StrongPassword123!", "123456", null, "127.0.0.1", "unit-test");
+        var refreshDescriptor = new RefreshTokenDescriptor("refresh-token", "refresh-token-hash", now.AddDays(14));
+        var accessDescriptor = AuthTestDataBuilder.AccessTokenDescriptor("access-token");
+
+        var fixture = CreateFixture(now);
+        fixture.TenantRepository.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Tenant { Id = tenantId, IsActive = true });
+        fixture.UserRepository.Setup(repository => repository.FindByTenantAndIdentityAsync(tenantId, user.NormalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.UserRepository.Setup(repository => repository.GetMembershipAsync(tenantId, user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(membership);
+        fixture.PasswordHasher.Setup(hasher => hasher.VerifyHashedPassword(user, user.PasswordHash, command.Password))
+            .Returns(PasswordVerificationResult.Success);
+        fixture.AuthenticatorKeyProtector.Setup(protector => protector.Unprotect("protected-key"))
+            .Returns("shared-key");
+        fixture.TotpService.Setup(service => service.VerifyCode("shared-key", "123456", now))
+            .Returns(true);
+        fixture.RefreshTokenService.Setup(service => service.Generate()).Returns(refreshDescriptor);
+        fixture.AccessTokenFactory.Setup(factory => factory.Create(
+                user.Id,
+                user.UserName,
+                user.Email!,
+                user.TokenVersion,
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                tenantId,
+                It.IsAny<Guid>()))
+            .Returns(accessDescriptor);
+
+        var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
+
+        var response = await sut.Handle(command, CancellationToken.None);
+
+        response.AccessToken.Should().Be("access-token");
+        response.RefreshToken.Should().Be("refresh-token");
+        fixture.UserSessionRepository.Verify(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static Fixture CreateFixture(DateTime now)

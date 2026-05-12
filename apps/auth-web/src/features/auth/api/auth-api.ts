@@ -22,14 +22,32 @@ export type RegisterRequest = {
   workspaceName?: string;
 };
 
+function toRegisterPayload(input: RegisterRequest) {
+  const fullName = input.fullName.trim();
+  const [firstName = "", ...rest] = fullName.split(/\s+/);
+  const lastName = rest.join(" ").trim();
+  const userName = input.email.trim();
+  const tenantName = input.workspaceName?.trim() || `${fullName || userName}'s workspace`;
+
+  return {
+    tenantName,
+    userName,
+    email: input.email.trim(),
+    password: input.password,
+    firstName: firstName || null,
+    lastName: lastName || null,
+  };
+}
+
 export type ForgotPasswordRequest = {
   email: string;
 };
 
 export type ResetPasswordRequest = {
-  email: string;
+  tenantId: string;
+  userId: string;
   token: string;
-  password: string;
+  newPassword: string;
 };
 
 export type ConfirmEmailRequest = {
@@ -52,7 +70,7 @@ export const authApi = {
   register(input: RegisterRequest): Promise<RegisterSuccessResult> {
     return apiRequest<RegisterSuccessResult>(authEndpoints.register, {
       method: "POST",
-      body: input,
+      body: toRegisterPayload(input),
     });
   },
 

@@ -1,8 +1,8 @@
-using NetMetric.Auth.Domain.Common;
+using NetMetric.Entities;
 
 namespace NetMetric.Auth.Domain.Entities;
 
-public sealed class TrustedDevice : EntityBase
+public sealed class TrustedDevice : AuditableEntity
 {
     public Guid UserId { get; set; }
     public string DeviceFingerprintHash { get; set; } = null!;

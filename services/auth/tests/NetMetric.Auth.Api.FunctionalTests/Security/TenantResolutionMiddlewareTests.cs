@@ -63,4 +63,51 @@ public sealed class TenantResolutionMiddlewareTests : IAsyncLifetime
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task Login_Should_Be_Blocked_When_Tenant_Is_Not_Resolved_And_Body_Tenant_Is_Empty()
+    {
+        var response = await _client.PostAsync(
+            "/api/auth/login",
+            JsonSerializationHelper.ToJsonContent(new LoginRequest(Guid.Empty, "berkay@example.com", "Str0ng!Pass123")));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Login_Should_Ignore_Tenant_Header_When_Request_Is_Not_Trusted()
+    {
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/api/auth/login")
+        {
+            Content = JsonSerializationHelper.ToJsonContent(new LoginRequest(Guid.Empty, "berkay@example.com", "Str0ng!Pass123"))
+        };
+        request.Headers.Add("X-Tenant-Id", _tenantId.ToString("D"));
+
+        var response = await _client.SendAsync(request);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_Should_Be_Blocked_When_Tenant_Is_Not_Resolved_And_Body_Tenant_Is_Empty()
+    {
+        var response = await _client.PostAsync(
+            "/api/auth/forgot-password",
+            JsonSerializationHelper.ToJsonContent(new ForgotPasswordRequest(Guid.Empty, "berkay@example.com")));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ResetPassword_Should_Be_Blocked_When_Tenant_Is_Not_Resolved_And_Body_Tenant_Is_Empty()
+    {
+        var response = await _client.PostAsync(
+            "/api/auth/reset-password",
+            JsonSerializationHelper.ToJsonContent(
+                new ResetPasswordRequest(Guid.Empty, Guid.NewGuid(), "reset-token", "Str0ng!Pass123")));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
 }

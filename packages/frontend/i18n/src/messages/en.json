@@ -129,8 +129,15 @@
   "hint.emailConfirmedLogin": "If your email is confirmed",
 
   "success.forgotPasswordSent": "If an account exists for this email, a reset link has been sent.",
+  "success.passwordReset": "Your password has been updated successfully.",
   "success.emailConfirmed": "Your email address has been confirmed successfully.",
   "success.confirmationSent": "If an account exists for this email, a confirmation link has been sent.",
+  "success.login": "Login successful.",
+  "success.loginMfaRequired": "Login verified. Please complete MFA to continue.",
+  "success.register": "Registration successful.",
+  "success.mfaVerified": "MFA verification successful.",
+  "success.recoveryCodeVerified": "Recovery code verified successfully.",
+  "success.workspaceSelected": "Workspace selected successfully.",
 
   "workspace.loading": "Loading workspace information...",
   "workspace.none": "No available workspace was found.",
@@ -146,6 +153,7 @@
   "auth.error.access_denied": "You are not authorized for this action.",
   "auth.error.mfa_invalid": "Code verification failed. Please try again.",
   "auth.error.recovery_invalid": "Recovery code verification failed. Please try again.",
+  "auth.error.registration_conflict": "An account with these details already exists.",
   "auth.error.request_failed": "Request failed.",
 
   "validation.email.required": "Email address is required.",

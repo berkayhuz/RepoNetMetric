@@ -1,0 +1,23 @@
+using MediatR;
+using NetMetric.CRM.TagManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TagManagement.Domain.Entities.TagDefinitions;
+
+namespace NetMetric.CRM.TagManagement.Application.Features.Classifications.Commands.CreateClassificationScheme;
+
+public sealed class CreateClassificationSchemeCommandHandler : IRequestHandler<CreateClassificationSchemeCommand, Guid>
+{
+    private readonly ITagManagementDbContext _dbContext;
+
+    public CreateClassificationSchemeCommandHandler(ITagManagementDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<Guid> Handle(CreateClassificationSchemeCommand request, CancellationToken cancellationToken)
+    {
+        var entity = TagDefinition.Create("CreateClassificationScheme");
+        await _dbContext.TagDefinitions.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity.Id;
+    }
+}

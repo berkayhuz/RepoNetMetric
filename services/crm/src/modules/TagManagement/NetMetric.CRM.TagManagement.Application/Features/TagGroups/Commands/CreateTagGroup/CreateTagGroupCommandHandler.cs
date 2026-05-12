@@ -1,0 +1,23 @@
+using NetMetric.CRM.TagManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TagManagement.Domain.Entities.TagDefinitions;
+using MediatR;
+
+namespace NetMetric.CRM.TagManagement.Application.Features.TagGroups.Commands.CreateTagGroup;
+
+public sealed class CreateTagGroupCommandHandler : IRequestHandler<CreateTagGroupCommand, Guid>
+{
+    private readonly ITagManagementDbContext _dbContext;
+
+    public CreateTagGroupCommandHandler(ITagManagementDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<Guid> Handle(CreateTagGroupCommand request, CancellationToken cancellationToken)
+    {
+        var entity = TagDefinition.Create("CreateTagGroup");
+        await _dbContext.TagDefinitions.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity.Id;
+    }
+}

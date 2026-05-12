@@ -4,6 +4,13 @@ import type { ValidationText } from "./validation-text";
 
 export function createRegisterSchema(v: ValidationText) {
   const nameSchema = z.string().trim().min(2, v.fullNameMin).max(120, v.fullNameMax);
+  const workspaceNameSchema = z.preprocess((value) => {
+    if (typeof value !== "string") {
+      return value;
+    }
+
+    return value.trim().length === 0 ? undefined : value;
+  }, z.string().trim().min(2, v.workspaceNameMin).max(120, v.workspaceNameMax).optional());
 
   return z
     .object({
@@ -11,12 +18,7 @@ export function createRegisterSchema(v: ValidationText) {
       email: z.string().trim().min(1, v.emailRequired).email(v.emailInvalid),
       password: z.string().min(8, v.passwordMin).max(128, v.passwordMax),
       confirmPassword: z.string().min(1, v.confirmPasswordRequired),
-      workspaceName: z
-        .string()
-        .trim()
-        .min(2, v.workspaceNameMin)
-        .max(120, v.workspaceNameMax)
-        .optional(),
+      workspaceName: workspaceNameSchema,
       acceptTerms: z.coerce.boolean().refine((value) => value, { message: v.acceptTermsRequired }),
       returnUrl: z.string().trim().optional(),
     })

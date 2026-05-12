@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Infrastructure.Persistence;
+using NetMetric.Clock;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
@@ -30,7 +30,7 @@ public sealed class DataRetentionCleanupService(
                 using var scope = scopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
-                var utcNow = clock.UtcNow;
+                var utcNow = clock.UtcDateTime;
                 var sessionCutoff = utcNow.AddDays(-value.RevokedSessionRetentionDays);
                 var auditCutoff = utcNow.AddDays(-value.AuditRetentionDays);
 

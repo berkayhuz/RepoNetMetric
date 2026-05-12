@@ -1,8 +1,11 @@
-﻿import { Spinner } from "@netmetric/ui";
+import { Spinner } from "@netmetric/ui";
 
-import { tClient } from "@/features/auth/i18n/auth-i18n.client";
+import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.server";
 
-export default function Loading() {
+export default async function Loading() {
+  const locale = await getRequestLocale();
+  const t = getTranslator(locale);
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
       <div
@@ -11,7 +14,7 @@ export default function Loading() {
         className="flex items-center gap-2 text-sm text-muted-foreground"
       >
         <Spinner />
-        <span>{tClient("common.loading")}</span>
+        <span>{t("common.loading")}</span>
       </div>
     </main>
   );
