@@ -1,4 +1,9 @@
-import { SessionsReadOnlyPanel } from "@/features/account/components/sessions-read-only-panel";
+import {
+  revokeOtherSessionsAction,
+  revokeSessionAction,
+  revokeTrustedDeviceAction,
+} from "@/features/account/actions/session-management-actions";
+import { SessionsManagementPanel } from "@/features/account/components/sessions-management-panel";
 import { getSessionsAndDevicesForPage } from "@/features/account/data/security-read-data";
 import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
@@ -13,5 +18,13 @@ export default async function SecuritySessionsPage() {
     handleAccountApiPageError(error);
   }
 
-  return <SessionsReadOnlyPanel sessions={data.sessions} trustedDevices={data.trustedDevices} />;
+  return (
+    <SessionsManagementPanel
+      sessions={data.sessions}
+      trustedDevices={data.trustedDevices}
+      revokeSessionAction={revokeSessionAction}
+      revokeOtherSessionsAction={revokeOtherSessionsAction}
+      revokeTrustedDeviceAction={revokeTrustedDeviceAction}
+    />
+  );
 }
