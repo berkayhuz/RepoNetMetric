@@ -1,4 +1,9 @@
-import { PasswordSecurityPlaceholderPanel } from "@/features/account/components/password-security-placeholder-panel";
+import {
+  changePasswordAction,
+  confirmEmailChangeAction,
+  requestEmailChangeAction,
+} from "@/features/account/actions/security-credential-actions";
+import { PasswordSecurityManagementPanel } from "@/features/account/components/password-security-management-panel";
 import {
   getMfaStatusForPage,
   getSessionsAndDevicesForPage,
@@ -20,5 +25,13 @@ export default async function SecurityPasswordPage() {
     handleAccountApiPageError(error);
   }
 
-  return <PasswordSecurityPlaceholderPanel mfaStatus={mfaStatus} sessions={sessions} />;
+  return (
+    <PasswordSecurityManagementPanel
+      mfaStatus={mfaStatus}
+      sessions={sessions}
+      passwordAction={changePasswordAction}
+      emailRequestAction={requestEmailChangeAction}
+      emailConfirmAction={confirmEmailChangeAction}
+    />
+  );
 }
