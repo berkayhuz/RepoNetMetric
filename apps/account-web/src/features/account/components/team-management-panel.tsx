@@ -11,7 +11,7 @@ import {
 import type { TeamReadData } from "@/features/account/data/team-data";
 
 import { InvitationManagementPanel } from "./invitation-management-panel";
-import { MembersReadOnlyPanel } from "./members-read-only-panel";
+import { MemberRoleManagementPanel } from "./member-role-management-panel";
 import { RolesCatalogPanel } from "./roles-catalog-panel";
 
 type TeamManagementPanelProps = {
@@ -24,7 +24,7 @@ export function TeamManagementPanel({ teamData }: TeamManagementPanelProps) {
       <div className="space-y-2">
         <Heading level={2}>Team management</Heading>
         <Text className="text-muted-foreground">
-          Read-only team visibility. Invitation and role changes are planned for a later phase.
+          Manage invitations and member roles. Backend authorization policies remain authoritative.
         </Text>
       </div>
 
@@ -44,7 +44,7 @@ export function TeamManagementPanel({ teamData }: TeamManagementPanelProps) {
         </CardContent>
       </Card>
 
-      <MembersReadOnlyPanel members={teamData.members} />
+      <MemberRoleManagementPanel members={teamData.members} rolesCatalog={teamData.rolesCatalog} />
       <RolesCatalogPanel rolesCatalog={teamData.rolesCatalog} />
       <InvitationManagementPanel invitations={teamData.invitations} />
     </section>
