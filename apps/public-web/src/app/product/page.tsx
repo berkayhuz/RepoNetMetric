@@ -4,14 +4,14 @@ import { StandardPage } from "@/features/public/components/standard-page";
 import { getPageContent } from "@/features/public/content/pages";
 import { createPageMetadata } from "@/lib/metadata";
 
-const content = getPageContent("home");
+const content = getPageContent("product");
 
 export const metadata: Metadata = createPageMetadata({
-  title: "NetMetric",
+  title: "Product",
   description: content.description,
-  path: "/",
+  path: "/product",
 });
 
-export default function HomePage() {
+export default function ProductPage() {
   return <StandardPage content={content} />;
 }

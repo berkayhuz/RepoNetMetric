@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
-
 import { StandardPage } from "@/features/public/components/standard-page";
 import { getPageContent } from "@/features/public/content/pages";
 import { createPageMetadata } from "@/lib/metadata";
 
-const content = getPageContent("home");
-
+const content = getPageContent("developers");
 export const metadata: Metadata = createPageMetadata({
-  title: "NetMetric",
+  title: "Developers",
   description: content.description,
-  path: "/",
+  path: "/developers",
 });
-
-export default function HomePage() {
+export default function DevelopersPage() {
   return <StandardPage content={content} />;
 }

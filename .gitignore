@@ -122,3 +122,4 @@ graph.json
 # Misc
 
 apps/auth-web/tsconfig.tsbuildinfo
+*.tsbuildinfo
