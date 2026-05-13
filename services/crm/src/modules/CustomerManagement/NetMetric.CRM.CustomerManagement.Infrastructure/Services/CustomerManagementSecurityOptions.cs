@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Infrastructure.Services;
+namespace NetMetric.CRM.CustomerManagement.Infrastructure.Services;
 
 public sealed class CustomerManagementSecurityOptions
 {

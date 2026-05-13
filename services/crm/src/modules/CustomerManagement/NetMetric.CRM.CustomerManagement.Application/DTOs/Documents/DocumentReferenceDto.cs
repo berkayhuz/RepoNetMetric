@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Documents;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Documents;
 
 public sealed class DocumentReferenceDto
 {

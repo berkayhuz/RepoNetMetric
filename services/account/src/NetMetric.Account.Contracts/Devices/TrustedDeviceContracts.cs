@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Devices;
+namespace NetMetric.Account.Contracts.Devices;
 
 public sealed record TrustedDeviceResponse(
     Guid Id,

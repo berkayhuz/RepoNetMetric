@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketManagement.Application.Common;
+namespace NetMetric.CRM.TicketManagement.Application.Common;
 
 public static class TicketManagementEntityNames
 {

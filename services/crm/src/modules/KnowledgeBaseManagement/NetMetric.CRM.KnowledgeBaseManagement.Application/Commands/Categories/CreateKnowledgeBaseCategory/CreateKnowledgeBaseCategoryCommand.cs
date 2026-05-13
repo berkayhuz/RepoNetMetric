@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Categories.CreateKnowledgeBaseCategory;
 

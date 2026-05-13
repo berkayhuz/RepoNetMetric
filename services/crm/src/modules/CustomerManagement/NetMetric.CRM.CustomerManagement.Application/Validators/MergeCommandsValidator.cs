@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Commands.MergeCompanyRecords;
+using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Commands.MergeCompanyRecords;
 using NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Commands.MergeContactRecords;
 using NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Commands.MergeCustomerRecords;
-using FluentValidation;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

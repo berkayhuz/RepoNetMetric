@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TagManagement.Contracts.DTOs;
+namespace NetMetric.CRM.TagManagement.Contracts.DTOs;
 
 public sealed class TagSummaryDto
 {

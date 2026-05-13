@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 
 namespace NetMetric.CRM.ArtificialIntelligence.Application.Abstractions.Persistence;
 

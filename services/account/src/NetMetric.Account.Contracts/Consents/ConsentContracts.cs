@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Consents;
+namespace NetMetric.Account.Contracts.Consents;
 
 public sealed record ConsentHistoryItemResponse(
     Guid Id,

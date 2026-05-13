@@ -1,10 +1,10 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkAssignCompaniesOwner;
+using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkAssignCompaniesOwner;
 using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkAssignContactsOwner;
 using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkAssignCustomersOwner;
 using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkSoftDeleteCompanies;
 using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkSoftDeleteContacts;
 using NetMetric.CRM.CustomerManagement.Application.Features.Bulk.Commands.BulkSoftDeleteCustomers;
-using FluentValidation;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

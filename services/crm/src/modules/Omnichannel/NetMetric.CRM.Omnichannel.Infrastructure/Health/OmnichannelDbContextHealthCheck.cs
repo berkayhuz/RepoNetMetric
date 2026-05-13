@@ -1,6 +1,6 @@
-using NetMetric.CRM.Omnichannel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.Omnichannel.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.Omnichannel.Infrastructure.Health;
 

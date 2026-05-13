@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SupportInboxIntegration.Contracts.Requests;
+namespace NetMetric.CRM.SupportInboxIntegration.Contracts.Requests;
 
 public sealed class TriggerSupportInboxSyncRequest
 {

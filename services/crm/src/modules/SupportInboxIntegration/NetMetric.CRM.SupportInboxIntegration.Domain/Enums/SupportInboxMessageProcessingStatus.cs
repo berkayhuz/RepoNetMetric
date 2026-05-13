@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
+namespace NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
 
 public enum SupportInboxMessageProcessingStatus
 {

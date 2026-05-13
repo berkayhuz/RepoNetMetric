@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.CustomFields;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.CustomFields;
 
 public sealed class CustomFieldValueDto
 {

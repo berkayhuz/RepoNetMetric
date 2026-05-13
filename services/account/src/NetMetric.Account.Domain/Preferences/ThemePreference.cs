@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Domain.Preferences;
+namespace NetMetric.Account.Domain.Preferences;
 
 public enum ThemePreference
 {

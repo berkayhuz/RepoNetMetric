@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.Omnichannel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.Omnichannel.Domain.Entities;
 
 namespace NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;
 

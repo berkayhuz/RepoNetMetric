@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Timeline;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Timeline;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Timeline.Queries.GetEntityTimeline;
 

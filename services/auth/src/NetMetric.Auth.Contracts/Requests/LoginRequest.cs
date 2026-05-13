@@ -1,7 +1,7 @@
-﻿namespace NetMetric.Auth.Contracts.Requests;
+namespace NetMetric.Auth.Contracts.Requests;
 
 public sealed record LoginRequest(
-    Guid TenantId,
+    Guid? TenantId,
     string EmailOrUserName,
     string Password,
     string? MfaCode = null,

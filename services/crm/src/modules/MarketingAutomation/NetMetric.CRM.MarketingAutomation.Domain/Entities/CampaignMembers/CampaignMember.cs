@@ -1,6 +1,5 @@
-using NetMetric.Entities;
-
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Consents;
+using NetMetric.Entities;
 using NetMetric.Guards;
 
 namespace NetMetric.CRM.MarketingAutomation.Domain.Entities.CampaignMembers;

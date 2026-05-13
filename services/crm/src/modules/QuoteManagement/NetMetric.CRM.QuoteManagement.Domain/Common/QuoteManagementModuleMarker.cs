@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.QuoteManagement.Domain.Common;
+namespace NetMetric.CRM.QuoteManagement.Domain.Common;
 
 public sealed class QuoteManagementModuleMarker
 {

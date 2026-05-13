@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.WorkManagement.Domain.Enums;
+namespace NetMetric.CRM.WorkManagement.Domain.Enums;
 
 public enum WorkActivityType
 {

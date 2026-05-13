@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 
 namespace NetMetric.CRM.ArtificialIntelligence.Infrastructure.Persistence.Configurations;
 

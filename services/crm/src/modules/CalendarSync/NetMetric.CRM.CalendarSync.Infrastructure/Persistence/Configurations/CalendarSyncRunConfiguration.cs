@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CalendarSync.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.CalendarSync.Domain.Entities;
 
 namespace NetMetric.CRM.CalendarSync.Infrastructure.Persistence.Configurations;
 

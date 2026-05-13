@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.HttpOverrides;
 using NetMetric.Account.Api.DependencyInjection;
 using NetMetric.Account.Api.Health;
 using NetMetric.Account.Api.Http;

@@ -1,6 +1,6 @@
 using MediatR;
-using NetMetric.CRM.Types;
 using NetMetric.CRM.TicketManagement.Contracts.DTOs;
+using NetMetric.CRM.Types;
 
 namespace NetMetric.CRM.TicketManagement.Application.Commands.Tickets;
 

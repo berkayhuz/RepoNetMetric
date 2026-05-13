@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.DealManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.DealManagement.Domain.Entities;
 
 namespace NetMetric.CRM.DealManagement.Infrastructure.Persistence.Configurations;
 

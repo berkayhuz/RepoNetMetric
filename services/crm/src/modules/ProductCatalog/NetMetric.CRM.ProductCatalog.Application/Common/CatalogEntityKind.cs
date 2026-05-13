@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ProductCatalog.Application.Common;
+namespace NetMetric.CRM.ProductCatalog.Application.Common;
 
 public enum CatalogEntityKind
 {

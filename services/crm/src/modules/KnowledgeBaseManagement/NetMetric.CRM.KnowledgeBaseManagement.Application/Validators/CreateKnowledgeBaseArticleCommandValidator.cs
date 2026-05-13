@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Articles.CreateKnowledgeBaseArticle;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Validators;

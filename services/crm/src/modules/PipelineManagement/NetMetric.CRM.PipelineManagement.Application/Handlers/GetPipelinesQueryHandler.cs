@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.PipelineManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.PipelineManagement.Application.Queries;

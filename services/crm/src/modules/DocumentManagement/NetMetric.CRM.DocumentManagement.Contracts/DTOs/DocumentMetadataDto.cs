@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.DocumentManagement.Contracts.DTOs;
+namespace NetMetric.CRM.DocumentManagement.Contracts.DTOs;
 
 public sealed class DocumentMetadataDto
 {

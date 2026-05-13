@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace NetMetric.CRM.DealManagement.Application.Commands.Deals;
 

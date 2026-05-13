@@ -1,4 +1,4 @@
-﻿using NetMetric.Account.Contracts.Organizations;
+using NetMetric.Account.Contracts.Organizations;
 
 namespace NetMetric.Account.Contracts.Overview;
 

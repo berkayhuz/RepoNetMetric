@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.WorkManagement.Application.Commands.Tasks.CreateWorkTask;
 

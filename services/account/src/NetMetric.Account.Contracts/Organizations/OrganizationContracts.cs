@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Organizations;
+namespace NetMetric.Account.Contracts.Organizations;
 
 public sealed record OrganizationMembershipSummaryResponse(
     Guid OrganizationId,

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Application.Abstractions.Security;
+namespace NetMetric.Account.Application.Abstractions.Security;
 
 public sealed record CurrentUser(
     Guid TenantId,

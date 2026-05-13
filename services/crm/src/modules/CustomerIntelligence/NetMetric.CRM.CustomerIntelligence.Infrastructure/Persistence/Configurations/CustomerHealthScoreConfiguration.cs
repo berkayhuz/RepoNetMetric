@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerHealthScores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerHealthScores;
 
 namespace NetMetric.CRM.CustomerIntelligence.Infrastructure.Persistence.Configurations;
 

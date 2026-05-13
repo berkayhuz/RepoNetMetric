@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 
 namespace NetMetric.CRM.CustomerIntelligence.Application.Features.Customer360.Commands.AppendCustomerActivity;
 

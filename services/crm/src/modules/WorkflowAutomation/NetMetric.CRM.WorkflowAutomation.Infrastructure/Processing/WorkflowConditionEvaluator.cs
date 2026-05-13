@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 using NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Rules;
 

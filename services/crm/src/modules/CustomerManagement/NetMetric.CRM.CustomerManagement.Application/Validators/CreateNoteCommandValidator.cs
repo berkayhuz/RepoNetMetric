@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Features.Notes.Commands.CreateNote;
 using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Features.Notes.Commands.CreateNote;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

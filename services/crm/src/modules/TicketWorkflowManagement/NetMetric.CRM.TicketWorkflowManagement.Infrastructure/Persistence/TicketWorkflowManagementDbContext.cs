@@ -1,10 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.TicketWorkflowManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.TicketWorkflowManagement.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using NetMetric.Tenancy;
-using NetMetric.Persistence.EntityFrameworkCore.Tenancy;
 using NetMetric.Persistence.EntityFrameworkCore.Auditing;
 using NetMetric.Persistence.EntityFrameworkCore.SoftDelete;
+using NetMetric.Persistence.EntityFrameworkCore.Tenancy;
+using NetMetric.Tenancy;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Infrastructure.Persistence;
 

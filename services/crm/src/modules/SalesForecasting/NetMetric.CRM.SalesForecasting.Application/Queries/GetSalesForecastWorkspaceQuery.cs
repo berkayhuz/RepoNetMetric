@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 
 namespace NetMetric.CRM.SalesForecasting.Application.Queries;
 

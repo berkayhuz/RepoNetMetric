@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Management;
+namespace NetMetric.Account.Contracts.Management;
 
 public sealed record CreateAccountInvitationRequest(
     string Email,

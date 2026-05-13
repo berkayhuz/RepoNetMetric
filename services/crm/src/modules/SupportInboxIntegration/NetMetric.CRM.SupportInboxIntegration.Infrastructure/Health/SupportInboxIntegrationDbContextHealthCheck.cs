@@ -1,5 +1,5 @@
-using NetMetric.CRM.SupportInboxIntegration.Infrastructure.Persistence;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.SupportInboxIntegration.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Infrastructure.Health;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Domain.Audit;
+namespace NetMetric.Account.Domain.Audit;
 
 public enum AuditSeverity
 {

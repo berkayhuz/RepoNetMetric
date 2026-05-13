@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;

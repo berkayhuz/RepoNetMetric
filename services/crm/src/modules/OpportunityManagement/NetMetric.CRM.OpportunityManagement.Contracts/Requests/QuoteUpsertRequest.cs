@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.OpportunityManagement.Contracts.Requests;
+namespace NetMetric.CRM.OpportunityManagement.Contracts.Requests;
 
 
 public sealed class QuoteUpsertRequest

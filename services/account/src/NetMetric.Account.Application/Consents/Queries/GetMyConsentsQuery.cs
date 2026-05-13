@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;

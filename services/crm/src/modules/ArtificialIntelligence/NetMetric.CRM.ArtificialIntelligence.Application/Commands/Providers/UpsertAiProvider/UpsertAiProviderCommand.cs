@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.ArtificialIntelligence.Contracts.DTOs;
-using NetMetric.CRM.ArtificialIntelligence.Domain.Enums;
 using MediatR;
+using NetMetric.CRM.ArtificialIntelligence.Contracts.DTOs;
+using NetMetric.CRM.ArtificialIntelligence.Domain.Enums;
 
 namespace NetMetric.CRM.ArtificialIntelligence.Application.Commands.Providers.UpsertAiProvider;
 

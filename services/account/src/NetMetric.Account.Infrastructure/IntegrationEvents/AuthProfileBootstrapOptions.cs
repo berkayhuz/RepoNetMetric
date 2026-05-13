@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Infrastructure.IntegrationEvents;
+namespace NetMetric.Account.Infrastructure.IntegrationEvents;
 
 public sealed class AuthProfileBootstrapOptions
 {

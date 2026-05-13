@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.WorkManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.WorkManagement.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.WorkManagement.Infrastructure.Health;
 

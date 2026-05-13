@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.Auth.Infrastructure.Persistence;
 
 namespace NetMetric.Auth.API.Health;

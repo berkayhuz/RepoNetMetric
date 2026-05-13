@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Services;
+namespace NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Services;
 
 public interface ISupportInboxSynchronizationService
 {

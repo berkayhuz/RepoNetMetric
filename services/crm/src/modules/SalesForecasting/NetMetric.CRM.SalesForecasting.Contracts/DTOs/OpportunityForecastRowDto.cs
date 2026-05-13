@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.SalesForecasting.Contracts.Enums;
+using NetMetric.CRM.SalesForecasting.Contracts.Enums;
 
 namespace NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 

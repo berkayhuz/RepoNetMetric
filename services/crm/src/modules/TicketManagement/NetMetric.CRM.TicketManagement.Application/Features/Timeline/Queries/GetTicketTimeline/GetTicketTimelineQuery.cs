@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.TicketManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.TicketManagement.Application.Features.Timeline.Queries.GetTicketTimeline;
 

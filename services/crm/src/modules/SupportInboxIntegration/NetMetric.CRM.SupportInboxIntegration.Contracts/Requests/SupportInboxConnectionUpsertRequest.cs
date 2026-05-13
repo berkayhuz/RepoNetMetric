@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
+using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Contracts.Requests;
 

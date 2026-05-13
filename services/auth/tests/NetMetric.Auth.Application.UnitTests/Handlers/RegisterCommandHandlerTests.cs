@@ -11,6 +11,7 @@ using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Features.Handlers;
 using NetMetric.Auth.Application.Options;
+using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.TestKit.Fakes;
@@ -46,7 +47,7 @@ public sealed class RegisterCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Should_Publish_Email_Confirmation_Event_On_Successful_Registration()
+    public async Task Handle_When_EmailConfirmation_Is_Required_Should_Not_Issue_Authenticated_Tokens()
     {
         var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
         var command = new RegisterCommand(
@@ -65,11 +66,39 @@ public sealed class RegisterCommandHandlerTests
 
         var response = await sut.Handle(command, CancellationToken.None);
 
-        response.AccessToken.Should().Be("access-token");
-        response.RefreshToken.Should().Be("refresh-token");
-        response.Email.Should().Be("berkay@example.com");
-
+        response.Should().BeOfType<AuthSessionResult.PendingConfirmation>();
+        fixture.RefreshTokenService.Verify(service => service.Generate(), Times.Never);
+        fixture.UserSessionRepository.Verify(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()), Times.Never);
+        fixture.AccessTokenFactory.Verify(factory => factory.Create(It.IsAny<User>(), It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
         OutboxShouldContainEmailConfirmationEvent(fixture);
+    }
+
+    [Fact]
+    public async Task Handle_When_EmailConfirmation_Is_Not_Required_Should_Issue_Authenticated_Tokens()
+    {
+        var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
+        var command = new RegisterCommand(
+            "Acme Workspace",
+            "berkay",
+            "berkay@example.com",
+            "Str0ng!Pass123",
+            "Berkay",
+            "Test",
+            "en-US",
+            "127.0.0.1",
+            "unit-test");
+
+        var fixture = new Fixture(utcNow);
+        fixture.AllowLoginBeforeEmailConfirmation();
+        var sut = fixture.CreateSut();
+
+        var response = await sut.Handle(command, CancellationToken.None);
+
+        var issued = response.Should().BeOfType<AuthSessionResult.Issued>().Subject;
+        issued.Tokens.AccessToken.Should().Be("access-token");
+        issued.Tokens.RefreshToken.Should().Be("refresh-token");
+        issued.Tokens.Email.Should().Be("berkay@example.com");
+        fixture.UserSessionRepository.Verify(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static void OutboxShouldContainEmailConfirmationEvent(Fixture fixture)
@@ -163,11 +192,22 @@ public sealed class RegisterCommandHandlerTests
         public Mock<IAuthSessionService> AuthSessionService { get; } = new();
         public Mock<IUserSessionStateValidator> UserSessionStateValidator { get; } = new();
         public Mock<IHttpContextAccessor> HttpContextAccessor { get; } = new();
+        public AccountLifecycleOptions LifecycleOptions { get; } = new()
+        {
+            EmailConfirmationTokenMinutes = 60,
+            PublicAppBaseUrl = "https://auth.example.com",
+            ConfirmEmailPath = "/confirm-email"
+        };
 
         public void UseSaveConflict()
         {
             UnitOfWork.Setup(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new DbUpdateException("Unique constraint violation."));
+        }
+
+        public void AllowLoginBeforeEmailConfirmation()
+        {
+            LifecycleOptions.RequireConfirmedEmailForLogin = false;
         }
 
         public RegisterCommandHandler CreateSut() =>
@@ -190,12 +230,7 @@ public sealed class RegisterCommandHandlerTests
                     BootstrapFirstUserRoles = ["tenant-owner", "tenant-user"],
                     BootstrapFirstUserPermissions = ["*"]
                 }),
-                Microsoft.Extensions.Options.Options.Create(new AccountLifecycleOptions
-                {
-                    EmailConfirmationTokenMinutes = 60,
-                    PublicAppBaseUrl = "https://auth.example.com",
-                    ConfirmEmailPath = "/confirm-email"
-                }),
+                Microsoft.Extensions.Options.Options.Create(LifecycleOptions),
                 AuthSessionService.Object,
                 UserSessionStateValidator.Object,
                 HttpContextAccessor.Object);

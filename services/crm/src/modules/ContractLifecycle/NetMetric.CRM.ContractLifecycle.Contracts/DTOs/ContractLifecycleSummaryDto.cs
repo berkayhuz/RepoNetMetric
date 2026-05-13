@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ContractLifecycle.Contracts.DTOs;
+namespace NetMetric.CRM.ContractLifecycle.Contracts.DTOs;
 
 public sealed class ContractLifecycleSummaryDto
 {

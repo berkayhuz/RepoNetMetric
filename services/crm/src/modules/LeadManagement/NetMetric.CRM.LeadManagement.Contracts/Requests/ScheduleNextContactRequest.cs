@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Contracts.Requests;
+namespace NetMetric.CRM.LeadManagement.Contracts.Requests;
 
 public sealed class ScheduleNextContactRequest
 {

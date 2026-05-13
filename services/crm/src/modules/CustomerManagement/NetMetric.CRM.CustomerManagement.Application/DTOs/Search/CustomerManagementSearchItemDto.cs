@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Search;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Search;
 
 public sealed class CustomerManagementSearchItemDto
 {

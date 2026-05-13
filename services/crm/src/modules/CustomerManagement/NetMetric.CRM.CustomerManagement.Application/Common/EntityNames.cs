@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.Common;
+namespace NetMetric.CRM.CustomerManagement.Application.Common;
 
 public static class EntityNames
 {

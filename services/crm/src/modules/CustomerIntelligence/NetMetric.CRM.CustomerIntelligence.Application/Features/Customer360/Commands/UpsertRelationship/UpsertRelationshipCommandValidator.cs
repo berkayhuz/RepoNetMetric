@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.CustomerIntelligence.Application.Features.Customer360.Commands.UpsertRelationship;
 

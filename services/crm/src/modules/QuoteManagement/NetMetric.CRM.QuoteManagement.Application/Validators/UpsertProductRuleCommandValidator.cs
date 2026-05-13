@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.QuoteManagement.Application.Commands.Quotes;
 using FluentValidation;
+using NetMetric.CRM.QuoteManagement.Application.Commands.Quotes;
 
 namespace NetMetric.CRM.QuoteManagement.Application.Validators;
 

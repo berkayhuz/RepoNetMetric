@@ -1,5 +1,5 @@
-using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 using NetMetric.CRM.Types;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Commands.Customers;

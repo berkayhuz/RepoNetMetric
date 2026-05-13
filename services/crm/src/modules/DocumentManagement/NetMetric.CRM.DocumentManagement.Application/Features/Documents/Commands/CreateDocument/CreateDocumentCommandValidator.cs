@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.DocumentManagement.Application.Features.Documents.Commands.CreateDocument;
 

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.ProductCatalog.Infrastructure.Persistence;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.ProductCatalog.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.ProductCatalog.Infrastructure.Health;
 

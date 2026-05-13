@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketManagement.Contracts.Requests;
+namespace NetMetric.CRM.TicketManagement.Contracts.Requests;
 
 public sealed class AddTicketCommentRequest
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Application.Common;
+namespace NetMetric.Account.Application.Common;
 
 public class Result
 {

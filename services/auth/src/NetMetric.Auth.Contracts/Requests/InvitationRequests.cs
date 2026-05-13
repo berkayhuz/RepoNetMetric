@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Contracts.Requests;
+namespace NetMetric.Auth.Contracts.Requests;
 
 public sealed record CreateTenantInvitationRequest(
     string Email,

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
 
 namespace NetMetric.CRM.LeadManagement.Application.Commands.Leads;

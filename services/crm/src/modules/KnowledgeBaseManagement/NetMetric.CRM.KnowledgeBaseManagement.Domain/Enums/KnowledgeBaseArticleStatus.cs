@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.KnowledgeBaseManagement.Domain.Enums;
+namespace NetMetric.CRM.KnowledgeBaseManagement.Domain.Enums;
 
 public enum KnowledgeBaseArticleStatus
 {

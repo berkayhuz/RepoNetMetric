@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerIntelligence.Application.Security;
+namespace NetMetric.CRM.CustomerIntelligence.Application.Security;
 
 public static class CustomerIntelligencePermissions
 {

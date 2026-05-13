@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Descriptors;
 using NetMetric.Auth.Application.Diagnostics;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
@@ -40,7 +41,7 @@ public sealed class CreateTenantInvitationCommandHandler(
 
         var utcNow = clock.UtcDateTime;
         var normalizedEmail = AuthenticationNormalization.Normalize(request.Email);
-        var invitedUser = await users.FindByIdentityAsync(normalizedEmail, cancellationToken);
+        var invitedUser = await users.FindByTenantAndIdentityAsync(request.TenantId, normalizedEmail, cancellationToken);
         if (await users.ExistsByEmailAsync(request.TenantId, normalizedEmail, cancellationToken))
         {
             throw new AuthApplicationException("Invitation conflict", "A user with this email already exists in the tenant.", (int)HttpStatusCode.Conflict, errorCode: "invite_identity_conflict");
@@ -94,7 +95,7 @@ public sealed class CreateTenantInvitationCommandHandler(
 
     private async Task<User> GetAuthorizedInviteManagerAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken)
     {
-        var inviter = await users.GetByIdAsync(tenantId, userId, cancellationToken)
+        var inviter = await users.GetActiveByIdAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Invitation can only be managed by a tenant user.", (int)HttpStatusCode.Forbidden, errorCode: "invite_forbidden");
         var membership = await users.GetMembershipAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Invitation can only be managed by a tenant user.", (int)HttpStatusCode.Forbidden, errorCode: "invite_forbidden");
@@ -187,7 +188,7 @@ public sealed class ListTenantInvitationsCommandHandler(
 
     internal static async Task<User> EnsureCanManageInvitesAsync(IUserRepository users, Guid tenantId, Guid userId, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(tenantId, userId, cancellationToken)
+        var user = await users.GetActiveByIdAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Invitation can only be managed by a tenant user.", (int)HttpStatusCode.Forbidden, errorCode: "invite_forbidden");
         var membership = await users.GetMembershipAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Invitation can only be managed by a tenant user.", (int)HttpStatusCode.Forbidden, errorCode: "invite_forbidden");
@@ -254,7 +255,7 @@ public sealed class ResendTenantInvitationCommandHandler(
         invitation.UpdatedBy = inviter.Id.ToString("N");
         await auditTrail.WriteAsync(new AuthAuditRecord(request.TenantId, "auth.invitation.resent", "accepted", inviter.Id, null, invitation.Email, request.IpAddress, request.UserAgent, request.CorrelationId, request.TraceId), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        var invitedUser = await users.FindByIdentityAsync(invitation.NormalizedEmail, cancellationToken);
+        var invitedUser = await users.FindByTenantAndIdentityAsync(request.TenantId, invitation.NormalizedEmail, cancellationToken);
         await SendResentInviteAsync(tenant, invitation, inviter, invitedUser, token, request, utcNow, cancellationToken);
 
         return CreateTenantInvitationCommandHandler.ToResponse(invitation, utcNow);
@@ -349,9 +350,9 @@ public sealed class AcceptTenantInvitationCommandHandler(
     IOptions<AccountLifecycleOptions> lifecycleOptions,
     IAuthSessionService authSessionService,
     IUserSessionStateValidator userSessionStateValidator)
-    : IRequestHandler<AcceptTenantInvitationCommand, AuthenticationTokenResponse>
+    : IRequestHandler<AcceptTenantInvitationCommand, AuthSessionResult>
 {
-    public async Task<AuthenticationTokenResponse> Handle(AcceptTenantInvitationCommand request, CancellationToken cancellationToken)
+    public async Task<AuthSessionResult> Handle(AcceptTenantInvitationCommand request, CancellationToken cancellationToken)
     {
         var utcNow = clock.UtcDateTime;
         var tenant = await tenants.GetByIdAsync(request.TenantId, cancellationToken);
@@ -380,7 +381,7 @@ public sealed class AcceptTenantInvitationCommandHandler(
         }
 
         var normalizedUserName = AuthenticationNormalization.Normalize(request.UserName);
-        var existingUser = await users.FindByIdentityAsync(normalizedEmail, cancellationToken);
+        var existingUser = await users.FindByTenantAndIdentityAsync(request.TenantId, normalizedEmail, cancellationToken);
         var isNewIdentity = existingUser is null;
 
         if (existingUser is null)
@@ -449,7 +450,6 @@ public sealed class AcceptTenantInvitationCommandHandler(
             await users.AddMembershipAsync(membership, cancellationToken);
         }
 
-        existingUser.LastLoginAt = utcNow;
         existingUser.UpdatedAt = utcNow;
 
         invitation.AcceptedAtUtc = utcNow;
@@ -457,23 +457,30 @@ public sealed class AcceptTenantInvitationCommandHandler(
         invitation.UpdatedAt = utcNow;
         invitation.UpdatedBy = existingUser.Id.ToString("N");
 
-        var refreshToken = refreshTokenService.Generate();
         var lifecycle = lifecycleOptions.Value;
-        var session = new UserSession
+        var shouldIssueAuthenticatedSession = !lifecycle.RequireConfirmedEmailForLogin || existingUser.EmailConfirmed;
+        RefreshTokenDescriptor? refreshToken = null;
+        UserSession? session = null;
+        if (shouldIssueAuthenticatedSession)
         {
-            TenantId = tenant.Id,
-            UserId = existingUser.Id,
-            RefreshTokenFamilyId = Guid.NewGuid(),
-            RefreshTokenHash = refreshToken.Hash,
-            RefreshTokenExpiresAt = refreshToken.ExpiresAtUtc,
-            CreatedAt = utcNow,
-            LastSeenAt = utcNow,
-            LastRefreshedAt = utcNow,
-            IpAddress = AuthenticationNormalization.CleanOrNull(request.IpAddress),
-            UserAgent = AuthenticationNormalization.CleanOrNull(request.UserAgent),
-            CreatedBy = existingUser.Id.ToString("N")
-        };
-        await sessions.AddAsync(session, cancellationToken);
+            existingUser.LastLoginAt = utcNow;
+            refreshToken = refreshTokenService.Generate();
+            session = new UserSession
+            {
+                TenantId = tenant.Id,
+                UserId = existingUser.Id,
+                RefreshTokenFamilyId = Guid.NewGuid(),
+                RefreshTokenHash = refreshToken.Hash,
+                RefreshTokenExpiresAt = refreshToken.ExpiresAtUtc,
+                CreatedAt = utcNow,
+                LastSeenAt = utcNow,
+                LastRefreshedAt = utcNow,
+                IpAddress = AuthenticationNormalization.CleanOrNull(request.IpAddress),
+                UserAgent = AuthenticationNormalization.CleanOrNull(request.UserAgent),
+                CreatedBy = existingUser.Id.ToString("N")
+            };
+            await sessions.AddAsync(session, cancellationToken);
+        }
 
         if (isNewIdentity)
         {
@@ -513,17 +520,19 @@ public sealed class AcceptTenantInvitationCommandHandler(
                 cancellationToken);
         }
 
-        var revokedSessionIds = await authSessionService.EnforceSessionLimitsAsync(tenant.Id, existingUser.Id, session.Id, cancellationToken);
+        var revokedSessionIds = session is null
+            ? []
+            : await authSessionService.EnforceSessionLimitsAsync(tenant.Id, existingUser.Id, session.Id, cancellationToken);
         await auditTrail.WriteAsync(
             new AuthAuditRecord(
                 tenant.Id,
                 "auth.invitation.accepted",
                 "success",
                 existingUser.Id,
-                session.Id,
+                session?.Id,
                 existingUser.Email,
-                session.IpAddress,
-                session.UserAgent,
+                session?.IpAddress,
+                session?.UserAgent,
                 request.CorrelationId,
                 request.TraceId),
             cancellationToken);
@@ -554,6 +563,11 @@ public sealed class AcceptTenantInvitationCommandHandler(
             userSessionStateValidator.Evict(tenant.Id, sessionId);
         }
 
+        if (session is null || refreshToken is null)
+        {
+            return new AuthSessionResult.PendingConfirmation(tenant.Id, existingUser.Id, existingUser.Email ?? string.Empty);
+        }
+
         AuthMetrics.AuthSucceeded.Add(1, new KeyValuePair<string, object?>("flow", "invite-accept"));
 
         var accessToken = accessTokenFactory.Create(
@@ -565,16 +579,17 @@ public sealed class AcceptTenantInvitationCommandHandler(
             membership.GetPermissions(),
             tenant.Id,
             session.Id);
-        return new AuthenticationTokenResponse(
-            accessToken.Token,
-            accessToken.ExpiresAtUtc,
-            refreshToken.Token,
-            refreshToken.ExpiresAtUtc,
-            tenant.Id,
-            existingUser.Id,
-            existingUser.UserName,
-            existingUser.Email ?? string.Empty,
-            session.Id);
+        return new AuthSessionResult.Issued(
+            new AuthenticationTokenResponse(
+                accessToken.Token,
+                accessToken.ExpiresAtUtc,
+                refreshToken.Token,
+                refreshToken.ExpiresAtUtc,
+                tenant.Id,
+                existingUser.Id,
+                existingUser.UserName,
+                existingUser.Email ?? string.Empty,
+                session.Id));
     }
 
     private static AuthApplicationException InvalidInvitation() =>
@@ -599,5 +614,6 @@ public sealed class AcceptTenantInvitationCommandHandler(
                 request.CorrelationId,
                 request.TraceId),
             cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

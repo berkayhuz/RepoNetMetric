@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace NetMetric.CRM.OpportunityManagement.Application.Commands;
 

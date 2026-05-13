@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Features.Search.Queries.SearchCustomerManagement;
 using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Features.Search.Queries.SearchCustomerManagement;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

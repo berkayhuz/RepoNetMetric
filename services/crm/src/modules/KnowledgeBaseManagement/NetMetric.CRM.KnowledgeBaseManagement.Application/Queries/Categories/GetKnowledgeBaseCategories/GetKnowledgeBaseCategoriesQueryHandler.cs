@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Queries.Categories.GetKnowledgeBaseCategories;
 

@@ -268,6 +268,50 @@ public sealed class LoginCommandHandlerTests
         fixture.UserSessionRepository.Verify(repository => repository.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task Handle_When_FirstActiveUserBootstrapChangesRoles_Should_Evict_TokenState()
+    {
+        var now = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        user.EmailConfirmed = true;
+        var membership = AuthTestDataBuilder.Membership(tenantId, user.Id);
+        var command = new LoginCommand(tenantId, user.Email!, "StrongPassword123!", null, null, "127.0.0.1", "unit-test");
+        var refreshDescriptor = new RefreshTokenDescriptor("refresh-token", "refresh-token-hash", now.AddDays(14));
+        var accessDescriptor = AuthTestDataBuilder.AccessTokenDescriptor("access-token");
+
+        var fixture = CreateFixture(now);
+        fixture.TenantRepository.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Tenant { Id = tenantId, IsActive = true });
+        fixture.UserRepository.Setup(repository => repository.FindByTenantAndIdentityAsync(tenantId, user.NormalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.UserRepository.Setup(repository => repository.GetMembershipAsync(tenantId, user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(membership);
+        fixture.UserRepository.Setup(repository => repository.IsFirstActiveUserInTenantAsync(tenantId, user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        fixture.PasswordHasher.Setup(hasher => hasher.VerifyHashedPassword(user, user.PasswordHash, command.Password))
+            .Returns(PasswordVerificationResult.Success);
+        fixture.RefreshTokenService.Setup(service => service.Generate()).Returns(refreshDescriptor);
+        fixture.AccessTokenFactory.Setup(factory => factory.Create(
+                user.Id,
+                user.UserName,
+                user.Email!,
+                1,
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                tenantId,
+                It.IsAny<Guid>()))
+            .Returns(accessDescriptor);
+
+        var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
+
+        await sut.Handle(command, CancellationToken.None);
+
+        user.TokenVersion.Should().Be(1);
+        membership.GetRoles().Should().Contain("tenant-owner");
+        fixture.UserTokenStateValidator.Verify(validator => validator.Evict(tenantId, user.Id), Times.Once);
+    }
+
     private static Fixture CreateFixture(DateTime now)
     {
         var fixture = new Fixture(new FakeClock(now));
@@ -289,6 +333,7 @@ public sealed class LoginCommandHandlerTests
         public Mock<IRefreshTokenService> RefreshTokenService { get; } = new();
         public Mock<IAuthSessionService> AuthSessionService { get; } = new();
         public Mock<ISecurityAlertPublisher> SecurityAlertPublisher { get; } = new();
+        public Mock<IUserTokenStateValidator> UserTokenStateValidator { get; } = new();
         public Mock<IUserSessionStateValidator> UserSessionStateValidator { get; } = new();
         public Mock<IAuthenticatorTotpService> TotpService { get; } = new();
         public Mock<IAuthenticatorKeyProtector> AuthenticatorKeyProtector { get; } = new();
@@ -318,6 +363,7 @@ public sealed class LoginCommandHandlerTests
                 }),
                 AuthSessionService.Object,
                 SecurityAlertPublisher.Object,
+                UserTokenStateValidator.Object,
                 UserSessionStateValidator.Object,
                 TotpService.Object,
                 AuthenticatorKeyProtector.Object,

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Options;
+namespace NetMetric.Auth.Application.Options;
 
 public sealed class OutboxOptions
 {

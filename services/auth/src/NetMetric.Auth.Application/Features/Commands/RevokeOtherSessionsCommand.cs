@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace NetMetric.Auth.Application.Features.Commands;
 

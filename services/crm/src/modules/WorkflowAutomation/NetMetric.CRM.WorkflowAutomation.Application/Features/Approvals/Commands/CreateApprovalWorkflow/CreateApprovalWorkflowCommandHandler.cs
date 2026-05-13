@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Persistence;
 using NetMetric.CRM.WorkflowAutomation.Domain.Entities.ApprovalWorkflows;
 

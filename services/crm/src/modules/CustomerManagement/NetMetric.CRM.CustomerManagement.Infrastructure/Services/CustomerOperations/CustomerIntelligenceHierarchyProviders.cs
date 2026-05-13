@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.CustomerIntelligence.Application.Abstractions.Persistence;
 using NetMetric.CRM.CustomerManagement.Application.Abstractions.Customer360;

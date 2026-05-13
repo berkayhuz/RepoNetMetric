@@ -32,6 +32,7 @@ public sealed class LoginCommandHandler(
     IOptions<AuthorizationOptions> authorizationOptions,
     IAuthSessionService authSessionService,
     ISecurityAlertPublisher securityAlertPublisher,
+    IUserTokenStateValidator userTokenStateValidator,
     IUserSessionStateValidator userSessionStateValidator,
     IAuthenticatorTotpService totpService,
     IAuthenticatorKeyProtector authenticatorKeyProtector,
@@ -66,7 +67,31 @@ public sealed class LoginCommandHandler(
             securityOptions.Value.MaxFailedAccessAttempts > 0 &&
             securityOptions.Value.LockoutMinutes > 0;
 
-        var tenant = await tenantRepository.GetByIdAsync(request.TenantId, cancellationToken);
+        var normalizedIdentity = AuthenticationNormalization.Normalize(request.EmailOrUserName);
+        var effectiveTenantId = request.TenantId;
+        User? user = null;
+
+        if (effectiveTenantId == Guid.Empty)
+        {
+            var resolvedScope = await userRepository.ResolveLoginScopeByIdentityAsync(normalizedIdentity, cancellationToken);
+            if (resolvedScope is null)
+            {
+                VerifyDummyPassword(request.Password);
+                AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", "invalid_credentials"));
+                throw InvalidCredentials();
+            }
+
+            effectiveTenantId = resolvedScope.TenantId;
+            user = await userRepository.GetActiveByIdAsync(effectiveTenantId, resolvedScope.UserId, cancellationToken);
+            if (user is null)
+            {
+                VerifyDummyPassword(request.Password);
+                AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", "invalid_credentials"));
+                throw InvalidCredentials();
+            }
+        }
+
+        var tenant = await tenantRepository.GetByIdAsync(effectiveTenantId, cancellationToken);
         if (tenant is null)
         {
             VerifyDummyPassword(request.Password);
@@ -81,10 +106,10 @@ public sealed class LoginCommandHandler(
             throw InvalidCredentials();
         }
 
-        var user = await userRepository.FindByTenantAndIdentityAsync(
-                request.TenantId,
-                AuthenticationNormalization.Normalize(request.EmailOrUserName),
-                cancellationToken);
+        user ??= await userRepository.FindByTenantAndIdentityAsync(
+            effectiveTenantId,
+            normalizedIdentity,
+            cancellationToken);
 
         if (user is null)
         {
@@ -102,7 +127,7 @@ public sealed class LoginCommandHandler(
             throw InvalidCredentials();
         }
 
-        var membership = await userRepository.GetMembershipAsync(request.TenantId, user.Id, cancellationToken);
+        var membership = await userRepository.GetMembershipAsync(effectiveTenantId, user.Id, cancellationToken);
         if (membership is null || !membership.IsActive || membership.IsDeleted)
         {
             VerifyDummyPassword(request.Password);
@@ -115,7 +140,7 @@ public sealed class LoginCommandHandler(
             AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", "email_unconfirmed"));
             await auditTrail.WriteAsync(
                 new AuthAuditRecord(
-                    request.TenantId,
+                    effectiveTenantId,
                     "auth.login.failed",
                     "email_unconfirmed",
                     user.Id,
@@ -138,7 +163,7 @@ public sealed class LoginCommandHandler(
                     "auth.lockout",
                     "warning",
                     "Locked account attempted to authenticate.",
-                    request.TenantId,
+                    effectiveTenantId,
                     user.Id,
                     null,
                     correlationId,
@@ -155,7 +180,7 @@ public sealed class LoginCommandHandler(
             if (lockoutEnabled)
             {
                 await userRepository.RecordFailedLoginAsync(
-                    request.TenantId,
+                    effectiveTenantId,
                     user.Id,
                     securityOptions.Value.MaxFailedAccessAttempts,
                     utcNow.AddMinutes(securityOptions.Value.LockoutMinutes),
@@ -166,7 +191,7 @@ public sealed class LoginCommandHandler(
             AuthMetrics.AuthFailed.Add(1, new KeyValuePair<string, object?>("reason", lockedAfterFailure ? "locked_after_failure" : "invalid_credentials"));
             await auditTrail.WriteAsync(
                 new AuthAuditRecord(
-                    request.TenantId,
+                    effectiveTenantId,
                     "auth.login.failed",
                     lockedAfterFailure ? "locked" : "rejected",
                     user.Id,
@@ -185,7 +210,7 @@ public sealed class LoginCommandHandler(
                     lockedAfterFailure
                         ? "Login failure locked the account."
                         : "Login failure rejected credentials.",
-                    request.TenantId,
+                    effectiveTenantId,
                     user.Id,
                     null,
                     correlationId,
@@ -204,7 +229,7 @@ public sealed class LoginCommandHandler(
 
         if (user.MfaEnabled)
         {
-            await EnsureMfaSatisfiedAsync(user, request, utcNow, cancellationToken);
+            await EnsureMfaSatisfiedAsync(user, request, effectiveTenantId, utcNow, cancellationToken);
         }
 
         user.AccessFailedCount = 0;
@@ -212,12 +237,12 @@ public sealed class LoginCommandHandler(
         user.LockoutEndAt = null;
         user.LastLoginAt = utcNow;
         user.UpdatedAt = utcNow;
-        await EnsureTenantBootstrapOwnerAsync(user, membership, utcNow, cancellationToken);
+        var bootstrapSecurityStateChanged = await EnsureTenantBootstrapOwnerAsync(user, membership, utcNow, cancellationToken);
 
         var refreshToken = refreshTokenService.Generate();
         var session = new UserSession
         {
-            TenantId = request.TenantId,
+            TenantId = effectiveTenantId,
             UserId = user.Id,
             RefreshTokenFamilyId = Guid.NewGuid(),
             RefreshTokenHash = refreshToken.Hash,
@@ -231,10 +256,10 @@ public sealed class LoginCommandHandler(
         };
 
         await userSessionRepository.AddAsync(session, cancellationToken);
-        var revokedSessionIds = await authSessionService.EnforceSessionLimitsAsync(request.TenantId, user.Id, session.Id, cancellationToken);
+        var revokedSessionIds = await authSessionService.EnforceSessionLimitsAsync(effectiveTenantId, user.Id, session.Id, cancellationToken);
         await auditTrail.WriteAsync(
             new AuthAuditRecord(
-                request.TenantId,
+                effectiveTenantId,
                 "auth.login.succeeded",
                 "success",
                 user.Id,
@@ -247,9 +272,14 @@ public sealed class LoginCommandHandler(
             cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        if (bootstrapSecurityStateChanged)
+        {
+            userTokenStateValidator.Evict(effectiveTenantId, user.Id);
+        }
+
         foreach (var sessionId in revokedSessionIds)
         {
-            userSessionStateValidator.Evict(request.TenantId, sessionId);
+            userSessionStateValidator.Evict(effectiveTenantId, sessionId);
         }
 
         AuthMetrics.AuthSucceeded.Add(1, new KeyValuePair<string, object?>("flow", "login"));
@@ -284,17 +314,17 @@ public sealed class LoginCommandHandler(
         passwordHasher.VerifyHashedPassword(dummy.User, dummy.PasswordHash, suppliedPassword);
     }
 
-    private async Task EnsureTenantBootstrapOwnerAsync(User user, UserTenantMembership membership, DateTime utcNow, CancellationToken cancellationToken)
+    private async Task<bool> EnsureTenantBootstrapOwnerAsync(User user, UserTenantMembership membership, DateTime utcNow, CancellationToken cancellationToken)
     {
         var authorization = authorizationOptions.Value;
         if (!authorization.BootstrapFirstUserAsTenantOwner)
         {
-            return;
+            return false;
         }
 
         if (!await userRepository.IsFirstActiveUserInTenantAsync(membership.TenantId, user.Id, cancellationToken))
         {
-            return;
+            return false;
         }
 
         var mergedRoles = Merge(membership.GetRoles(), authorization.BootstrapFirstUserRoles);
@@ -303,7 +333,7 @@ public sealed class LoginCommandHandler(
         var permissionsChanged = !SetEquals(membership.GetPermissions(), mergedPermissions);
         if (!rolesChanged && !permissionsChanged)
         {
-            return;
+            return false;
         }
 
         membership.Roles = string.Join(',', mergedRoles);
@@ -315,6 +345,7 @@ public sealed class LoginCommandHandler(
         user.TokenVersion++;
         user.SecurityStamp = Guid.NewGuid().ToString("N");
         user.UpdatedAt = utcNow;
+        return true;
     }
 
     private static IReadOnlyCollection<string> Merge(IEnumerable<string> current, IEnumerable<string> bootstrap) =>
@@ -327,7 +358,7 @@ public sealed class LoginCommandHandler(
     private static bool SetEquals(IEnumerable<string> first, IEnumerable<string> second) =>
         first.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(second);
 
-    private async Task EnsureMfaSatisfiedAsync(User user, LoginCommand request, DateTime utcNow, CancellationToken cancellationToken)
+    private async Task EnsureMfaSatisfiedAsync(User user, LoginCommand request, Guid effectiveTenantId, DateTime utcNow, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(request.MfaCode))
         {
@@ -351,8 +382,8 @@ public sealed class LoginCommandHandler(
 
         if (!string.IsNullOrWhiteSpace(request.RecoveryCode))
         {
-            var codeHash = recoveryCodeService.HashCode(request.TenantId, user.Id, request.RecoveryCode);
-            var consumed = await recoveryCodeRepository.ConsumeAsync(request.TenantId, user.Id, codeHash, utcNow, cancellationToken);
+            var codeHash = recoveryCodeService.HashCode(effectiveTenantId, user.Id, request.RecoveryCode);
+            var consumed = await recoveryCodeRepository.ConsumeAsync(effectiveTenantId, user.Id, codeHash, utcNow, cancellationToken);
             if (!consumed)
             {
                 throw new AuthApplicationException(

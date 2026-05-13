@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <UserSecretsId>netmetric-auth-api-dev</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\NetMetric.Auth.Application\NetMetric.Auth.Application.csproj" />
     <ProjectReference Include="..\NetMetric.Auth.Contracts\NetMetric.Auth.Contracts.csproj" />

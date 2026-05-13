@@ -1,6 +1,6 @@
-﻿using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Records;
+using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;
 
 namespace NetMetric.Auth.Infrastructure.Services;

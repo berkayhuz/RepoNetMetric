@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.AnalyticsReporting.Infrastructure.Projection;
+namespace NetMetric.CRM.AnalyticsReporting.Infrastructure.Projection;
 
 public sealed class AnalyticsProjectionOptions
 {

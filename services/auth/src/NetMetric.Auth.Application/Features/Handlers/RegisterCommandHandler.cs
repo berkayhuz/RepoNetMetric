@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetMetric.AspNetCore.RequestContext;
 using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Application.Descriptors;
 using NetMetric.Auth.Application.Diagnostics;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
@@ -16,8 +17,8 @@ using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.IntegrationEvents;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.Domain.Entities;
-using NetMetric.Localization;
 using NetMetric.Clock;
+using NetMetric.Localization;
 
 namespace NetMetric.Auth.Application.Features.Handlers;
 
@@ -39,15 +40,17 @@ public sealed partial class RegisterCommandHandler(
     IAuthSessionService authSessionService,
     IUserSessionStateValidator userSessionStateValidator,
     IHttpContextAccessor httpContextAccessor)
-    : IRequestHandler<RegisterCommand, AuthenticationTokenResponse>
+    : IRequestHandler<RegisterCommand, AuthSessionResult>
 {
-    public async Task<AuthenticationTokenResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<AuthSessionResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var httpContext = httpContextAccessor.HttpContext;
         var correlationId = httpContext?.Items[RequestContextSupport.CorrelationIdHeaderName]?.ToString();
         var traceId = httpContext?.TraceIdentifier;
         var utcNow = clock.UtcDateTime;
         var culture = NetMetricCultures.NormalizeOrDefault(request.Culture);
+        var lifecycle = lifecycleOptions.Value;
+        var shouldIssueAuthenticatedSession = !lifecycle.RequireConfirmedEmailForLogin;
 
         var tenant = new Tenant
         {
@@ -77,7 +80,6 @@ public sealed partial class RegisterCommandHandler(
             LastName = AuthenticationNormalization.CleanOrNull(request.LastName),
             CreatedAt = utcNow,
             CreatedBy = "public-register",
-            LastLoginAt = utcNow,
             Roles = JoinDistinct(roles),
             Permissions = JoinDistinct(permissions)
         };
@@ -94,29 +96,38 @@ public sealed partial class RegisterCommandHandler(
         tenant.CreatedBy = user.Id.ToString("N");
         user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
 
-        var refreshToken = refreshTokenService.Generate();
-        var lifecycle = lifecycleOptions.Value;
         var emailConfirmationToken = verificationTokenService.GenerateToken();
         var emailConfirmationExpiresAt = utcNow.AddMinutes(lifecycle.EmailConfirmationTokenMinutes);
-        var session = new UserSession
+        RefreshTokenDescriptor? refreshToken = null;
+        UserSession? session = null;
+        if (shouldIssueAuthenticatedSession)
         {
-            TenantId = tenant.Id,
-            UserId = user.Id,
-            RefreshTokenFamilyId = Guid.NewGuid(),
-            RefreshTokenHash = refreshToken.Hash,
-            RefreshTokenExpiresAt = refreshToken.ExpiresAtUtc,
-            CreatedAt = utcNow,
-            LastSeenAt = utcNow,
-            LastRefreshedAt = utcNow,
-            IpAddress = AuthenticationNormalization.CleanOrNull(request.IpAddress),
-            UserAgent = AuthenticationNormalization.CleanOrNull(request.UserAgent),
-            CreatedBy = user.Id.ToString("N")
-        };
+            user.LastLoginAt = utcNow;
+            refreshToken = refreshTokenService.Generate();
+            session = new UserSession
+            {
+                TenantId = tenant.Id,
+                UserId = user.Id,
+                RefreshTokenFamilyId = Guid.NewGuid(),
+                RefreshTokenHash = refreshToken.Hash,
+                RefreshTokenExpiresAt = refreshToken.ExpiresAtUtc,
+                CreatedAt = utcNow,
+                LastSeenAt = utcNow,
+                LastRefreshedAt = utcNow,
+                IpAddress = AuthenticationNormalization.CleanOrNull(request.IpAddress),
+                UserAgent = AuthenticationNormalization.CleanOrNull(request.UserAgent),
+                CreatedBy = user.Id.ToString("N")
+            };
+        }
 
         await tenantRepository.AddAsync(tenant, cancellationToken);
         await userRepository.AddAsync(user, cancellationToken);
         await userRepository.AddMembershipAsync(tenantMembership, cancellationToken);
-        await userSessionRepository.AddAsync(session, cancellationToken);
+        if (session is not null)
+        {
+            await userSessionRepository.AddAsync(session, cancellationToken);
+        }
+
         await verificationTokenRepository.AddAsync(
             new AuthVerificationToken
             {
@@ -130,17 +141,19 @@ public sealed partial class RegisterCommandHandler(
             },
             cancellationToken);
 
-        var revokedSessionIds = await authSessionService.EnforceSessionLimitsAsync(tenant.Id, user.Id, session.Id, cancellationToken);
+        var revokedSessionIds = session is null
+            ? []
+            : await authSessionService.EnforceSessionLimitsAsync(tenant.Id, user.Id, session.Id, cancellationToken);
         await auditTrail.WriteAsync(
             new AuthAuditRecord(
                 tenant.Id,
                 "auth.register.succeeded",
                 "success",
                 user.Id,
-                session.Id,
+                session?.Id,
                 user.Email,
-                session.IpAddress,
-                session.UserAgent,
+                session?.IpAddress,
+                session?.UserAgent,
                 correlationId,
                 traceId),
             cancellationToken);
@@ -201,19 +214,25 @@ public sealed partial class RegisterCommandHandler(
             userSessionStateValidator.Evict(tenant.Id, sessionId);
         }
 
+        if (session is null || refreshToken is null)
+        {
+            return new AuthSessionResult.PendingConfirmation(tenant.Id, user.Id, user.Email ?? string.Empty);
+        }
+
         AuthMetrics.AuthSucceeded.Add(1, new KeyValuePair<string, object?>("flow", "register"));
 
         var accessToken = accessTokenFactory.Create(user, tenant.Id, session.Id);
-        return new AuthenticationTokenResponse(
-            accessToken.Token,
-            accessToken.ExpiresAtUtc,
-            refreshToken.Token,
-            refreshToken.ExpiresAtUtc,
-            tenant.Id,
-            user.Id,
-            user.UserName,
-            user.Email ?? string.Empty,
-            session.Id);
+        return new AuthSessionResult.Issued(
+            new AuthenticationTokenResponse(
+                accessToken.Token,
+                accessToken.ExpiresAtUtc,
+                refreshToken.Token,
+                refreshToken.ExpiresAtUtc,
+                tenant.Id,
+                user.Id,
+                user.UserName,
+                user.Email ?? string.Empty,
+                session.Id));
     }
 
     private static AuthApplicationException RegistrationConflict() =>

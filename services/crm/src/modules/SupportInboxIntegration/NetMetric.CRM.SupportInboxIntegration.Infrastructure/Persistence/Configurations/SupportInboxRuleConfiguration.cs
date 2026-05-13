@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Infrastructure.Persistence.Configurations;
 

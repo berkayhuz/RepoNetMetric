@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Identity;
 using NetMetric.Account.Application.Abstractions.Security;

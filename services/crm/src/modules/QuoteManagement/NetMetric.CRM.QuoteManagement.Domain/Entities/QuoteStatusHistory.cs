@@ -1,5 +1,5 @@
-using NetMetric.Entities;
 using NetMetric.CRM.Types;
+using NetMetric.Entities;
 
 namespace NetMetric.CRM.QuoteManagement.Domain.Entities;
 

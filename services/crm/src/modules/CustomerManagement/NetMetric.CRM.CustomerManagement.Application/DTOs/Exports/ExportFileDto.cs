@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Exports;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Exports;
 
 public sealed class ExportFileDto
 {

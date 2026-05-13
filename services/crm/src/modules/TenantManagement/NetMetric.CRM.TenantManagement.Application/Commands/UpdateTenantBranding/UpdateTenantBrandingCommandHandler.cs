@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
 
 namespace NetMetric.CRM.TenantManagement.Application.Commands.UpdateTenantBranding;
 

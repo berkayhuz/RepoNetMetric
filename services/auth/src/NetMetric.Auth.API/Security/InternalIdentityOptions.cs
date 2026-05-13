@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.API.Security;
+namespace NetMetric.Auth.API.Security;
 
 public sealed class InternalIdentityOptions
 {

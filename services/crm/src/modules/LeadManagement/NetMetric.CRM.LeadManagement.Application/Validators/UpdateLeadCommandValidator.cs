@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.LeadManagement.Application.Commands.Leads;
 using FluentValidation;
+using NetMetric.CRM.LeadManagement.Application.Commands.Leads;
 
 namespace NetMetric.CRM.LeadManagement.Application.Validators;
 

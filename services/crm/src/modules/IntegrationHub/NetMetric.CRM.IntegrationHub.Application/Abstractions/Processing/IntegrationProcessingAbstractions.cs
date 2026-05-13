@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Processing;
+namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Processing;
 
 public interface IIntegrationJobProcessor
 {

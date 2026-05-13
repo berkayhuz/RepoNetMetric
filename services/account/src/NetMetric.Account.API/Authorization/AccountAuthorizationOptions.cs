@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Api.Authorization;
+namespace NetMetric.Account.Api.Authorization;
 
 public sealed class AccountAuthorizationOptions
 {

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketWorkflowManagement.Application.Commands.Queues.CreateTicketQueue;
 using FluentValidation;
+using NetMetric.CRM.TicketWorkflowManagement.Application.Commands.Queues.CreateTicketQueue;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Application.Validators;
 

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using NetMetric.CRM.CustomerManagement.Application.Queries.Contacts;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;

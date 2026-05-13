@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.WorkflowAutomation.Contracts.DTOs;
+using NetMetric.CRM.WorkflowAutomation.Contracts.DTOs;
 using NetMetric.CRM.WorkflowAutomation.Domain.Entities.AutomationRules;
 
 namespace NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Rules;

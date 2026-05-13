@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Connectors;
 
 namespace NetMetric.CRM.IntegrationHub.Infrastructure.Processing;

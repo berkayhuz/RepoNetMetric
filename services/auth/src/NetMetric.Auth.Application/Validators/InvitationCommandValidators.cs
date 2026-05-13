@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Options;

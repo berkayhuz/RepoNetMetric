@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Notification.Domain.Entities;
 
 namespace NetMetric.Notification.Infrastructure.Persistence;

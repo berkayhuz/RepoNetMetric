@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ArtificialIntelligence.Domain.Enums;
+namespace NetMetric.CRM.ArtificialIntelligence.Domain.Enums;
 
 public enum AiProviderType
 {

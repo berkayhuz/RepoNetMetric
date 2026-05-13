@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.Notification.Application.Abstractions;
 
 namespace NetMetric.Notification.Worker.Health;

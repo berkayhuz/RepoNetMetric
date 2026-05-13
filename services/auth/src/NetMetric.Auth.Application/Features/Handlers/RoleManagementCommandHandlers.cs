@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using MediatR;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Exceptions;
@@ -40,7 +40,8 @@ public sealed class ListRoleCatalogCommandHandler(IUserRepository users)
 public sealed class UpdateTenantMemberRolesCommandHandler(
     IUserRepository users,
     IAuthAuditTrail auditTrail,
-    IAuthUnitOfWork unitOfWork)
+    IAuthUnitOfWork unitOfWork,
+    IUserTokenStateValidator userTokenStateValidator)
     : IRequestHandler<UpdateTenantMemberRolesCommand, TenantMemberResponse>
 {
     public async Task<TenantMemberResponse> Handle(UpdateTenantMemberRolesCommand request, CancellationToken cancellationToken)
@@ -48,7 +49,7 @@ public sealed class UpdateTenantMemberRolesCommandHandler(
         var actor = await RoleManagementGuards.EnsureCanManageRolesAsync(users, request.TenantId, request.RequestedByUserId, cancellationToken);
         var actorMembership = await users.GetMembershipAsync(request.TenantId, actor.Id, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Tenant membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
-        var target = await users.GetByIdAsync(request.TenantId, request.TargetUserId, cancellationToken);
+        var target = await users.GetActiveByIdAsync(request.TenantId, request.TargetUserId, cancellationToken);
         var targetMembership = await users.GetMembershipAsync(request.TenantId, request.TargetUserId, cancellationToken);
         if (target is null)
         {
@@ -122,6 +123,7 @@ public sealed class UpdateTenantMemberRolesCommandHandler(
             cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        userTokenStateValidator.Evict(request.TenantId, target.Id);
         return RoleManagementGuards.ToResponse(target, targetMembership);
     }
 }
@@ -130,7 +132,7 @@ internal static class RoleManagementGuards
 {
     public static async Task<User> EnsureCanReadMembersAsync(IUserRepository users, Guid tenantId, Guid userId, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(tenantId, userId, cancellationToken)
+        var user = await users.GetActiveByIdAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Tenant membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
         var membership = await users.GetMembershipAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Tenant membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
@@ -147,7 +149,7 @@ internal static class RoleManagementGuards
 
     public static async Task<User> EnsureCanManageRolesAsync(IUserRepository users, Guid tenantId, Guid userId, CancellationToken cancellationToken)
     {
-        var user = await users.GetByIdAsync(tenantId, userId, cancellationToken)
+        var user = await users.GetActiveByIdAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Tenant membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
         var membership = await users.GetMembershipAsync(tenantId, userId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Tenant membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");

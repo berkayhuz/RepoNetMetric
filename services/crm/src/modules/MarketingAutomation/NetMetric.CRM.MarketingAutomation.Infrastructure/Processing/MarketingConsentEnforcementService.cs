@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Consents;
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Deliveries;

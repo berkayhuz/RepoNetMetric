@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.MarketingAutomation.Contracts.DTOs;
 
 namespace NetMetric.CRM.MarketingAutomation.Application.Features.Campaigns.Queries.GetCampaignById;

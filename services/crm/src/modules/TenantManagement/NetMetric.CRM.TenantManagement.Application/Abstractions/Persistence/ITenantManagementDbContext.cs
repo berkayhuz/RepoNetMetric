@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TenantManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.TenantManagement.Domain.Entities;
 
 namespace NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
 

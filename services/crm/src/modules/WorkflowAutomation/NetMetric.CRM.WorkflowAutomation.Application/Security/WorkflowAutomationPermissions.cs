@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.WorkflowAutomation.Application.Security;
+namespace NetMetric.CRM.WorkflowAutomation.Application.Security;
 
 public static class WorkflowAutomationPermissions
 {

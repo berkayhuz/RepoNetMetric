@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Profiles;
+namespace NetMetric.Account.Contracts.Profiles;
 
 public sealed record MyProfileResponse(
     Guid Id,

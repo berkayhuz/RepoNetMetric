@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.QuoteManagement.Application.Abstractions.Services;
+namespace NetMetric.CRM.QuoteManagement.Application.Abstractions.Services;
 
 public interface IQuoteProductReadModelSyncService
 {

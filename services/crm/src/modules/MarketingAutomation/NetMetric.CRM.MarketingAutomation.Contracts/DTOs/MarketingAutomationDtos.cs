@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.MarketingAutomation.Contracts.DTOs;
+namespace NetMetric.CRM.MarketingAutomation.Contracts.DTOs;
 
 public sealed class MarketingAutomationSummaryDto
 {

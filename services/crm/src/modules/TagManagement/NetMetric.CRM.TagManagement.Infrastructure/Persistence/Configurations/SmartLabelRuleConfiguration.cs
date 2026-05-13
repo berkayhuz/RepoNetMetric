@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.TagManagement.Domain.Entities.SmartLabelRules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.TagManagement.Domain.Entities.SmartLabelRules;
 
 namespace NetMetric.CRM.TagManagement.Infrastructure.Persistence.Configurations;
 

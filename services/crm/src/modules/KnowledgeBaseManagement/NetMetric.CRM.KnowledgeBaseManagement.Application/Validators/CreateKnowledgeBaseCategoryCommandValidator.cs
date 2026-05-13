@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Categories.CreateKnowledgeBaseCategory;
 using FluentValidation;
+using NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Categories.CreateKnowledgeBaseCategory;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Validators;
 

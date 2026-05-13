@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketWorkflowManagement.Application.DTOs;
+namespace NetMetric.CRM.TicketWorkflowManagement.Application.DTOs;
 
 public sealed class TicketAssignmentHistoryDto
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Security;
+namespace NetMetric.Account.Contracts.Security;
 
 public sealed record EmailChangeRequest(string NewEmail, string CurrentPassword);
 

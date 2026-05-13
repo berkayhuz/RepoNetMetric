@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Providers;
+namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Providers;
 
 public sealed record ProviderSecretSet(
     string? AccessToken,

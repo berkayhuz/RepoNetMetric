@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.WorkManagement.Domain.Common;
+namespace NetMetric.CRM.WorkManagement.Domain.Common;
 
 public interface IWorkManagementModuleMarker
 {

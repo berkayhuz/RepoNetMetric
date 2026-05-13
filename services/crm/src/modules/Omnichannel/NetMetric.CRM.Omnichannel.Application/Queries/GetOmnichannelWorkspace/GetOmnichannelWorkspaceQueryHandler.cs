@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;
-using NetMetric.CRM.Omnichannel.Contracts.DTOs;
-using NetMetric.CRM.Omnichannel.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;
+using NetMetric.CRM.Omnichannel.Contracts.DTOs;
+using NetMetric.CRM.Omnichannel.Domain.Enums;
 
 namespace NetMetric.CRM.Omnichannel.Application.Queries.GetOmnichannelWorkspace;
 

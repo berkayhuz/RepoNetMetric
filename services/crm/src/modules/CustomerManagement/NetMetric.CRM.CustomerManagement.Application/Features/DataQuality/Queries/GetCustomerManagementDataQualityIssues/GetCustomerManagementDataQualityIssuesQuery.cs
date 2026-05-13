@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.DataQuality;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.DataQuality;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.DataQuality.Queries.GetCustomerManagementDataQualityIssues;
 

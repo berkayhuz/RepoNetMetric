@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Persistence;
 
 namespace NetMetric.Account.Persistence.Repositories;

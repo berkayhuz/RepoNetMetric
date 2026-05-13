@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Application.Abstractions;
+namespace NetMetric.Notification.Application.Abstractions;
 
 public interface INotificationQueueHealthCheck
 {

@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.Omnichannel.Contracts.DTOs;
-using NetMetric.CRM.Omnichannel.Domain.Enums;
 using MediatR;
+using NetMetric.CRM.Omnichannel.Contracts.DTOs;
+using NetMetric.CRM.Omnichannel.Domain.Enums;
 
 namespace NetMetric.CRM.Omnichannel.Application.Commands.Accounts.CreateChannelAccount;
 

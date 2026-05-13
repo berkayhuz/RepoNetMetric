@@ -1,4 +1,4 @@
-﻿using NetMetric.Auth.API.Middlewares;
+using NetMetric.Auth.API.Middlewares;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Records;
 

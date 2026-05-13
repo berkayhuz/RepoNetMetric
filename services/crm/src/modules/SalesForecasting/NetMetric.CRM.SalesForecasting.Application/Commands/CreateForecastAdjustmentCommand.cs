@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 
 namespace NetMetric.CRM.SalesForecasting.Application.Commands;
 

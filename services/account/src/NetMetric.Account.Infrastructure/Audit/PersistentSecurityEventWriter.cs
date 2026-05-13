@@ -1,4 +1,4 @@
-﻿using NetMetric.Account.Application.Abstractions.Audit;
+using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Infrastructure.Outbox;
 

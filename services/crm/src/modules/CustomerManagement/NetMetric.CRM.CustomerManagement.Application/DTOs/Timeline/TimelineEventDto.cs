@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Timeline;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Timeline;
 
 public sealed class TimelineEventDto
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketManagement.Contracts.DTOs;
+namespace NetMetric.CRM.TicketManagement.Contracts.DTOs;
 
 public sealed record TicketCategoryDto(
     Guid Id,

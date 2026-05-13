@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NetMetric.Account.Persistence.Options;
 
 namespace NetMetric.Account.Api.Options;

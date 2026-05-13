@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Duplicates;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Duplicates;
 
 public sealed class DuplicateCandidateDto
 {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Rules;
 
 namespace NetMetric.CRM.WorkflowAutomation.Infrastructure.Health;

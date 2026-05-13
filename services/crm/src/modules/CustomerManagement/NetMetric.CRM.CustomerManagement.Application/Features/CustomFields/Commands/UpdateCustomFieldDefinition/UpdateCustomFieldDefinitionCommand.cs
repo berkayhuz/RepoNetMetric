@@ -1,5 +1,5 @@
-using NetMetric.CRM.CustomerManagement.Application.DTOs.CustomFields;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.CustomFields;
 using NetMetric.CRM.Types;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.CustomFields.Commands.UpdateCustomFieldDefinition;

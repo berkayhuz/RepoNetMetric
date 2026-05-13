@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.SalesForecasting.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.SalesForecasting.Domain.Entities;
 
 namespace NetMetric.CRM.SalesForecasting.Infrastructure.Persistence.Configurations;
 

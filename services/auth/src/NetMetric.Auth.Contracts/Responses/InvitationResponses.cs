@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Contracts.Responses;
+namespace NetMetric.Auth.Contracts.Responses;
 
 public sealed record TenantInvitationResponse(
     Guid TenantId,

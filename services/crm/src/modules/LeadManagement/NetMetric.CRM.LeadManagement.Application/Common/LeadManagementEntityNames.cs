@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Application.Common;
+namespace NetMetric.CRM.LeadManagement.Application.Common;
 
 public static class LeadManagementEntityNames
 {

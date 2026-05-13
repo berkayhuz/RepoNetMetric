@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Application.Abstractions.Outbox;
+namespace NetMetric.Account.Application.Abstractions.Outbox;
 
 public interface IAccountOutboxWriter
 {

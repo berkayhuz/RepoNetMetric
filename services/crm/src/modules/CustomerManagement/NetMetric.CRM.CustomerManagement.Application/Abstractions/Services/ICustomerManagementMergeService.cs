@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.Abstractions.Services;
+namespace NetMetric.CRM.CustomerManagement.Application.Abstractions.Services;
 
 public interface ICustomerManagementMergeService
 {

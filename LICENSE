@@ -1,201 +1,218 @@
-Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+NetMetric Proprietary License and Copyright Notice
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Copyright (c) 2026 Berkay Huz. All rights reserved.
 
-   1. Definitions.
+This software and all associated materials are proprietary, confidential, and
+copyright-protected property of Berkay Huz, unless otherwise expressly stated in
+a separate written agreement signed by the copyright holder.
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+1. Ownership
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+NetMetric, including but not limited to its source code, object code, binaries,
+software architecture, domain models, application logic, APIs, contracts,
+interfaces, database schemas, migrations, configuration files, deployment files,
+infrastructure definitions, scripts, documentation, user interfaces, visual
+designs, branding, logos, names, trade names, text, images, assets, workflows,
+tests, build files, and all related materials, is owned exclusively by the
+copyright holder.
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+No ownership rights, intellectual property rights, copyright rights, patent
+rights, trademark rights, trade secret rights, database rights, moral rights, or
+any other rights are transferred to any person or entity by access to,
+possession of, viewing of, or receipt of this software.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+2. No Open Source License
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+This software is not open source software.
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+This software is not licensed under the MIT License, Apache License, GNU General
+Public License, GNU Affero General Public License, BSD License, Mozilla Public
+License, Creative Commons license, or any other open source, free software, or
+public license.
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+No permission is granted to use this software under any open source, free
+software, permissive, copyleft, public-domain-equivalent, or community license.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+3. No License Granted
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+Except where the copyright holder has granted prior express written permission,
+no person or entity is granted any license, permission, right, or authorization
+to use, copy, reproduce, modify, adapt, translate, merge, publish, distribute,
+redistribute, sublicense, sell, resell, lease, rent, lend, host, operate, expose,
+make available, transmit, disclose, commercialize, exploit, or otherwise use
+this software, in whole or in part.
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+Access to this repository, access to a copy of the source code, access to a
+deployment, access to documentation, or access to any related material does not
+create, imply, or grant any license or usage right.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+All rights not expressly granted in a separate written agreement are reserved.
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+4. Prohibited Actions
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+Without prior express written permission from the copyright holder, the following
+actions are strictly prohibited:
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+- Copying, cloning, downloading, scraping, mirroring, archiving, or reproducing
+  this software or any portion of it for any purpose other than temporary
+  technical viewing where such viewing is unavoidable through an authorized
+  platform.
+- Modifying, adapting, translating, refactoring, restructuring, converting, or
+  creating derivative works based on this software.
+- Distributing, publishing, uploading, sharing, forwarding, transferring,
+  sublicensing, selling, reselling, leasing, renting, or otherwise making this
+  software available to any third party.
+- Using this software for commercial, internal business, educational, research,
+  personal, public, private, governmental, nonprofit, or production purposes.
+- Deploying, hosting, running, operating, or providing this software as a
+  service, product, platform, API, website, application, or internal system.
+- Reverse engineering, decompiling, disassembling, decoding, extracting,
+  analyzing, or attempting to discover the source code, structure, algorithms,
+  architecture, trade secrets, or underlying ideas of this software, except to
+  the extent such restriction is expressly prohibited by mandatory applicable
+  law.
+- Removing, altering, obscuring, or misrepresenting any copyright notice,
+  proprietary notice, authorship notice, trademark notice, license notice, or
+  legal notice.
+- Using the name "NetMetric", related names, logos, marks, branding, domain
+  names, product names, or confusingly similar identifiers without prior express
+  written permission.
+- Using this software or any part of it to train, fine-tune, evaluate, benchmark,
+  or improve artificial intelligence systems, machine learning models, code
+  generation tools, large language models, datasets, embeddings, or automated
+  analysis systems.
+- Incorporating this software or any portion of it into another product,
+  service, repository, dataset, model, application, library, framework, or
+  commercial offering.
+- Circumventing, disabling, bypassing, or interfering with any security,
+  authentication, authorization, licensing, access control, monitoring, logging,
+  rate limiting, or usage restriction mechanism associated with this software.
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+5. Confidentiality
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+This software may contain confidential information, proprietary information,
+security-sensitive implementation details, business logic, infrastructure
+details, trade secrets, credentials patterns, architecture decisions, internal
+workflows, and non-public technical information.
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+Any person or entity with access to this software must keep it confidential and
+must not disclose it to any third party without prior express written permission
+from the copyright holder.
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+Public exposure of this software, accidental disclosure, unauthorized access, or
+temporary availability does not waive confidentiality, ownership, copyright,
+trade secret protection, or any other rights.
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+6. Third-Party Components
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+This software may reference, depend on, interoperate with, or include
+third-party libraries, packages, tools, frameworks, SDKs, or services.
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+Third-party components are governed by their own respective licenses and terms.
+Nothing in this notice grants any rights to third-party components beyond the
+rights provided by their respective owners.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+The presence of third-party open source components does not make NetMetric open
+source and does not grant any person or entity any right to use, copy, modify,
+distribute, or exploit NetMetric itself.
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+7. Contributions
 
-   END OF TERMS AND CONDITIONS
+No person or entity is authorized to contribute code, documentation, designs,
+issues, suggestions, patches, pull requests, feedback, or other material to this
+software unless expressly permitted by the copyright holder.
 
-   APPENDIX: How to apply the Apache License to your work.
+Unless otherwise agreed in a separate written agreement, any submitted
+contribution, suggestion, idea, patch, pull request, issue, or feedback may be
+rejected, removed, or ignored at the sole discretion of the copyright holder.
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+Acceptance, discussion, or review of any contribution does not create ownership,
+license, employment, partnership, agency, joint venture, or compensation rights.
 
-   Copyright [yyyy] [name of copyright owner]
+8. No Implied Rights
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+No rights are granted by implication, estoppel, custom, industry practice,
+platform behavior, repository visibility, public availability, previous access,
+oral statement, course of dealing, or course of performance.
 
-       http://www.apache.org/licenses/LICENSE-2.0
+Any permission must be explicit, written, and signed by the copyright holder.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+9. Termination
+
+Any permission, access, or authorization granted by the copyright holder is
+automatically terminated immediately if the recipient violates this notice, any
+written agreement, or any applicable law.
+
+Upon termination or request by the copyright holder, the recipient must
+immediately stop all use of the software and permanently delete or destroy all
+copies, forks, backups, derivatives, excerpts, documentation, and related
+materials in their possession, custody, or control.
+
+10. Enforcement and Remedies
+
+Unauthorized use, copying, modification, distribution, disclosure, hosting,
+deployment, reverse engineering, or exploitation of this software may constitute
+copyright infringement, trade secret misappropriation, breach of confidentiality,
+unfair competition, breach of contract, and/or violation of other applicable
+civil, administrative, or criminal laws.
+
+The copyright holder reserves the right to seek all available remedies,
+including but not limited to injunctive relief, removal requests, takedown
+notices, damages, lost profits, statutory remedies where available, legal fees,
+costs, account suspension requests, and any other remedy available under
+applicable law.
+
+11. No Warranty
+
+This software is provided, if at all, strictly on an "as is" and "as available"
+basis.
+
+To the maximum extent permitted by applicable law, the copyright holder disclaims
+all warranties, whether express, implied, statutory, or otherwise, including but
+not limited to warranties of merchantability, fitness for a particular purpose,
+title, non-infringement, availability, security, accuracy, reliability, and
+error-free operation.
+
+12. Limitation of Liability
+
+To the maximum extent permitted by applicable law, the copyright holder shall
+not be liable for any direct, indirect, incidental, special, consequential,
+exemplary, punitive, or other damages arising from or related to this software,
+including but not limited to loss of profits, loss of data, business
+interruption, security incidents, system failures, service outages, or claims by
+third parties.
+
+13. Reservation of Rights
+
+All rights, title, and interest in and to this software are reserved by the
+copyright holder.
+
+Nothing in this notice limits or waives any rights or remedies available under
+copyright law, trademark law, patent law, trade secret law, contract law,
+database protection law, unfair competition law, cybercrime law, or any other
+applicable law.
+
+14. Governing Law and Jurisdiction
+
+Unless a separate written agreement states otherwise, this notice and any
+dispute arising from or related to this software shall be governed by the laws
+of the Republic of Türkiye, without regard to conflict of law principles.
+
+Unless mandatory applicable law requires otherwise, the courts and enforcement
+authorities located in Türkiye shall have jurisdiction over disputes arising
+from or related to this software.
+
+15. Severability
+
+If any provision of this notice is held to be invalid, illegal, or unenforceable,
+the remaining provisions shall remain in full force and effect to the maximum
+extent permitted by applicable law.
+
+16. Contact
+
+Any request for permission, licensing, commercial use, partnership, access,
+security disclosure, or legal inquiry must be submitted in writing to the
+copyright holder.
+
+Copyright (c) 2026 Berkay Huz. All rights reserved.
+Unauthorized use is strictly prohibited.

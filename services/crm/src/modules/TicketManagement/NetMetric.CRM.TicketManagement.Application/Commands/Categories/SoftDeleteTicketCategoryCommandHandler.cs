@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketManagement.Application.Abstractions.Services;
 using MediatR;
+using NetMetric.CRM.TicketManagement.Application.Abstractions.Services;
 
 
 namespace NetMetric.CRM.TicketManagement.Application.Commands.Categories;

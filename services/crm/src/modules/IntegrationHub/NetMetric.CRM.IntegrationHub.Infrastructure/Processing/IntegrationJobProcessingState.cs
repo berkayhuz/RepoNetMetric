@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Processing;
 
 namespace NetMetric.CRM.IntegrationHub.Infrastructure.Processing;

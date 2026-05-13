@@ -1,4 +1,4 @@
-﻿using Amazon.SimpleEmailV2;
+using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

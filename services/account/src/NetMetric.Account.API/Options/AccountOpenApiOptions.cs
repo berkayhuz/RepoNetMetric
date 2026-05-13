@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Api.Options;
+namespace NetMetric.Account.Api.Options;
 
 public sealed class AccountOpenApiOptions
 {

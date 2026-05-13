@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
+namespace NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 
 public sealed record IdentityResolutionDto(
     Guid Id,

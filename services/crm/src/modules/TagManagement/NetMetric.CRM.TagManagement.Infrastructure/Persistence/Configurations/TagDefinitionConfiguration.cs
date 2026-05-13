@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.TagManagement.Domain.Entities.TagDefinitions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.TagManagement.Domain.Entities.TagDefinitions;
 
 namespace NetMetric.CRM.TagManagement.Infrastructure.Persistence.Configurations;
 

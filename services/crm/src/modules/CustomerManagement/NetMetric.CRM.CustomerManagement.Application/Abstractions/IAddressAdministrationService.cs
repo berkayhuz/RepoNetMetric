@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Commands.Addresses;
+using NetMetric.CRM.CustomerManagement.Application.Commands.Addresses;
 using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Abstractions;

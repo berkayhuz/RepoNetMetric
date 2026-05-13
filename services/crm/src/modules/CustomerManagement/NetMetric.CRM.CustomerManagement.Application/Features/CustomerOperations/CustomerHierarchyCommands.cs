@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.CustomerManagement.Application.Features.Customer360;
 using NetMetric.CRM.CustomerManagement.Domain.Entities.CustomerOperations;
 

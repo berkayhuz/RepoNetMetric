@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Infrastructure.Membership;
+namespace NetMetric.Account.Infrastructure.Membership;
 
 public sealed class MembershipServiceOptions
 {

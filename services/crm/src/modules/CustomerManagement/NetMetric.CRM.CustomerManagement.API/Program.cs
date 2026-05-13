@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NetMetric.CRM.API.Compatibility;
 using NetMetric.CRM.CustomerManagement.Infrastructure.DependencyInjection;

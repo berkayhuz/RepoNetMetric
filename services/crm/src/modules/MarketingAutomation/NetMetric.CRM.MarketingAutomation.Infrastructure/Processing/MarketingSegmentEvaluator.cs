@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 using NetMetric.CRM.MarketingAutomation.Contracts.DTOs;
 

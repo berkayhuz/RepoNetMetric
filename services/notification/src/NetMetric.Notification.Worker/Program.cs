@@ -1,11 +1,11 @@
-﻿using NetMetric.Notification.Application.DependencyInjection;
+using NetMetric.Notification.Application.DependencyInjection;
 using NetMetric.Notification.Application.Services;
 using NetMetric.Notification.Infrastructure.DependencyInjection;
 using NetMetric.Notification.Worker;
 using NetMetric.Notification.Worker.Health;
 using NetMetric.Notification.Worker.Workers;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = Host.CreateApplicationBuilder(args);

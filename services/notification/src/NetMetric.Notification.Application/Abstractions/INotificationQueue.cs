@@ -1,4 +1,4 @@
-﻿using NetMetric.Notification.Domain.Entities;
+using NetMetric.Notification.Domain.Entities;
 
 namespace NetMetric.Notification.Application.Abstractions;
 

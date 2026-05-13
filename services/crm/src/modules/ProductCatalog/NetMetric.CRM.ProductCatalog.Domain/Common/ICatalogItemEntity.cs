@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ProductCatalog.Domain.Common;
+namespace NetMetric.CRM.ProductCatalog.Domain.Common;
 
 public interface ICatalogItemEntity
 {

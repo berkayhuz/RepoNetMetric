@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.Core;
 using NetMetric.CRM.CustomerManagement.Application.Abstractions.Persistence;

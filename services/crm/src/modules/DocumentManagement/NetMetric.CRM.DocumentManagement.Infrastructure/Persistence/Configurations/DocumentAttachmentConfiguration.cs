@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentAttachments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentAttachments;
 
 namespace NetMetric.CRM.DocumentManagement.Infrastructure.Persistence.Configurations;
 

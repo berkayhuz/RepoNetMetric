@@ -1,5 +1,5 @@
-using NetMetric.Entities;
 using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
+using NetMetric.Entities;
 using NetMetric.Guards;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Domain.Entities;

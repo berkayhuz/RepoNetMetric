@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Domain.Audit;
 using NetMetric.Account.Domain.Consents;

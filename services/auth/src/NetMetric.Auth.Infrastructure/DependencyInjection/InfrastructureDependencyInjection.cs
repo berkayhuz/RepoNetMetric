@@ -208,7 +208,9 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAccessTokenFactory, JwtAccessTokenFactory>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IAuthAuditTrail, AuthAuditTrail>();
+        services.AddSingleton<OutboxPayloadProtector>();
         services.AddScoped<IIntegrationEventOutbox, IntegrationEventOutbox>();
+        services.AddScoped<OutboxMessagePublisher>();
         services.AddScoped<IAuthVerificationTokenRepository, AuthVerificationTokenRepository>();
         services.AddScoped<ITenantInvitationRepository, TenantInvitationRepository>();
         services.AddScoped<IInviteNotificationDispatcher>(serviceProvider =>
@@ -231,6 +233,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAuthSessionService, AuthSessionService>();
         services.AddScoped<IUserTokenStateValidator, UserTokenStateValidator>();
         services.AddScoped<IUserSessionStateValidator, UserSessionStateValidator>();
+        services.AddScoped<DataRetentionCleanupRunner>();
 
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<ITokenSigningKeyProvider, TokenSigningKeyProvider>();

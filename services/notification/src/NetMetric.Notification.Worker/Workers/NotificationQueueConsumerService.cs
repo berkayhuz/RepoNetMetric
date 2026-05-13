@@ -1,6 +1,6 @@
-﻿using NetMetric.Notification.Application.Abstractions;
-using NetMetric.Notification.Domain.Entities;
 using Microsoft.Extensions.Options;
+using NetMetric.Notification.Application.Abstractions;
+using NetMetric.Notification.Domain.Entities;
 
 namespace NetMetric.Notification.Worker.Workers;
 

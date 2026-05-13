@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.SalesForecasting.Application.Commands;
 using FluentValidation;
+using NetMetric.CRM.SalesForecasting.Application.Commands;
 
 namespace NetMetric.CRM.SalesForecasting.Application.Validators;
 

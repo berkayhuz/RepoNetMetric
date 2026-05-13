@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.DataQuality;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.DataQuality;
 
 public sealed class DataQualityIssueDto
 {

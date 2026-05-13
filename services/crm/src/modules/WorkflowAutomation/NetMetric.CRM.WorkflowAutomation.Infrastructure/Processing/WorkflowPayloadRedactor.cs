@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Rules;
 

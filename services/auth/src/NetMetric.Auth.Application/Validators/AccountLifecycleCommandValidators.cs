@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Options;
@@ -62,6 +62,7 @@ public sealed class ChangeEmailCommandValidator : AbstractValidator<ChangeEmailC
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.NewEmail).NotEmpty().EmailAddress().MaximumLength(256);
+        RuleFor(x => x.CurrentEmail).NotEmpty().EmailAddress().MaximumLength(256);
         RuleFor(x => x.CurrentPassword).MaximumLength(256);
     }
 }
@@ -74,6 +75,15 @@ public sealed class ConfirmEmailChangeCommandValidator : AbstractValidator<Confi
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.NewEmail).NotEmpty().EmailAddress().MaximumLength(256);
         RuleFor(x => x.Token).NotEmpty().MaximumLength(512);
+    }
+}
+
+public sealed class GetUserProfileCommandValidator : AbstractValidator<GetUserProfileCommand>
+{
+    public GetUserProfileCommandValidator()
+    {
+        RuleFor(x => x.TenantId).NotEmpty();
+        RuleFor(x => x.UserId).NotEmpty();
     }
 }
 

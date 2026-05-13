@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SalesForecasting.Contracts.Enums;
+namespace NetMetric.CRM.SalesForecasting.Contracts.Enums;
 
 public enum ForecastBucketType
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.MarketingAutomation.Infrastructure.Processing;
+namespace NetMetric.CRM.MarketingAutomation.Infrastructure.Processing;
 
 public sealed class MarketingAutomationOptions
 {

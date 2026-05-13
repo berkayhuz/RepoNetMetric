@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Security;
+namespace NetMetric.Account.Contracts.Security;
 
 public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword, string ConfirmNewPassword);
 

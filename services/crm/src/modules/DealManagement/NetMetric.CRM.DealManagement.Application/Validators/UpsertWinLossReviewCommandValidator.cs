@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.DealManagement.Application.Commands.Reviews;
 using FluentValidation;
+using NetMetric.CRM.DealManagement.Application.Commands.Reviews;
 
 namespace NetMetric.CRM.DealManagement.Application.Validators;
 

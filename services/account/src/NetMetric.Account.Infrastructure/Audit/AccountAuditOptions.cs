@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Infrastructure.Audit;
+namespace NetMetric.Account.Infrastructure.Audit;
 
 public sealed class AccountAuditOptions
 {

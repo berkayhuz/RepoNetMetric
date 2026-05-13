@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.QuoteManagement.Contracts.DTOs;
+using NetMetric.CRM.QuoteManagement.Contracts.DTOs;
 using NetMetric.CRM.QuoteManagement.Domain.Entities;
 
 namespace NetMetric.CRM.QuoteManagement.Application.Common;

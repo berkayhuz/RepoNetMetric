@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.LeadManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.LeadManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.LeadManagement.Application.Queries.Leads;
 

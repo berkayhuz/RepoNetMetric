@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketManagement.Infrastructure.Persistence;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.TicketManagement.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.TicketManagement.Infrastructure.Health;
 

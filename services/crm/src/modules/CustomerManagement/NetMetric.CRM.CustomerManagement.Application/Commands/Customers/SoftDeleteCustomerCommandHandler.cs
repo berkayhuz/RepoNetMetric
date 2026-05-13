@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Abstractions;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.Abstractions;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Commands.Customers;
 

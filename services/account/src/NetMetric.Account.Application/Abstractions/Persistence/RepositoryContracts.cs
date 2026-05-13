@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 namespace NetMetric.Account.Application.Abstractions.Persistence;
 
 public interface IAccountDbContext

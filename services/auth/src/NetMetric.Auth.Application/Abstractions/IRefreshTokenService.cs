@@ -1,4 +1,4 @@
-﻿using NetMetric.Auth.Application.Descriptors;
+using NetMetric.Auth.Application.Descriptors;
 
 namespace NetMetric.Auth.Application.Abstractions;
 

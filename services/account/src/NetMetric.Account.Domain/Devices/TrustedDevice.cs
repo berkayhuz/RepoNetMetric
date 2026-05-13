@@ -1,4 +1,4 @@
-﻿using NetMetric.Account.Domain.Common;
+using NetMetric.Account.Domain.Common;
 
 namespace NetMetric.Account.Domain.Devices;
 

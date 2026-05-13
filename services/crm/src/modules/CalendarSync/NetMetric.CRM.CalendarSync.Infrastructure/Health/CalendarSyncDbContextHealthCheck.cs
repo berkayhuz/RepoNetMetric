@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CalendarSync.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.CalendarSync.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.CalendarSync.Infrastructure.Health;
 

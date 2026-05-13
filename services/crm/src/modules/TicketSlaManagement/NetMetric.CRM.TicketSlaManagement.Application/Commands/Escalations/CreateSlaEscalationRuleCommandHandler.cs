@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketSlaManagement.Application.Abstractions.Services;
 using MediatR;
+using NetMetric.CRM.TicketSlaManagement.Application.Abstractions.Services;
 
 namespace NetMetric.CRM.TicketSlaManagement.Application.Commands.Escalations;
 

@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerRelationships;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerRelationships;
 
 namespace NetMetric.CRM.CustomerIntelligence.Infrastructure.Persistence.Configurations;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.WorkflowAutomation.Contracts.DTOs;
+namespace NetMetric.CRM.WorkflowAutomation.Contracts.DTOs;
 
 public sealed record WorkflowExecutionSummaryDto(
     Guid RuleId,

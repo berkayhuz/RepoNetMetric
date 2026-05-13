@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.IntegrationHub.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.IntegrationHub.Domain.Entities;
 
 namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Persistence;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Infrastructure.Persistence;
+namespace NetMetric.Notification.Infrastructure.Persistence;
 
 public sealed class InAppNotificationRecord
 {

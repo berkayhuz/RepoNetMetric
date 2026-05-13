@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Metrics;
+using System.Diagnostics.Metrics;
 
 namespace NetMetric.CRM.AnalyticsReporting.Infrastructure.Projection;
 

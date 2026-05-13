@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.IntegrationEvents;
+namespace NetMetric.CRM.CustomerManagement.Application.IntegrationEvents;
 
 public sealed record CustomerLifecycleIntegrationEventV1(
     Guid EventId,

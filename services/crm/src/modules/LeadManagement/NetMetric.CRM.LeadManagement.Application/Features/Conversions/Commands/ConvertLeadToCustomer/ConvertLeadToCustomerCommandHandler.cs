@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
-using NetMetric.CRM.LeadManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
+using NetMetric.CRM.LeadManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.LeadManagement.Application.Features.Conversions.Commands.ConvertLeadToCustomer;
 

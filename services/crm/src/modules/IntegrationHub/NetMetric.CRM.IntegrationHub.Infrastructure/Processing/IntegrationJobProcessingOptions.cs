@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.IntegrationHub.Infrastructure.Processing;
+namespace NetMetric.CRM.IntegrationHub.Infrastructure.Processing;
 
 public sealed class IntegrationJobProcessingOptions
 {

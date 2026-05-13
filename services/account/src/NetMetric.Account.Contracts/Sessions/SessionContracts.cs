@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Sessions;
+namespace NetMetric.Account.Contracts.Sessions;
 
 public sealed record UserSessionResponse(
     Guid Id,

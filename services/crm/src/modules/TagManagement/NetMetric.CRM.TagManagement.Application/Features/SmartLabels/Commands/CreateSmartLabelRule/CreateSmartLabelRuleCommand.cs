@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.TagManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.TagManagement.Application.Features.SmartLabels.Commands.CreateSmartLabelRule;

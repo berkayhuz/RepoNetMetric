@@ -1,5 +1,5 @@
-﻿using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Application.Descriptors;
+using NetMetric.Auth.Domain.Entities;
 
 namespace NetMetric.Auth.Application.Abstractions;
 

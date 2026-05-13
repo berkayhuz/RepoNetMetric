@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Application.Abstractions.Audit;
+namespace NetMetric.Account.Application.Abstractions.Audit;
 
 public sealed record AccountAuditWriteRequest(
     Guid TenantId,

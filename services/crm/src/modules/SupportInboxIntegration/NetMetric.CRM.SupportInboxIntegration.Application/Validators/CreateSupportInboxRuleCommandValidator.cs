@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Application.Commands.Rules.CreateSupportInboxRule;
 using FluentValidation;
+using NetMetric.CRM.SupportInboxIntegration.Application.Commands.Rules.CreateSupportInboxRule;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Application.Validators;
 

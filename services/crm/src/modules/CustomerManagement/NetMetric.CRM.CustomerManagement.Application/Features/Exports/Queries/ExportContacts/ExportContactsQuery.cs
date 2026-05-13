@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Exports;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Exports;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Exports.Queries.ExportContacts;
 

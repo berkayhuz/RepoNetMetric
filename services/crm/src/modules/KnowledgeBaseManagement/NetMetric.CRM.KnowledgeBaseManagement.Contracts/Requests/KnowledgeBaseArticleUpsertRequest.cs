@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.KnowledgeBaseManagement.Contracts.Requests;
+namespace NetMetric.CRM.KnowledgeBaseManagement.Contracts.Requests;
 
 public sealed class KnowledgeBaseArticleUpsertRequest
 {

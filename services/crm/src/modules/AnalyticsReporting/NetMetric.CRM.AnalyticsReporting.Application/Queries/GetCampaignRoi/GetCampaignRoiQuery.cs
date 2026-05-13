@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.AnalyticsReporting.Application.DTOs;
 using MediatR;
+using NetMetric.CRM.AnalyticsReporting.Application.DTOs;
 
 namespace NetMetric.CRM.AnalyticsReporting.Application.Queries.GetCampaignRoi;
 

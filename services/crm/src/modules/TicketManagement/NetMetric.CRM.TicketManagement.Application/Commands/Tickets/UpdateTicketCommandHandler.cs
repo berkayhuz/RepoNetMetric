@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.TicketManagement.Application.Abstractions.Services;
-using NetMetric.CRM.TicketManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.TicketManagement.Application.Abstractions.Services;
+using NetMetric.CRM.TicketManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.TicketManagement.Application.Commands.Tickets;
 

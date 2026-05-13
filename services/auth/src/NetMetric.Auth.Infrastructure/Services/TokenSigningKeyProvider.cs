@@ -1,5 +1,5 @@
-﻿using System.Security.Cryptography;
 using System.IO;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

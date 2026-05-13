@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.DealManagement.Domain.Common;
+namespace NetMetric.CRM.DealManagement.Domain.Common;
 
 public interface IDealManagementModuleMarker
 {

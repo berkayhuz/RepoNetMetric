@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Contracts.IntegrationEvents;
+namespace NetMetric.Auth.Contracts.IntegrationEvents;
 
 public sealed record UserRegisteredV1(
     Guid UserId,

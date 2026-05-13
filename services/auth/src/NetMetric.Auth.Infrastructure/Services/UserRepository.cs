@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NetMetric.Auth.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;
 
 namespace NetMetric.Auth.Infrastructure.Services;
@@ -24,11 +24,53 @@ public sealed class UserRepository(AuthDbContext dbContext) : IUserRepository
                  (x.NormalizedEmail == normalizedIdentity || x.NormalizedUserName == normalizedIdentity),
             cancellationToken);
 
-    public Task<User?> GetByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
+    public async Task<LoginScopeResolution?> ResolveLoginScopeByIdentityAsync(string normalizedIdentity, CancellationToken cancellationToken)
+    {
+        var membership = await dbContext.UserTenantMemberships
+            .AsNoTracking()
+            .Where(m =>
+                !m.IsDeleted &&
+                m.IsActive &&
+                m.User != null &&
+                !m.User.IsDeleted &&
+                m.User.IsActive &&
+                (m.User.NormalizedEmail == normalizedIdentity || m.User.NormalizedUserName == normalizedIdentity))
+            .Join(
+                dbContext.Tenants.AsNoTracking().Where(t => t.IsActive),
+                membership => membership.TenantId,
+                tenant => tenant.Id,
+                (membership, _) => membership)
+            .OrderBy(m => m.CreatedAt)
+            .ThenBy(m => m.Id)
+            .Select(m => new LoginScopeResolution(m.TenantId, m.UserId))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return membership;
+    }
+
+    public Task<User?> GetActiveByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
         dbContext.UserTenantMemberships
             .Where(x => x.TenantId == tenantId && x.UserId == userId && !x.IsDeleted && x.IsActive)
             .Select(x => x.User!)
+            .SingleOrDefaultAsync(x => x.Id == userId && !x.IsDeleted && x.IsActive, cancellationToken);
+
+    public Task<User?> GetByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
+        GetActiveByIdAsync(tenantId, userId, cancellationToken);
+
+    public Task<User?> GetByIdIncludingInactiveAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
+        dbContext.UserTenantMemberships
+            .Where(x => x.TenantId == tenantId && x.UserId == userId && !x.IsDeleted)
+            .Select(x => x.User!)
             .SingleOrDefaultAsync(x => x.Id == userId && !x.IsDeleted, cancellationToken);
+
+    public Task<ActiveUserTokenState?> GetActiveTokenStateAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
+        dbContext.UserTenantMemberships
+            .AsNoTracking()
+            .Where(x => x.TenantId == tenantId && x.UserId == userId && !x.IsDeleted && x.IsActive)
+            .Select(x => x.User!)
+            .Where(x => x.Id == userId && !x.IsDeleted && x.IsActive)
+            .Select(x => new ActiveUserTokenState(x.TokenVersion))
+            .SingleOrDefaultAsync(cancellationToken);
 
     public Task<UserTenantMembership?> GetMembershipAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken) =>
         dbContext.UserTenantMemberships
@@ -42,9 +84,10 @@ public sealed class UserRepository(AuthDbContext dbContext) : IUserRepository
     public async Task<IReadOnlyCollection<UserTenantMembershipSnapshot>> ListMembershipsByUserAsync(Guid userId, CancellationToken cancellationToken)
     {
         var rows = await dbContext.UserTenantMemberships
+            .AsNoTracking()
             .Where(x => x.UserId == userId && !x.IsDeleted && x.IsActive)
             .Join(
-                dbContext.Tenants.Where(x => x.IsActive),
+                dbContext.Tenants.AsNoTracking().Where(x => x.IsActive),
                 membership => membership.TenantId,
                 tenant => tenant.Id,
                 (membership, tenant) => new { Membership = membership, Tenant = tenant })
@@ -67,6 +110,7 @@ public sealed class UserRepository(AuthDbContext dbContext) : IUserRepository
 
     public async Task<IReadOnlyCollection<UserTenantMembership>> ListMembershipsByTenantAsync(Guid tenantId, CancellationToken cancellationToken) =>
         await dbContext.UserTenantMemberships
+            .AsNoTracking()
             .Include(x => x.User)
             .Where(x => x.TenantId == tenantId && !x.IsDeleted && x.IsActive && !x.User!.IsDeleted)
             .OrderBy(x => x.User!.UserName)
@@ -74,6 +118,7 @@ public sealed class UserRepository(AuthDbContext dbContext) : IUserRepository
 
     public async Task<IReadOnlyCollection<User>> ListByTenantAsync(Guid tenantId, CancellationToken cancellationToken) =>
         await dbContext.UserTenantMemberships
+            .AsNoTracking()
             .Include(x => x.User)
             .Where(x => x.TenantId == tenantId && !x.IsDeleted && x.IsActive && !x.User!.IsDeleted)
             .OrderBy(x => x.User!.UserName)

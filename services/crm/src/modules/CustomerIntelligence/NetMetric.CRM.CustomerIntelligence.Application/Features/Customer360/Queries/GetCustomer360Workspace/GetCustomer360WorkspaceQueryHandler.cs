@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Application.Abstractions.Persistence;
-using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.CustomerIntelligence.Application.Abstractions.Persistence;
+using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 
 namespace NetMetric.CRM.CustomerIntelligence.Application.Features.Customer360.Queries.GetCustomer360Workspace;
 

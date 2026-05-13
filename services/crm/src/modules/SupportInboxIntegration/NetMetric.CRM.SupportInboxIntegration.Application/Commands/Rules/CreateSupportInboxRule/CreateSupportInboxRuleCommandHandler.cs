@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Persistence;
-using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
 using MediatR;
+using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Persistence;
+using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Application.Commands.Rules.CreateSupportInboxRule;
 

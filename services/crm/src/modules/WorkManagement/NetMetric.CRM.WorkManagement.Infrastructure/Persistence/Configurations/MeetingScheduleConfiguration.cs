@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.WorkManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.WorkManagement.Domain.Entities;
 
 namespace NetMetric.CRM.WorkManagement.Infrastructure.Persistence.Configurations;
 

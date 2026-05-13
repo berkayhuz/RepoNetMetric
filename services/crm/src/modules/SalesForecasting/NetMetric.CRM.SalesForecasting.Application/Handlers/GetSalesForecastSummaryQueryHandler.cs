@@ -1,10 +1,10 @@
-﻿using NetMetric.CRM.SalesForecasting.Application.Abstractions.Persistence;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.SalesForecasting.Application.Abstractions.Persistence;
 using NetMetric.CRM.SalesForecasting.Application.Common;
 using NetMetric.CRM.SalesForecasting.Application.Queries;
 using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 using NetMetric.CRM.SalesForecasting.Contracts.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace NetMetric.CRM.SalesForecasting.Application.Handlers;
 

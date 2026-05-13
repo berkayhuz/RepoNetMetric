@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions.Persistence;
 using NetMetric.CRM.MarketingAutomation.Contracts.DTOs;

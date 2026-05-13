@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Exceptions;
+namespace NetMetric.Auth.Application.Exceptions;
 
 public sealed class AuthApplicationException(
     string title,

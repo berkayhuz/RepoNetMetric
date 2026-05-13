@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.TicketManagement.Domain.Common;
+using NetMetric.CRM.TicketManagement.Domain.Common;
 
 namespace NetMetric.CRM.TicketManagement.Infrastructure.Services;
 

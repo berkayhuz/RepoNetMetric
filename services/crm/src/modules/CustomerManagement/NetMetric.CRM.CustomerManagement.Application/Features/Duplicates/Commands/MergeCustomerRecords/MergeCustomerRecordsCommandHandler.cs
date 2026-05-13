@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Abstractions.Services;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.Abstractions.Services;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Commands.MergeCustomerRecords;
 

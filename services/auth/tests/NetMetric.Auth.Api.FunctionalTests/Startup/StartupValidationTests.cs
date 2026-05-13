@@ -85,6 +85,90 @@ public sealed class StartupValidationTests
         validation.Failures.Should().Contain(message => message.Contains("ConnectionStrings:IdentityConnection cannot point to localhost in production.", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Development_Smtp_InvitationDeliveryOptions_Should_Bind_From_Configuration()
+    {
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["InvitationDelivery:AcceptBaseUrl"] = "https://localhost:7146",
+                ["InvitationDelivery:AcceptPath"] = "/invite/accept",
+                ["InvitationDelivery:SenderName"] = "NetMetricApp",
+                ["InvitationDelivery:SenderAddress"] = "sender@example.com",
+                ["InvitationDelivery:DisableDelivery"] = "false",
+                ["InvitationDelivery:Provider"] = "smtp",
+                ["InvitationDelivery:SmtpHost"] = "smtp.gmail.com",
+                ["InvitationDelivery:SmtpPort"] = "587",
+                ["InvitationDelivery:SmtpUseStartTls"] = "true",
+                ["InvitationDelivery:SmtpUserName"] = "sender@example.com",
+                ["InvitationDelivery:SmtpPassword"] = "test-only-app-password-placeholder",
+                ["InvitationDelivery:ResendThrottleSeconds"] = "60",
+                ["InvitationDelivery:MaxResends"] = "5"
+            })
+            .Build();
+        var options = config.GetSection(InvitationDeliveryOptions.SectionName).Get<InvitationDeliveryOptions>()!;
+
+        options.Provider.Should().Be("smtp");
+        options.SmtpHost.Should().Be("smtp.gmail.com");
+        options.SmtpPort.Should().Be(587);
+        options.SmtpUseStartTls.Should().BeTrue();
+        options.SmtpUserName.Should().Be("sender@example.com");
+        options.SmtpPassword.Should().Be("test-only-app-password-placeholder");
+
+        var validation = ValidateInvitationDeliveryOptions(options, new TestHostEnvironment(Environments.Development));
+        validation.Failed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Startup_Should_Fail_When_Smtp_InvitationDelivery_Is_Enabled_And_Required_Fields_Are_Missing()
+    {
+        var validation = ValidateInvitationDeliveryOptions(
+            new InvitationDeliveryOptions
+            {
+                AcceptBaseUrl = "https://localhost:7146",
+                AcceptPath = "/invite/accept",
+                SenderName = "NetMetricApp",
+                SenderAddress = "sender@example.com",
+                DisableDelivery = false,
+                Provider = "smtp",
+                SmtpHost = "",
+                SmtpPort = 587,
+                SmtpUseStartTls = true,
+                SmtpUserName = "sender@example.com",
+                SmtpPassword = "",
+                ResendThrottleSeconds = 60,
+                MaxResends = 5
+            },
+            new TestHostEnvironment(Environments.Development));
+
+        validation.Failed.Should().BeTrue();
+        validation.Failures.Should().Contain(message => message.Contains("InvitationDelivery:SmtpHost is required when SMTP delivery is enabled.", StringComparison.Ordinal));
+        validation.Failures.Should().Contain(message => message.Contains("InvitationDelivery:SmtpPassword is required when SmtpUserName is configured.", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Startup_Should_Not_Require_Smtp_Fields_When_InvitationDelivery_Uses_Notification_Pipeline()
+    {
+        var validation = ValidateInvitationDeliveryOptions(
+            new InvitationDeliveryOptions
+            {
+                AcceptBaseUrl = "https://localhost:7146",
+                AcceptPath = "/invite/accept",
+                SenderName = "NetMetricApp",
+                SenderAddress = "sender@example.com",
+                DisableDelivery = false,
+                Provider = "notification",
+                SmtpHost = "",
+                SmtpPort = 587,
+                SmtpUseStartTls = true,
+                ResendThrottleSeconds = 60,
+                MaxResends = 5
+            },
+            new TestHostEnvironment(Environments.Development));
+
+        validation.Failed.Should().BeFalse();
+    }
+
     private static ValidateOptionsResult ValidateJwtOptions(JwtOptions options, IHostEnvironment environment)
     {
         var validatorType = Type.GetType(
@@ -102,6 +186,16 @@ public sealed class StartupValidationTests
                 throwOnError: true)!
             ;
         var validator = Activator.CreateInstance(validatorType, environment, configuration)!;
+        return (ValidateOptionsResult)validatorType.GetMethod("Validate")!.Invoke(validator, [null, options])!;
+    }
+
+    private static ValidateOptionsResult ValidateInvitationDeliveryOptions(InvitationDeliveryOptions options, IHostEnvironment environment)
+    {
+        var validatorType = Type.GetType(
+                "NetMetric.Auth.Infrastructure.DependencyInjection.InvitationDeliveryOptionsValidation, NetMetric.Auth.Infrastructure",
+                throwOnError: true)!
+            ;
+        var validator = Activator.CreateInstance(validatorType, environment)!;
         return (ValidateOptionsResult)validatorType.GetMethod("Validate")!.Invoke(validator, [null, options])!;
     }
 

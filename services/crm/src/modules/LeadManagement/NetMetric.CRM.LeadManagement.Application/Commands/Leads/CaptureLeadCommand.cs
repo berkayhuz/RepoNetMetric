@@ -1,6 +1,6 @@
+using System.Text.Json;
 using MediatR;
 using NetMetric.CRM.Types;
-using System.Text.Json;
 
 namespace NetMetric.CRM.LeadManagement.Application.Commands.Leads;
 

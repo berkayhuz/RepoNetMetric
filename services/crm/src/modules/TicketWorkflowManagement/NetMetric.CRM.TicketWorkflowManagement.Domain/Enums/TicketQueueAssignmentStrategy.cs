@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketWorkflowManagement.Domain.Enums;
+namespace NetMetric.CRM.TicketWorkflowManagement.Domain.Enums;
 
 public enum TicketQueueAssignmentStrategy
 {

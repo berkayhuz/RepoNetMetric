@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
 

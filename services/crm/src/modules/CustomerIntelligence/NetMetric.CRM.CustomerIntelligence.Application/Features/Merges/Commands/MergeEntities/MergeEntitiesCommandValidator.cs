@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.CustomerIntelligence.Application.Features.Merges.Commands.MergeEntities;
 

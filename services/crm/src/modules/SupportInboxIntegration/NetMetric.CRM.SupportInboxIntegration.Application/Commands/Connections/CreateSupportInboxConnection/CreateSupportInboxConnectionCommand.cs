@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Contracts.DTOs;
-using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
 using MediatR;
+using NetMetric.CRM.SupportInboxIntegration.Contracts.DTOs;
+using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Application.Commands.Connections.CreateSupportInboxConnection;
 

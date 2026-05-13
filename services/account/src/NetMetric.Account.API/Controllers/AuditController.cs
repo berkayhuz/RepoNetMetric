@@ -1,8 +1,8 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using NetMetric.Account.Api.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using NetMetric.Account.Api.DependencyInjection;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Audit.Queries;
 using NetMetric.Account.Contracts.Audit;

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Features.Tags.Commands.UnassignTag;
 using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Features.Tags.Commands.UnassignTag;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

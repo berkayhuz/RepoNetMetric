@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using NetMetric.Account.Api.Authorization;
 using NetMetric.Account.Application.Abstractions.Security;
 

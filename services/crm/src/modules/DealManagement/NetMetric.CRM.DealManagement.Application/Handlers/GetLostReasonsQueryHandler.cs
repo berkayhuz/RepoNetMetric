@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.DealManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.DealManagement.Application.Queries.Deals;
-using NetMetric.CRM.DealManagement.Contracts.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.DealManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.DealManagement.Application.Queries.Deals;
+using NetMetric.CRM.DealManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.DealManagement.Application.Handlers;
 

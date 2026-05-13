@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Contracts.DTOs;
+namespace NetMetric.CRM.LeadManagement.Contracts.DTOs;
 
 public sealed record LeadWorkspaceDto(
     LeadDetailDto Lead,

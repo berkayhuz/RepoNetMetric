@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NetMetric.CRM.WorkflowAutomation.Application.Abstractions.Rules;
 
 namespace NetMetric.CRM.WorkflowAutomation.Infrastructure.Processing;

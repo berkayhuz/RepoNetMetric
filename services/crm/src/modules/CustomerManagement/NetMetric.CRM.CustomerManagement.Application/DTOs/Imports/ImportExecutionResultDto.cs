@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Imports;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Imports;
 
 public sealed record ImportExecutionResultDto(
     string EntityName,

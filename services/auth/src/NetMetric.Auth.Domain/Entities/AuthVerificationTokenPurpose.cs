@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Domain.Entities;
+namespace NetMetric.Auth.Domain.Entities;
 
 public static class AuthVerificationTokenPurpose
 {

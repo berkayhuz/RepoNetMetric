@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Preferences;
+namespace NetMetric.Account.Contracts.Preferences;
 
 public sealed record UserPreferenceResponse(
     Guid Id,

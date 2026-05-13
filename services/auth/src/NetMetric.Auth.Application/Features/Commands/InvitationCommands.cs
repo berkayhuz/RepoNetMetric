@@ -1,4 +1,5 @@
-﻿using MediatR;
+using MediatR;
+using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Responses;
 
 namespace NetMetric.Auth.Application.Features.Commands;
@@ -47,4 +48,4 @@ public sealed record AcceptTenantInvitationCommand(
     string? IpAddress,
     string? UserAgent,
     string? CorrelationId,
-    string? TraceId) : IRequest<AuthenticationTokenResponse>;
+    string? TraceId) : IRequest<AuthSessionResult>;

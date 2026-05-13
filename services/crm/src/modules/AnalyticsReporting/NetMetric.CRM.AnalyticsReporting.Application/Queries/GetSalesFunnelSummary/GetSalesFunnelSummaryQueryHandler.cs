@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.AnalyticsReporting.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.AnalyticsReporting.Application.Abstractions.Persistence;
+using NetMetric.CRM.AnalyticsReporting.Application.DTOs;
 
 namespace NetMetric.CRM.AnalyticsReporting.Application.Queries.GetSalesFunnelSummary;
 

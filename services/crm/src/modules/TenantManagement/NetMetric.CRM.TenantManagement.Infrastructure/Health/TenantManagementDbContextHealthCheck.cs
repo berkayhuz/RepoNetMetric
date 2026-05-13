@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.CRM.TenantManagement.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.TenantManagement.Infrastructure.Health;

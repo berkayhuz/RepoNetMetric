@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.TicketWorkflowManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.TicketWorkflowManagement.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.TicketWorkflowManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TicketWorkflowManagement.Domain.Entities;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Application.Commands.Queues.CreateTicketQueue;
 

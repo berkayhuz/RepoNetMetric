@@ -6,6 +6,7 @@ using NetMetric.Auth.API.Accessors;
 using NetMetric.Auth.API.Cookies;
 using NetMetric.Auth.API.Security;
 using NetMetric.Auth.Application.Features.Commands;
+using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Requests;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Localization;
@@ -27,6 +28,7 @@ public sealed class AuthController(
     [EnableRateLimiting(AuthRateLimitingOptions.RegisterPolicyName)]
     [ProducesResponseType<AuthenticationTokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         var response = await sender.Send(
@@ -42,8 +44,14 @@ public sealed class AuthController(
                 Request.Headers.UserAgent.ToString()),
             cancellationToken);
 
-        cookieService.Apply(Response, response);
-        return Ok(cookieService.CreateResponsePayload(response));
+        if (response is AuthSessionResult.PendingConfirmation)
+        {
+            return Accepted(AccountActionAccepted);
+        }
+
+        var issued = (AuthSessionResult.Issued)response;
+        cookieService.Apply(Response, issued.Tokens);
+        return Ok(cookieService.CreateResponsePayload(issued.Tokens));
     }
 
     [HttpPost("workspaces")]
@@ -95,6 +103,7 @@ public sealed class AuthController(
     [AllowAnonymous]
     [EnableRateLimiting(AuthRateLimitingOptions.RegisterPolicyName)]
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> AcceptInvitation([FromBody] AcceptTenantInvitationRequest request, CancellationToken cancellationToken)
     {
         var tenantId = requestContextAccessor.ResolveTenantId(request.TenantId);
@@ -113,8 +122,14 @@ public sealed class AuthController(
                 HttpContext.TraceIdentifier),
             cancellationToken);
 
-        cookieService.Apply(Response, response);
-        return Ok(cookieService.CreateResponsePayload(response));
+        if (response is AuthSessionResult.PendingConfirmation)
+        {
+            return Accepted(AccountActionAccepted);
+        }
+
+        var issued = (AuthSessionResult.Issued)response;
+        cookieService.Apply(Response, issued.Tokens);
+        return Ok(cookieService.CreateResponsePayload(issued.Tokens));
     }
 
     [HttpPost("login")]
@@ -124,7 +139,10 @@ public sealed class AuthController(
     [ProducesResponseType<AuthIssuedSessionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var tenantId = requestContextAccessor.ResolveTenantId(request.TenantId);
+        var requestedTenantId = request.TenantId ?? Guid.Empty;
+        var tenantId = requestedTenantId == Guid.Empty
+            ? Guid.Empty
+            : requestContextAccessor.ResolveTenantId(requestedTenantId);
         var response = await sender.Send(
             new LoginCommand(
                 tenantId,

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ProductCatalog.Contracts.DTOs;
+namespace NetMetric.CRM.ProductCatalog.Contracts.DTOs;
 
 public sealed class CatalogBulkOperationResultDto
 {

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
 using MediatR;
+using NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
 
 namespace NetMetric.CRM.LeadManagement.Application.Features.Bulk.Commands.BulkAssignLeadsOwner;
 

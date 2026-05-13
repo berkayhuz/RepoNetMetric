@@ -462,6 +462,21 @@ internal sealed class DataRetentionOptionsValidation : IValidateOptions<DataRete
             failures.Add("DataRetention:RevokedSessionRetentionDays must be at least 1.");
         }
 
+        if (options.ExpiredVerificationTokenRetentionDays < 1)
+        {
+            failures.Add("DataRetention:ExpiredVerificationTokenRetentionDays must be at least 1.");
+        }
+
+        if (options.ExpiredInvitationRetentionDays < 1)
+        {
+            failures.Add("DataRetention:ExpiredInvitationRetentionDays must be at least 1.");
+        }
+
+        if (options.PublishedOutboxRetentionDays < 1)
+        {
+            failures.Add("DataRetention:PublishedOutboxRetentionDays must be at least 1.");
+        }
+
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)
             : ValidateOptionsResult.Success;

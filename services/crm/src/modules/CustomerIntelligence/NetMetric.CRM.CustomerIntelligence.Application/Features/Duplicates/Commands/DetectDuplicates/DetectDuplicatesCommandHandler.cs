@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Application.Abstractions.Persistence;
-using NetMetric.CRM.CustomerIntelligence.Domain.Entities.DuplicateMatchs;
 using MediatR;
+using NetMetric.CRM.CustomerIntelligence.Application.Abstractions.Persistence;
+using NetMetric.CRM.CustomerIntelligence.Domain.Entities.DuplicateMatchs;
 
 namespace NetMetric.CRM.CustomerIntelligence.Application.Features.Duplicates.Commands.DetectDuplicates;
 

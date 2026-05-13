@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Infrastructure.Options;
+namespace NetMetric.Notification.Infrastructure.Options;
 
 public sealed class NotificationDatabaseOptions
 {

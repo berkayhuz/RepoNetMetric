@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Contracts.DTOs;
+namespace NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 
 public sealed record CustomerContactSummaryDto(
     Guid Id,

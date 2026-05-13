@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Companies;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Companies;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Companies.Queries.GetCompanyWorkspace;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Domain.Abstractions;
+namespace NetMetric.Auth.Domain.Abstractions;
 
 public interface IHasRowVersion
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
+namespace NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
 
 public sealed class AttachSlaToTicketRequest
 {

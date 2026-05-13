@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Notifications;
+namespace NetMetric.Account.Contracts.Notifications;
 
 public sealed record NotificationPreferenceItemResponse(
     Guid Id,

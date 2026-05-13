@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.LeadManagement.Application.Features.Conversions.Commands.ConvertLeadToCustomer;
 using FluentValidation;
+using NetMetric.CRM.LeadManagement.Application.Features.Conversions.Commands.ConvertLeadToCustomer;
 
 namespace NetMetric.CRM.LeadManagement.Application.Validators;
 

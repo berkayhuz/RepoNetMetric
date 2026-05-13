@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Tags;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Tags;
 
 public sealed class TagDto
 {

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using NetMetric.CRM.WorkflowAutomation.Domain.Entities.AutomationRules;

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.DealManagement.Contracts.Enums;
+namespace NetMetric.CRM.DealManagement.Contracts.Enums;
 
 public enum WinLossOutcomeType
 {

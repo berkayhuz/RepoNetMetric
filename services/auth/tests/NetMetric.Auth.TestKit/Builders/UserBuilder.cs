@@ -71,5 +71,18 @@ public sealed class UserBuilder
         return this;
     }
 
+    public UserBuilder WithEmailConfirmed(DateTime? confirmedAtUtc = null)
+    {
+        _user.EmailConfirmed = true;
+        _user.EmailConfirmedAt = confirmedAtUtc ?? new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        return this;
+    }
+
+    public UserBuilder AsInactive()
+    {
+        _user.Deactivate();
+        return this;
+    }
+
     public User Build() => _user;
 }

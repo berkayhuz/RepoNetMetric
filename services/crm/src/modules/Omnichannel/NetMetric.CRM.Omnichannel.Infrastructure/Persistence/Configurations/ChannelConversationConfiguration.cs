@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.Omnichannel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.Omnichannel.Domain.Entities;
 
 namespace NetMetric.CRM.Omnichannel.Infrastructure.Persistence.Configurations;
 

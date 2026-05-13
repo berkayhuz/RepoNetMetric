@@ -41,7 +41,7 @@ public sealed partial class CreateWorkspaceCommandHandler(
             throw new AuthApplicationException("Invalid workspace name", "Workspace name must be between 2 and 200 characters.", (int)HttpStatusCode.BadRequest, errorCode: "invalid_workspace_name");
         }
 
-        var actor = await userRepository.GetByIdAsync(request.CurrentTenantId, request.UserId, cancellationToken)
+        var actor = await userRepository.GetActiveByIdAsync(request.CurrentTenantId, request.UserId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "Authenticated user membership is required.", (int)HttpStatusCode.Forbidden, errorCode: "membership_forbidden");
 
         var utcNow = clock.UtcDateTime;
@@ -193,10 +193,24 @@ public sealed class SwitchWorkspaceCommandHandler(
     {
         var tenant = await tenantRepository.GetByIdAsync(request.TargetTenantId, cancellationToken)
             ?? throw new AuthApplicationException("Workspace not found", "The selected workspace could not be found.", (int)HttpStatusCode.NotFound, errorCode: "workspace_not_found");
-        var user = await userRepository.GetByIdAsync(request.TargetTenantId, request.UserId, cancellationToken)
+        if (!tenant.IsActive)
+        {
+            throw new AuthApplicationException("Workspace not found", "The selected workspace could not be found.", (int)HttpStatusCode.NotFound, errorCode: "workspace_not_found");
+        }
+
+        var user = await userRepository.GetActiveByIdAsync(request.TargetTenantId, request.UserId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "You are not a member of the selected workspace.", (int)HttpStatusCode.Forbidden, errorCode: "workspace_membership_forbidden");
+        if (!user.IsActive)
+        {
+            throw new AuthApplicationException("Forbidden", "You are not a member of the selected workspace.", (int)HttpStatusCode.Forbidden, errorCode: "workspace_membership_forbidden");
+        }
+
         var membership = await userRepository.GetMembershipAsync(request.TargetTenantId, request.UserId, cancellationToken)
             ?? throw new AuthApplicationException("Forbidden", "You are not a member of the selected workspace.", (int)HttpStatusCode.Forbidden, errorCode: "workspace_membership_forbidden");
+        if (!membership.IsActive)
+        {
+            throw new AuthApplicationException("Forbidden", "You are not a member of the selected workspace.", (int)HttpStatusCode.Forbidden, errorCode: "workspace_membership_forbidden");
+        }
 
         var refreshToken = refreshTokenService.Generate();
         var utcNow = clock.UtcDateTime;

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Infrastructure.Channels;
+namespace NetMetric.Notification.Infrastructure.Channels;
 
 public sealed class UnavailablePushProvider : IPushProvider
 {

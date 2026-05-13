@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Domain.Common;
+namespace NetMetric.Account.Domain.Common;
 
 public readonly record struct TenantId(Guid Value)
 {

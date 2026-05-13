@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Imports.Commands.ImportCustomers;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketSlaManagement.Contracts.DTOs;
+namespace NetMetric.CRM.TicketSlaManagement.Contracts.DTOs;
 
 public sealed class TicketSlaWorkspaceDto
 {

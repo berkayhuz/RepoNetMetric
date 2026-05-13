@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CalendarSync.Contracts.DTOs;
-using NetMetric.CRM.CalendarSync.Domain.Enums;
 using MediatR;
+using NetMetric.CRM.CalendarSync.Contracts.DTOs;
+using NetMetric.CRM.CalendarSync.Domain.Enums;
 
 namespace NetMetric.CRM.CalendarSync.Application.Commands.Connections.UpsertCalendarConnection;
 

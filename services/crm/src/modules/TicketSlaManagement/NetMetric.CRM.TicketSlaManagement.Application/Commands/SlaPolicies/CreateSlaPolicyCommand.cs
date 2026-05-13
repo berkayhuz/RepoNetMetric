@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
 using MediatR;
+using NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
 
 namespace NetMetric.CRM.TicketSlaManagement.Application.Commands.SlaPolicies;
 

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketManagement.Application.Features.Comments.Commands.AddTicketComment;
 using FluentValidation;
+using NetMetric.CRM.TicketManagement.Application.Features.Comments.Commands.AddTicketComment;
 
 namespace NetMetric.CRM.TicketManagement.Application.Validators;
 

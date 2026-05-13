@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Documents;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Documents;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Documents.Commands.AttachDocumentReference;
 

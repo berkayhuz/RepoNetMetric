@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Domain.Consents;
+namespace NetMetric.Account.Domain.Consents;
 
 public enum ConsentStatus
 {

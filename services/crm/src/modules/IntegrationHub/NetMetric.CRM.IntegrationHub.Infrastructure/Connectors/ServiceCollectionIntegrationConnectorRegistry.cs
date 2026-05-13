@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.IntegrationHub.Application.Abstractions.Connectors;
+using NetMetric.CRM.IntegrationHub.Application.Abstractions.Connectors;
 
 namespace NetMetric.CRM.IntegrationHub.Infrastructure.Connectors;
 

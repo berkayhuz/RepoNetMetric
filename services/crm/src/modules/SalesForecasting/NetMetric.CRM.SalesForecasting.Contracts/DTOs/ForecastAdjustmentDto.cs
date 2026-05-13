@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SalesForecasting.Contracts.DTOs;
+namespace NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 
 public sealed record ForecastAdjustmentDto(
     Guid Id,

@@ -1,10 +1,10 @@
-﻿using FluentValidation;
-using NetMetric.CRM.ProductCatalog.Application.Common;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.CRM.ProductCatalog.Application.Abstractions.Persistence;
+using NetMetric.CRM.ProductCatalog.Application.Common;
 using NetMetric.CRM.ProductCatalog.Application.Features.Products.Commands.CreateCatalogProduct;
 using NetMetric.CRM.ProductCatalog.Infrastructure.Health;
 using NetMetric.CRM.ProductCatalog.Infrastructure.Persistence;

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.WorkManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.WorkManagement.Domain.Entities;
 
 namespace NetMetric.CRM.WorkManagement.Application.Abstractions.Persistence;
 

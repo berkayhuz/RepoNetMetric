@@ -1,3 +1,3 @@
-﻿namespace NetMetric.CRM.CustomerIntelligence.Domain.Common;
+namespace NetMetric.CRM.CustomerIntelligence.Domain.Common;
 
 public interface ICustomerIntelligenceModuleMarker { }

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Articles.UpdateKnowledgeBaseArticle;
 using FluentValidation;
+using NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Articles.UpdateKnowledgeBaseArticle;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Validators;
 

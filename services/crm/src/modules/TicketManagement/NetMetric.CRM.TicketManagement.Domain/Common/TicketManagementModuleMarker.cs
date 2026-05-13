@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketManagement.Domain.Common;
+namespace NetMetric.CRM.TicketManagement.Domain.Common;
 
 public sealed class TicketManagementModuleMarker
 {

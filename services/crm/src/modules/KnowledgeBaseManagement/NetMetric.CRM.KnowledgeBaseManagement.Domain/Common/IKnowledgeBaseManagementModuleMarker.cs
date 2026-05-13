@@ -1,3 +1,3 @@
-﻿namespace NetMetric.CRM.KnowledgeBaseManagement.Domain.Common;
+namespace NetMetric.CRM.KnowledgeBaseManagement.Domain.Common;
 
 public interface IKnowledgeBaseManagementModuleMarker { }

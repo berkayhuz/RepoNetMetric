@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.QuoteManagement.Contracts.Requests;
+namespace NetMetric.CRM.QuoteManagement.Contracts.Requests;
 
 public sealed class ProposalTemplateUpsertRequest
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Infrastructure.Identity;
+namespace NetMetric.Account.Infrastructure.Identity;
 
 public sealed class IdentityServiceOptions
 {

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Notes.Commands.DeleteNote;
 

@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.CustomerManagement.Domain.Outbox;
+using NetMetric.CRM.CustomerManagement.Domain.Outbox;
 
 namespace NetMetric.CRM.CustomerManagement.Infrastructure.Outbox;
 

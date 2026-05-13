@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketWorkflowManagement.Application.Commands.Assignments.AssignTicketToQueue;
 using FluentValidation;
+using NetMetric.CRM.TicketWorkflowManagement.Application.Commands.Assignments.AssignTicketToQueue;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Application.Validators;
 

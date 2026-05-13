@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CalendarSync.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.CalendarSync.Contracts.DTOs;
 
 namespace NetMetric.CRM.CalendarSync.Application.Commands.Sync.TriggerCalendarSync;
 

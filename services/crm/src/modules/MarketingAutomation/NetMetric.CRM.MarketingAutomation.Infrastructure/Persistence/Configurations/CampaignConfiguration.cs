@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.MarketingAutomation.Domain.Entities.Campaigns;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.MarketingAutomation.Domain.Entities.Campaigns;
 
 namespace NetMetric.CRM.MarketingAutomation.Infrastructure.Persistence.Configurations;
 

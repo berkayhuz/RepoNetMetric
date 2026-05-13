@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.CalendarSync.Application.Abstractions.Persistence;
-using NetMetric.CRM.CalendarSync.Contracts.DTOs;
-using NetMetric.CRM.CalendarSync.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.CalendarSync.Application.Abstractions.Persistence;
+using NetMetric.CRM.CalendarSync.Contracts.DTOs;
+using NetMetric.CRM.CalendarSync.Domain.Entities;
 
 namespace NetMetric.CRM.CalendarSync.Application.Commands.Connections.UpsertCalendarConnection;
 

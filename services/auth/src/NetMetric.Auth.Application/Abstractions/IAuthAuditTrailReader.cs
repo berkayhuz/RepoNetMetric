@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Abstractions;
+namespace NetMetric.Auth.Application.Abstractions;
 
 public interface IAuthAuditTrailReader
 {

@@ -1,3 +1,3 @@
-﻿namespace NetMetric.CRM.MarketingAutomation.Domain.Common;
+namespace NetMetric.CRM.MarketingAutomation.Domain.Common;
 
 public interface IMarketingAutomationModuleMarker { }

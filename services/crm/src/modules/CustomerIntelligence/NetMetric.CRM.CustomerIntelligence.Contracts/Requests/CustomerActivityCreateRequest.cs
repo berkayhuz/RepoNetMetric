@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerIntelligence.Contracts.Requests;
+namespace NetMetric.CRM.CustomerIntelligence.Contracts.Requests;
 
 public sealed class CustomerActivityCreateRequest
 {

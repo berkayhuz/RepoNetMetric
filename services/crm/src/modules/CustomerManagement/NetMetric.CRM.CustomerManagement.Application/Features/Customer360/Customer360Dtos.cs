@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.CustomerManagement.Domain.Entities.CustomerOperations;
+using NetMetric.CRM.CustomerManagement.Domain.Entities.CustomerOperations;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Customer360;
 

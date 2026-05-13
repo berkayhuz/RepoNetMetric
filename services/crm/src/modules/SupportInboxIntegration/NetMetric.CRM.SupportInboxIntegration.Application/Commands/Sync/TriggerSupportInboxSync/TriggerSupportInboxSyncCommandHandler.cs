@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Services;
 using MediatR;
+using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Services;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Application.Commands.Sync.TriggerSupportInboxSync;
 

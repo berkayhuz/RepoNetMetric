@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace NetMetric.CRM.CustomerManagement.Infrastructure.Services;
 

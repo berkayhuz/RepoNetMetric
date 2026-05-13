@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Journeys;

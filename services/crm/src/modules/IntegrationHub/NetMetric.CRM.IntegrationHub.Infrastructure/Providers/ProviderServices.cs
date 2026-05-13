@@ -1,7 +1,7 @@
-﻿using System.Security.Cryptography;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Providers;
 using NetMetric.CRM.IntegrationHub.Domain.Entities;

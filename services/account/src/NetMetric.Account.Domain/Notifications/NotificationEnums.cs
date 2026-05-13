@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Domain.Notifications;
+namespace NetMetric.Account.Domain.Notifications;
 
 public enum NotificationChannel
 {

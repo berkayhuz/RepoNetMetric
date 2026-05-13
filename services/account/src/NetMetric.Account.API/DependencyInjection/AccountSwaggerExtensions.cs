@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi;
+using Microsoft.OpenApi;
 using NetMetric.Account.Api.Options;
 
 namespace NetMetric.Account.Api.DependencyInjection;

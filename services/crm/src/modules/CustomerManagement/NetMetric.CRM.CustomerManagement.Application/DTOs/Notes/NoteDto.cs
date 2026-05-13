@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Notes;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Notes;
 
 public sealed class NoteDto
 {

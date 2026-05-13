@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NetMetric.Account.Api.Security;
 
 namespace NetMetric.Account.Api.Middleware;

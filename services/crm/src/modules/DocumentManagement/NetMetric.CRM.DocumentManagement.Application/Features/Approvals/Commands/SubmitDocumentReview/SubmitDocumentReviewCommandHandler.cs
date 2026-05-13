@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentRecords;
 using MediatR;
+using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentRecords;
 
 namespace NetMetric.CRM.DocumentManagement.Application.Features.Approvals.Commands.SubmitDocumentReview;
 

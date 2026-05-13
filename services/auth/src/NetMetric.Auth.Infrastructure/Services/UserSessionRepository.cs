@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NetMetric.Auth.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using NetMetric.Auth.Application.Abstractions;
+using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.Infrastructure.Persistence;
 
 namespace NetMetric.Auth.Infrastructure.Services;

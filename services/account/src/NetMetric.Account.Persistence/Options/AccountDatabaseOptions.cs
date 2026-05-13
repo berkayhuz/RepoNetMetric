@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Persistence.Options;
+namespace NetMetric.Account.Persistence.Options;
 
 public sealed class AccountDatabaseOptions
 {

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Abstractions;
@@ -37,11 +37,11 @@ public sealed class UserTokenStateValidator(
             AuthMetrics.TokenStateCacheMiss.Add(1);
         }
 
-        var user = await userRepository.GetByIdAsync(tenantId, userId, cancellationToken);
+        var tokenState = await userRepository.GetActiveTokenStateAsync(tenantId, userId, cancellationToken);
 
-        var currentState = user is null
+        var currentState = tokenState is null
             ? new CachedUserTokenState(false, false, -1)
-            : new CachedUserTokenState(true, user.IsActive, user.TokenVersion);
+            : new CachedUserTokenState(true, true, tokenState.TokenVersion);
 
         if (value.EnableCache)
         {

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Commands.Customers;
 using FluentValidation;
+using NetMetric.CRM.CustomerManagement.Application.Commands.Customers;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Validators;
 

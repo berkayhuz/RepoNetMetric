@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ProductCatalog.Contracts.Requests;
+namespace NetMetric.CRM.ProductCatalog.Contracts.Requests;
 
 public sealed class BulkCatalogItemCreateRequest
 {

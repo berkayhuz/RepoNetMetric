@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Application.Abstractions.Identity;
+namespace NetMetric.Account.Application.Abstractions.Identity;
 
 public sealed record AccountSecuritySummary(bool IsMfaEnabled, DateTimeOffset? LastSecurityEventAt);
 

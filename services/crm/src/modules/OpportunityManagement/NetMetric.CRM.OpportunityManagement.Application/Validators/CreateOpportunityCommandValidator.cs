@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.OpportunityManagement.Application.Commands;
 using FluentValidation;
+using NetMetric.CRM.OpportunityManagement.Application.Commands;
 
 namespace NetMetric.CRM.OpportunityManagement.Application.Validators;
 

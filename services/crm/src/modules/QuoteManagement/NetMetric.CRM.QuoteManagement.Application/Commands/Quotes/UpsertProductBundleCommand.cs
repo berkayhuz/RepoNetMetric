@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.QuoteManagement.Application.Common;
-using NetMetric.CRM.QuoteManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.QuoteManagement.Application.Common;
+using NetMetric.CRM.QuoteManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.QuoteManagement.Application.Commands.Quotes;
 

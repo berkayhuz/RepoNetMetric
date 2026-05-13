@@ -1,13 +1,13 @@
-﻿using NetMetric.CRM.SalesForecasting.Application.Abstractions.Persistence;
-using NetMetric.CRM.SalesForecasting.Application.Handlers;
-using NetMetric.CRM.SalesForecasting.Domain.Common;
-using NetMetric.CRM.SalesForecasting.Infrastructure.Health;
-using NetMetric.CRM.SalesForecasting.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.SalesForecasting.Application.Abstractions.Persistence;
+using NetMetric.CRM.SalesForecasting.Application.Handlers;
+using NetMetric.CRM.SalesForecasting.Domain.Common;
+using NetMetric.CRM.SalesForecasting.Infrastructure.Health;
+using NetMetric.CRM.SalesForecasting.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.SalesForecasting.Infrastructure.DependencyInjection;
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Attribution;
 using NetMetric.CRM.MarketingAutomation.Domain.Entities.Consents;

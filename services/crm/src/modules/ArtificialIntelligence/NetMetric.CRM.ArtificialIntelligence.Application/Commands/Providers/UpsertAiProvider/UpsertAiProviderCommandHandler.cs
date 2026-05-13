@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.ArtificialIntelligence.Application.Abstractions.Persistence;
-using NetMetric.CRM.ArtificialIntelligence.Contracts.DTOs;
-using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.ArtificialIntelligence.Application.Abstractions.Persistence;
+using NetMetric.CRM.ArtificialIntelligence.Contracts.DTOs;
+using NetMetric.CRM.ArtificialIntelligence.Domain.Entities;
 
 namespace NetMetric.CRM.ArtificialIntelligence.Application.Commands.Providers.UpsertAiProvider;
 

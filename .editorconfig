@@ -141,3 +141,5 @@ dotnet_code_quality.CA1720.api_surface = public
 dotnet_diagnostic.CA1305.severity = suggestion
 dotnet_diagnostic.CA1851.severity = suggestion
 dotnet_public_api_analyzer.require_api_files = true
+
+file_header_template = <copyright file="{fileName}" company="NetMetric">\nCopyright (c) 2026 NetMetric. All rights reserved.\nNetMetric is proprietary software. See the LICENSE file in the repository root.\n</copyright>

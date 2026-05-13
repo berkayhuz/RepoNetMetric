@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.QuoteManagement.Contracts.DTOs;
+namespace NetMetric.CRM.QuoteManagement.Contracts.DTOs;
 
 public sealed record GuidedSellingPlaybookDto(
     Guid Id,

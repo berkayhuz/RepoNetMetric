@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace NetMetric.CRM.TagManagement.Application.Features.Tags.Commands.CreateTag;
 

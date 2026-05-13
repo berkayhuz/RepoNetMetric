@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Infrastructure.Services;
+namespace NetMetric.CRM.LeadManagement.Infrastructure.Services;
 
 internal static class LeadManagementMappingExtensions
 {

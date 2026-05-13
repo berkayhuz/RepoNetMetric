@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Infrastructure.Persistence;
 
 namespace NetMetric.Auth.Infrastructure.Services;
 
-public sealed class IntegrationEventOutbox(AuthDbContext dbContext) : IIntegrationEventOutbox
+public sealed class IntegrationEventOutbox(AuthDbContext dbContext, OutboxPayloadProtector payloadProtector) : IIntegrationEventOutbox
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
@@ -20,6 +20,7 @@ public sealed class IntegrationEventOutbox(AuthDbContext dbContext) : IIntegrati
         DateTime occurredAtUtc,
         CancellationToken cancellationToken)
     {
+        var serializedPayload = JsonSerializer.Serialize(payload, SerializerOptions);
         var outboxMessage = new OutboxMessage
         {
             EventId = eventId,
@@ -27,7 +28,7 @@ public sealed class IntegrationEventOutbox(AuthDbContext dbContext) : IIntegrati
             EventVersion = eventVersion,
             Source = source,
             RoutingKey = routingKey,
-            Payload = JsonSerializer.Serialize(payload, SerializerOptions),
+            Payload = payloadProtector.ProtectForStorage(eventName, serializedPayload),
             CorrelationId = correlationId,
             TraceId = traceId,
             OccurredAtUtc = occurredAtUtc,

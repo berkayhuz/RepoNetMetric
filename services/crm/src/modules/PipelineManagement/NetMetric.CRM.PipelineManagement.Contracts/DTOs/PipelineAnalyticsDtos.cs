@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.PipelineManagement.Contracts.DTOs;
+namespace NetMetric.CRM.PipelineManagement.Contracts.DTOs;
 
 public record PipelineAnalyticsDto(
     Guid PipelineId,

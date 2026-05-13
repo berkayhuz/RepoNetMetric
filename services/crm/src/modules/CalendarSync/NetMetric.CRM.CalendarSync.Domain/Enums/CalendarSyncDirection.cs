@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CalendarSync.Domain.Enums;
+namespace NetMetric.CRM.CalendarSync.Domain.Enums;
 
 public enum CalendarSyncDirection
 {

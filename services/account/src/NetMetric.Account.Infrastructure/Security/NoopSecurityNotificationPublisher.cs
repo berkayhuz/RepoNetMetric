@@ -1,5 +1,5 @@
-﻿using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Abstractions.Outbox;
+using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Infrastructure.Outbox;
 
 namespace NetMetric.Account.Infrastructure.Security;

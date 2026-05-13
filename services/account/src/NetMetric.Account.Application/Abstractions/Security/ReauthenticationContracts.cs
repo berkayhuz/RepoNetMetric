@@ -1,4 +1,4 @@
-﻿using NetMetric.Account.Application.Common;
+using NetMetric.Account.Application.Common;
 
 namespace NetMetric.Account.Application.Abstractions.Security;
 

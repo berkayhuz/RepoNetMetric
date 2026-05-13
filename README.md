@@ -2,6 +2,19 @@
 
 Multi-platform monorepo foundation with a thin root orchestration layer and a production-grade frontend platform baseline.
 
+## License
+
+NetMetric is proprietary software.
+
+Copyright (c) 2026 Berkay Huz. All rights reserved.
+
+This project is not open source. No permission is granted to use, copy, modify,
+distribute, sublicense, host, deploy, reverse engineer, create derivative works
+from, or commercially exploit this project or any part of it without prior
+express written permission from the copyright holder.
+
+See the [LICENSE](./LICENSE) file for details.
+
 ## Workspace Layout
 
 - `apps/*`: frontend application slots (Next.js-ready)

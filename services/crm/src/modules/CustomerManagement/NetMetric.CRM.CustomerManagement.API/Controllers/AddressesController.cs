@@ -1,10 +1,10 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Commands.Addresses;
-using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
-using NetMetric.CRM.CustomerManagement.Contracts.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetMetric.CRM.API.Compatibility;
+using NetMetric.CRM.CustomerManagement.Application.Commands.Addresses;
+using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
+using NetMetric.CRM.CustomerManagement.Contracts.Requests;
 
 namespace NetMetric.CRM.API.Controllers.CustomerManagement;
 

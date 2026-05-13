@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
+using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 
 namespace NetMetric.CRM.MarketingAutomation.Infrastructure.Processing;
 

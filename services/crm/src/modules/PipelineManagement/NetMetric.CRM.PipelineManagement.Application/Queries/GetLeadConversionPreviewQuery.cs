@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.PipelineManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.PipelineManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.PipelineManagement.Application.Queries;
 

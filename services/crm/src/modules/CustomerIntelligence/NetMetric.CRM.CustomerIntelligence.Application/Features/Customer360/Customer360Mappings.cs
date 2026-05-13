@@ -1,4 +1,4 @@
-﻿using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
+using NetMetric.CRM.CustomerIntelligence.Contracts.DTOs;
 using NetMetric.CRM.CustomerIntelligence.Domain.Entities.BehavioralEvents;
 using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerRelationships;
 using NetMetric.CRM.CustomerIntelligence.Domain.Entities.CustomerTimelineEntrys;

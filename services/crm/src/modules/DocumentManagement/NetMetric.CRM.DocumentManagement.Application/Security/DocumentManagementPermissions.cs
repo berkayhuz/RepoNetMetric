@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.DocumentManagement.Application.Security;
+namespace NetMetric.CRM.DocumentManagement.Application.Security;
 
 public static class DocumentManagementPermissions
 {

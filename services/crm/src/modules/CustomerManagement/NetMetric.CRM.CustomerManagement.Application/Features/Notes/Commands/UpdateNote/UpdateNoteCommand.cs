@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Notes;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Notes;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Notes.Commands.UpdateNote;
 

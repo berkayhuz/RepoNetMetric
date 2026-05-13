@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Infrastructure.Modules.Email.Application;
+namespace NetMetric.Notification.Infrastructure.Modules.Email.Application;
 
 public interface IEmailProvider
 {

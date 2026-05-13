@@ -89,6 +89,65 @@ public sealed class AccountLifecycleCommandHandlersTests
     }
 
     [Fact]
+    public async Task ChangeEmail_Should_Create_EmailChange_Token_And_Outbox_Message_For_New_Address()
+    {
+        var now = new DateTime(2026, 1, 4, 0, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User()
+            .WithId(userId)
+            .WithTenant(tenantId)
+            .WithIdentity("jane", "jane@example.com")
+            .WithPasswordHash("old-hash")
+            .Build();
+        const string rawToken = "raw-email-change-token";
+        var encodedToken = Uri.EscapeDataString(rawToken);
+
+        var fixture = new LifecycleFixture(new FakeClock(now));
+        fixture.UserRepository.Setup(repository => repository.GetByIdAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        fixture.UserRepository.Setup(repository => repository.ExistsByEmailAsync(tenantId, "JANE.NEW@EXAMPLE.COM", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        fixture.PasswordHasher.Setup(hasher => hasher.VerifyHashedPassword(user, user.PasswordHash, "Str0ng!Pass123"))
+            .Returns(PasswordVerificationResult.Success);
+        fixture.TokenService.Setup(service => service.GenerateToken()).Returns(rawToken);
+        fixture.TokenService.Setup(service => service.HashToken(rawToken)).Returns("email-change-token-hash");
+        var sut = fixture.CreateChangeEmailHandler();
+
+        await sut.Handle(
+            new ChangeEmailCommand(tenantId, userId, "jane.new@example.com", user.Email!, "Str0ng!Pass123", "127.0.0.1", "unit-test", "corr", "trace"),
+            CancellationToken.None);
+
+        fixture.TokenRepository.Verify(repository => repository.AddAsync(
+            It.Is<AuthVerificationToken>(token =>
+                token.TenantId == tenantId &&
+                token.UserId == userId &&
+                token.Purpose == AuthVerificationTokenPurpose.EmailChange &&
+                token.TokenHash == "email-change-token-hash" &&
+                token.Target == "JANE.NEW@EXAMPLE.COM"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        fixture.Outbox.Verify(outbox => outbox.AddAsync(
+            It.IsAny<Guid>(),
+            AuthEmailChangeRequestedV1.EventName,
+            AuthEmailChangeRequestedV1.EventVersion,
+            AuthEmailChangeRequestedV1.RoutingKey,
+            "NetMetric.Auth",
+            It.Is<AuthEmailChangeRequestedV1>(evt =>
+                evt.UserId == userId &&
+                evt.TenantId == tenantId &&
+                evt.CurrentEmail == "jane@example.com" &&
+                evt.NewEmail == "jane.new@example.com" &&
+                evt.Token == rawToken &&
+                evt.ConfirmationUrl.Contains($"tenantId={tenantId:D}", StringComparison.Ordinal) &&
+                evt.ConfirmationUrl.Contains($"userId={userId:D}", StringComparison.Ordinal) &&
+                evt.ConfirmationUrl.Contains($"token={encodedToken}", StringComparison.Ordinal)),
+            "corr",
+            "trace",
+            now,
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task ResetPassword_Should_Reject_Invalid_Token()
     {
         var tenantId = Guid.NewGuid();
@@ -391,5 +450,22 @@ public sealed class AccountLifecycleCommandHandlersTests
                 AuditTrail.Object,
                 AuthUnitOfWork.Object,
                 clock);
+
+        public ChangeEmailCommandHandler CreateChangeEmailHandler() =>
+            new(
+                UserRepository.Object,
+                TokenRepository.Object,
+                TokenService.Object,
+                Outbox.Object,
+                PasswordHasher.Object,
+                AuditTrail.Object,
+                AuthUnitOfWork.Object,
+                clock,
+                Microsoft.Extensions.Options.Options.Create(new AccountLifecycleOptions
+                {
+                    PublicAppBaseUrl = "https://auth.example.com",
+                    ConfirmEmailChangePath = "/confirm-email-change",
+                    EmailChangeTokenMinutes = 30
+                }));
     }
 }

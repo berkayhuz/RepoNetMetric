@@ -1,12 +1,12 @@
-﻿using NetMetric.CRM.CalendarSync.Application.Abstractions.Persistence;
-using NetMetric.CRM.CalendarSync.Application.Commands.Connections.UpsertCalendarConnection;
-using NetMetric.CRM.CalendarSync.Infrastructure.Health;
-using NetMetric.CRM.CalendarSync.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.CalendarSync.Application.Abstractions.Persistence;
+using NetMetric.CRM.CalendarSync.Application.Commands.Connections.UpsertCalendarConnection;
+using NetMetric.CRM.CalendarSync.Infrastructure.Health;
+using NetMetric.CRM.CalendarSync.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.CalendarSync.Infrastructure.DependencyInjection;
 

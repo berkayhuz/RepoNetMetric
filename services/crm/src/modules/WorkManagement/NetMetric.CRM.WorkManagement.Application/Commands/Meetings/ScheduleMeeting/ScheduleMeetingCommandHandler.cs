@@ -1,7 +1,7 @@
+using MediatR;
 using NetMetric.CRM.WorkManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.WorkManagement.Contracts.DTOs;
 using NetMetric.CRM.WorkManagement.Domain.Entities;
-using MediatR;
 
 namespace NetMetric.CRM.WorkManagement.Application.Commands.Meetings.ScheduleMeeting;
 

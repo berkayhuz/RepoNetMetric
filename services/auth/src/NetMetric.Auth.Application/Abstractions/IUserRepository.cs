@@ -1,4 +1,4 @@
-﻿using NetMetric.Auth.Domain.Entities;
+using NetMetric.Auth.Domain.Entities;
 
 namespace NetMetric.Auth.Application.Abstractions;
 
@@ -6,7 +6,11 @@ public interface IUserRepository
 {
     Task<User?> FindByTenantAndIdentityAsync(Guid tenantId, string normalizedIdentity, CancellationToken cancellationToken);
     Task<User?> FindByIdentityAsync(string normalizedIdentity, CancellationToken cancellationToken);
+    Task<LoginScopeResolution?> ResolveLoginScopeByIdentityAsync(string normalizedIdentity, CancellationToken cancellationToken);
+    Task<User?> GetActiveByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
     Task<User?> GetByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
+    Task<User?> GetByIdIncludingInactiveAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
+    Task<ActiveUserTokenState?> GetActiveTokenStateAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
     Task<UserTenantMembership?> GetMembershipAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
     Task<IReadOnlyCollection<UserTenantMembershipSnapshot>> ListMembershipsByUserAsync(Guid userId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyCollection<UserTenantMembershipSnapshot>>(Array.Empty<UserTenantMembershipSnapshot>());
@@ -21,6 +25,12 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken);
     Task AddMembershipAsync(UserTenantMembership membership, CancellationToken cancellationToken);
 }
+
+public sealed record LoginScopeResolution(
+    Guid TenantId,
+    Guid UserId);
+
+public sealed record ActiveUserTokenState(int TokenVersion);
 
 public sealed record UserTenantMembershipSnapshot(
     Guid TenantId,

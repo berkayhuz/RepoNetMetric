@@ -2,6 +2,7 @@ using FluentAssertions;
 using MediatR;
 using Moq;
 using NetMetric.Auth.Application.Features.Commands;
+using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Requests;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.TestKit.Fixtures;
@@ -39,7 +40,7 @@ public sealed class TenantResolutionMiddlewareTests : IAsyncLifetime
     {
         _factory.SenderMock
             .Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AuthenticationTokenResponse(
+            .ReturnsAsync(new AuthSessionResult.Issued(new AuthenticationTokenResponse(
                 "access-token",
                 DateTime.UtcNow.AddMinutes(15),
                 "refresh-token",
@@ -48,7 +49,7 @@ public sealed class TenantResolutionMiddlewareTests : IAsyncLifetime
                 Guid.NewGuid(),
                 "berkay",
                 "berkay@example.com",
-                Guid.NewGuid()));
+                Guid.NewGuid())));
 
         var response = await _client.PostAsync(
             "/api/auth/register",

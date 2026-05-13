@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Bulk;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Bulk;
 
 public sealed class BulkOperationResultDto
 {

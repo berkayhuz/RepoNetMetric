@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using NetMetric.Auth.Application.Abstractions;
 
 namespace NetMetric.Auth.Infrastructure.Services;

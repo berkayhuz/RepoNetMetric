@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Contacts;
+namespace NetMetric.CRM.CustomerManagement.Application.DTOs.Contacts;
 
 public sealed class ContactWorkspaceDto
 {

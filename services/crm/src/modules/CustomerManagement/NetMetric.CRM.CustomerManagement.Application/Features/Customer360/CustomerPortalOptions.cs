@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Application.Features.Customer360;
+namespace NetMetric.CRM.CustomerManagement.Application.Features.Customer360;
 
 public sealed class CustomerPortalOptions
 {

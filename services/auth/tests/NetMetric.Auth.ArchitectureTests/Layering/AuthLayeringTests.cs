@@ -139,7 +139,7 @@ public sealed class AuthLayeringTests
         var expectedReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
             ["NetMetric.Auth.Domain.csproj"] = ["NetMetric.Entities.csproj"],
-            ["NetMetric.Auth.Contracts.csproj"] = ["NetMetric.Auth.Domain.csproj"],
+            ["NetMetric.Auth.Contracts.csproj"] = [],
             ["NetMetric.Auth.Application.csproj"] =
             [
                 "NetMetric.Auth.Domain.csproj",
@@ -171,6 +171,12 @@ public sealed class AuthLayeringTests
                 .Where(reference => !string.IsNullOrWhiteSpace(reference))
                 .Cast<string>()
                 .ToArray();
+
+            if (allowedReferences.Length == 0)
+            {
+                references.Should().BeEmpty($"{projectName} should not have project references");
+                continue;
+            }
 
             references.Should().OnlyContain(reference => allowedReferences.Contains(reference), $"{projectName} has unexpected project reference");
         }

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.DealManagement.Application.Common;
+namespace NetMetric.CRM.DealManagement.Application.Common;
 
 public sealed record DealPageRequest(int Page, int PageSize)
 {

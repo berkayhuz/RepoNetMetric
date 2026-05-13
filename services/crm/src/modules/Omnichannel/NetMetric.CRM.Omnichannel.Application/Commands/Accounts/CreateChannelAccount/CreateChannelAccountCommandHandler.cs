@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;
+using MediatR;
+using NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;
 using NetMetric.CRM.Omnichannel.Contracts.DTOs;
 using NetMetric.CRM.Omnichannel.Domain.Entities;
-using MediatR;
 
 namespace NetMetric.CRM.Omnichannel.Application.Commands.Accounts.CreateChannelAccount;
 

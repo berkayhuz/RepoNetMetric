@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Persistence;
+using MediatR;
+using NetMetric.CRM.SupportInboxIntegration.Application.Abstractions.Persistence;
 using NetMetric.CRM.SupportInboxIntegration.Contracts.DTOs;
 using NetMetric.CRM.SupportInboxIntegration.Domain.Entities;
-using MediatR;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Application.Commands.Connections.CreateSupportInboxConnection;
 

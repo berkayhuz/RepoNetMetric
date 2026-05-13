@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Infrastructure.Persistence.Configurations;
 

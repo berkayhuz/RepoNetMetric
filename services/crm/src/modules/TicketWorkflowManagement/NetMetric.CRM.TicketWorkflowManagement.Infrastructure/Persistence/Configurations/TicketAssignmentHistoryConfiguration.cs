@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.TicketWorkflowManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.TicketWorkflowManagement.Domain.Entities;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Infrastructure.Persistence.Configurations;
 

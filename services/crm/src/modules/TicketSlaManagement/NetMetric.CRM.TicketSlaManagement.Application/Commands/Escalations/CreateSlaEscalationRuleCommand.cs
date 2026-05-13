@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
+using MediatR;
+using NetMetric.CRM.TicketSlaManagement.Contracts.Requests;
 using NetMetric.CRM.TicketSlaManagement.Domain.Entities;
 using NetMetric.CRM.TicketSlaManagement.Domain.Enums;
-using MediatR;
 
 namespace NetMetric.CRM.TicketSlaManagement.Application.Commands.Escalations;
 

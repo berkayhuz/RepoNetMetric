@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetMetric.Account.Domain.Common;
 
 namespace NetMetric.Account.Persistence.Configurations;

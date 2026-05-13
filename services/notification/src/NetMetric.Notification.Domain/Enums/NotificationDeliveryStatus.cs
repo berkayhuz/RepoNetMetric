@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Notification.Domain.Enums;
+namespace NetMetric.Notification.Domain.Enums;
 
 public enum NotificationDeliveryStatus
 {

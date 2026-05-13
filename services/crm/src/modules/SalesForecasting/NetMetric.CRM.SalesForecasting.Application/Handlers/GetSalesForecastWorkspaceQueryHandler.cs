@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.SalesForecasting.Application.Queries;
-using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.SalesForecasting.Application.Queries;
+using NetMetric.CRM.SalesForecasting.Contracts.DTOs;
 
 namespace NetMetric.CRM.SalesForecasting.Application.Handlers;
 

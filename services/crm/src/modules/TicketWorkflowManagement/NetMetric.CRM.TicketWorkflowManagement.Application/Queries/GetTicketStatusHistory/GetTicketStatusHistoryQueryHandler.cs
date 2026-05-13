@@ -1,7 +1,7 @@
-﻿using NetMetric.CRM.TicketWorkflowManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.TicketWorkflowManagement.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.TicketWorkflowManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TicketWorkflowManagement.Application.DTOs;
 
 namespace NetMetric.CRM.TicketWorkflowManagement.Application.Queries.GetTicketStatusHistory;
 

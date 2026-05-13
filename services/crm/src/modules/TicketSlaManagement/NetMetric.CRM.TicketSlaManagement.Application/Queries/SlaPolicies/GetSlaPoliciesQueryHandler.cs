@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.TicketSlaManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.TicketSlaManagement.Application.Common;
-using NetMetric.CRM.TicketSlaManagement.Contracts.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.TicketSlaManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.TicketSlaManagement.Application.Common;
+using NetMetric.CRM.TicketSlaManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.TicketSlaManagement.Application.Queries.SlaPolicies;
 

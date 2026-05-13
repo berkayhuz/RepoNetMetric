@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.QuoteManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.QuoteManagement.Domain.Entities;
 
 namespace NetMetric.CRM.QuoteManagement.Infrastructure.Persistence.Configurations;
 

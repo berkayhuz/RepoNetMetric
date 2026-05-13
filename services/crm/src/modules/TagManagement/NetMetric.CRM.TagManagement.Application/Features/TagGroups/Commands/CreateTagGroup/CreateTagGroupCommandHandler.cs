@@ -1,6 +1,6 @@
+using MediatR;
 using NetMetric.CRM.TagManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.TagManagement.Domain.Entities.TagDefinitions;
-using MediatR;
 
 namespace NetMetric.CRM.TagManagement.Application.Features.TagGroups.Commands.CreateTagGroup;
 

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.CustomerManagement.Infrastructure.Outbox;
+namespace NetMetric.CRM.CustomerManagement.Infrastructure.Outbox;
 
 public interface ICustomerManagementOutboxProcessor
 {

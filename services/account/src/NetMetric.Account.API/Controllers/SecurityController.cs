@@ -1,12 +1,12 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using NetMetric.Account.Api.Http;
 using NetMetric.Account.Api.DependencyInjection;
+using NetMetric.Account.Api.Http;
 using NetMetric.Account.Application.Abstractions.Security;
-using NetMetric.Account.Application.Security.Mfa;
 using NetMetric.Account.Application.Security.Email;
+using NetMetric.Account.Application.Security.Mfa;
 using NetMetric.Account.Application.Security.Password;
 using NetMetric.Account.Application.Security.RecoveryCodes;
 using NetMetric.Account.Contracts.Security;

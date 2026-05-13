@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.DTOs.Duplicates;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.DTOs.Duplicates;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Features.Duplicates.Queries.DetectPotentialDuplicates;
 

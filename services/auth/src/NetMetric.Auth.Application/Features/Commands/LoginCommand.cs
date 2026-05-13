@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.Auth.Contracts.Responses;
 
 namespace NetMetric.Auth.Application.Features.Commands;

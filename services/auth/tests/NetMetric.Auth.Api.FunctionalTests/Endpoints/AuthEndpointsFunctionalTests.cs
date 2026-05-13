@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
+using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Requests;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Auth.TestKit.Builders;
@@ -38,7 +39,7 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
         var tokenResponse = AuthTestDataBuilder.TokenResponse();
         _factory.SenderMock
             .Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(tokenResponse);
+            .ReturnsAsync(new AuthSessionResult.Issued(tokenResponse));
 
         var request = AuthTestDataBuilder.RegisterRequest().Build();
 
@@ -50,6 +51,45 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
         cookies!.Should().Contain(cookie => cookie.Contains("HttpOnly", StringComparison.OrdinalIgnoreCase));
         cookies.Should().Contain(cookie => cookie.Contains("Secure", StringComparison.OrdinalIgnoreCase));
         cookies.Should().Contain(cookie => cookie.Contains("SameSite=Lax", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Register_When_EmailConfirmation_Is_Required_Should_Return_Accepted_Without_Cookies()
+    {
+        _factory.SenderMock.Reset();
+        _factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthSessionResult.PendingConfirmation(Guid.NewGuid(), Guid.NewGuid(), "jane.doe@example.com"));
+
+        var response = await _client.PostAsync(
+            "/api/auth/register",
+            JsonSerializationHelper.ToJsonContent(AuthTestDataBuilder.RegisterRequest().Build()));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Accepted);
+        response.Headers.TryGetValues("Set-Cookie", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AcceptInvitation_When_EmailConfirmation_Is_Required_Should_Return_Accepted_Without_Cookies()
+    {
+        _factory.SenderMock.Reset();
+        _factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<AcceptTenantInvitationCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthSessionResult.PendingConfirmation(Guid.NewGuid(), Guid.NewGuid(), "invitee@example.com"));
+
+        var response = await _client.PostAsync(
+            "/api/auth/invitations/accept",
+            JsonSerializationHelper.ToJsonContent(new AcceptTenantInvitationRequest(
+                Guid.NewGuid(),
+                "invite-token",
+                "invitee",
+                "invitee@example.com",
+                "Str0ng!Pass123",
+                "Invitee",
+                "Example")));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Accepted);
+        response.Headers.TryGetValues("Set-Cookie", out _).Should().BeFalse();
     }
 
     [Fact]

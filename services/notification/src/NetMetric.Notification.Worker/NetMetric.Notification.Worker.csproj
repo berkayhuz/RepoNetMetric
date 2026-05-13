@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
+  <PropertyGroup>
+    <UserSecretsId>netmetric-notification-worker-dev</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\NetMetric.Notification.Application\NetMetric.Notification.Application.csproj" />
     <ProjectReference Include="..\NetMetric.Notification.Infrastructure\NetMetric.Notification.Infrastructure.csproj" />

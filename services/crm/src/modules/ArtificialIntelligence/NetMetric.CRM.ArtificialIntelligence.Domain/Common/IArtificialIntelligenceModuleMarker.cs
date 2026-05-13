@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.ArtificialIntelligence.Domain.Common;
+namespace NetMetric.CRM.ArtificialIntelligence.Domain.Common;
 
 public interface IArtificialIntelligenceModuleMarker
 {

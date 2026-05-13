@@ -1,10 +1,10 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using NetMetric.CRM.MarketingAutomation.Application.Abstractions.Persistence;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
+using NetMetric.CRM.MarketingAutomation.Application.Abstractions.Persistence;
 using NetMetric.CRM.MarketingAutomation.Application.Features.Campaigns.Commands.CreateCampaign;
 using NetMetric.CRM.MarketingAutomation.Infrastructure.Health;
 using NetMetric.CRM.MarketingAutomation.Infrastructure.Persistence;

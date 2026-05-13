@@ -1,8 +1,8 @@
-﻿using NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
-using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.KnowledgeBaseManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.KnowledgeBaseManagement.Contracts.DTOs;
+using NetMetric.CRM.KnowledgeBaseManagement.Domain.Entities;
 
 namespace NetMetric.CRM.KnowledgeBaseManagement.Application.Commands.Articles.CreateKnowledgeBaseArticle;
 

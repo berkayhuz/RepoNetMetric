@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.TicketManagement.Application.Commands.Tickets;
 using FluentValidation;
+using NetMetric.CRM.TicketManagement.Application.Commands.Tickets;
 
 namespace NetMetric.CRM.TicketManagement.Application.Validators;
 

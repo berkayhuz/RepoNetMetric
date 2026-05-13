@@ -1,5 +1,5 @@
-﻿using MediatR;
-using NetMetric.Auth.Contracts.Responses;
+using MediatR;
+using NetMetric.Auth.Application.Records;
 
 namespace NetMetric.Auth.Application.Features.Commands;
 
@@ -12,4 +12,4 @@ public sealed record RegisterCommand(
     string? LastName,
     string? Culture,
     string? IpAddress,
-    string? UserAgent) : IRequest<AuthenticationTokenResponse>;
+    string? UserAgent) : IRequest<AuthSessionResult>;

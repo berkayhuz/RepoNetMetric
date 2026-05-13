@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TicketSlaManagement.Domain.Enums;
+namespace NetMetric.CRM.TicketSlaManagement.Domain.Enums;
 
 public enum SlaBreachActionType
 {

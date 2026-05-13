@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Infrastructure.Outbox;
+namespace NetMetric.Account.Infrastructure.Outbox;
 
 public sealed class AccountOutboxOptions
 {

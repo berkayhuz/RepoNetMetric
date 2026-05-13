@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.PipelineManagement.Application.Commands;
 using FluentValidation;
+using NetMetric.CRM.PipelineManagement.Application.Commands;
 
 namespace NetMetric.CRM.PipelineManagement.Application.Validators;
 

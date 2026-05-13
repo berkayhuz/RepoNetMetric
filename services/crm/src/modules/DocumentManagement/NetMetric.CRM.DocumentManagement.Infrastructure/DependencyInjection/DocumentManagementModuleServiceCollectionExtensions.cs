@@ -1,13 +1,13 @@
-﻿using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;
-using NetMetric.CRM.DocumentManagement.Application.Security;
-using NetMetric.CRM.DocumentManagement.Infrastructure.Health;
-using NetMetric.CRM.DocumentManagement.Infrastructure.Persistence;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;
+using NetMetric.CRM.DocumentManagement.Application.Security;
+using NetMetric.CRM.DocumentManagement.Infrastructure.Health;
+using NetMetric.CRM.DocumentManagement.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.DocumentManagement.Infrastructure.DependencyInjection;
 

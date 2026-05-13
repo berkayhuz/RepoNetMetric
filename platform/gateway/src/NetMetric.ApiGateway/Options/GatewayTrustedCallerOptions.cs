@@ -1,4 +1,4 @@
-﻿namespace NetMetric.ApiGateway.Options;
+namespace NetMetric.ApiGateway.Options;
 
 public static class GatewayTrustedCallerOptions
 {

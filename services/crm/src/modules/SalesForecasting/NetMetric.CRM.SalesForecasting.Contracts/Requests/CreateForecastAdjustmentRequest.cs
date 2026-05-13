@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.SalesForecasting.Contracts.Requests;
+namespace NetMetric.CRM.SalesForecasting.Contracts.Requests;
 
 public sealed record CreateForecastAdjustmentRequest(
     DateOnly PeriodStart,

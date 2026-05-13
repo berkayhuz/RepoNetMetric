@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.CustomerManagement.Application.Abstractions;
-using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.CustomerManagement.Application.Abstractions;
+using NetMetric.CRM.CustomerManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.CustomerManagement.Application.Commands.Contacts;
 

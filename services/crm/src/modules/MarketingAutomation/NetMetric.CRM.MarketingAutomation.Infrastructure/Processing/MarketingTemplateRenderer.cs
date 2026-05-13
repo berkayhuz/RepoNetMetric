@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 using NetMetric.CRM.MarketingAutomation.Contracts.DTOs;
 

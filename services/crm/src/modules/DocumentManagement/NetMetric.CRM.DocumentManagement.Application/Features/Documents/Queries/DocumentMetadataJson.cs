@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace NetMetric.CRM.DocumentManagement.Application.Features.Documents.Queries;
 

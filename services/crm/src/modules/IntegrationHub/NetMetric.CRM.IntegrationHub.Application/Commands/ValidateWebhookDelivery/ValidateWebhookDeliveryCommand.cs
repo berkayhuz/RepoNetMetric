@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NetMetric.CRM.IntegrationHub.Application.DTOs;
 
 namespace NetMetric.CRM.IntegrationHub.Application.Commands.ValidateWebhookDelivery;

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Infrastructure.Persistence;
+namespace NetMetric.Auth.Infrastructure.Persistence;
 
 public sealed class OutboxMessage
 {

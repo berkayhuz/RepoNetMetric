@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.TenantManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.TenantManagement.Domain.Entities;

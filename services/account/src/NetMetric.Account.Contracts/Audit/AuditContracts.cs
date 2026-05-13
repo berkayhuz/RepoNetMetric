@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Account.Contracts.Audit;
+namespace NetMetric.Account.Contracts.Audit;
 
 public sealed record AccountAuditEntryResponse(
     Guid Id,

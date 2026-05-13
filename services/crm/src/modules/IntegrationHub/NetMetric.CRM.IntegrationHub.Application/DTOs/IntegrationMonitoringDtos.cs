@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.IntegrationHub.Application.DTOs;
+namespace NetMetric.CRM.IntegrationHub.Application.DTOs;
 
 public sealed record IntegrationJobListItemDto(
     Guid Id,

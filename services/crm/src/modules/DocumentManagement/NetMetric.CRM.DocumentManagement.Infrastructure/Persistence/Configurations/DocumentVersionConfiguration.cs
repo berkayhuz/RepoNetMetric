@@ -1,6 +1,6 @@
-﻿using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentVersions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentVersions;
 
 namespace NetMetric.CRM.DocumentManagement.Infrastructure.Persistence.Configurations;
 

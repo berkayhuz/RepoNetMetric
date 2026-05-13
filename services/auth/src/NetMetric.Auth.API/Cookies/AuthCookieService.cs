@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Contracts.Responses;
 

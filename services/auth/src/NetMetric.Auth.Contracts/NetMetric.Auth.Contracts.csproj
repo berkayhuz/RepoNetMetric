@@ -1,7 +1,2 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  <ItemGroup>
-    <ProjectReference Include="..\NetMetric.Auth.Domain\NetMetric.Auth.Domain.csproj" />
-  </ItemGroup>
-  
 </Project>

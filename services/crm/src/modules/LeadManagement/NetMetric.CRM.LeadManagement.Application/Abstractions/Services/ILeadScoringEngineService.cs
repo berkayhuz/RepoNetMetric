@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
+namespace NetMetric.CRM.LeadManagement.Application.Abstractions.Services;
 
 public interface ILeadScoringEngineService
 {

@@ -1,9 +1,9 @@
-﻿using NetMetric.CRM.QuoteManagement.Application.Abstractions.Persistence;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NetMetric.CRM.QuoteManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.QuoteManagement.Application.Common;
 using NetMetric.CRM.QuoteManagement.Application.Queries.ProposalTemplates;
 using NetMetric.CRM.QuoteManagement.Contracts.DTOs;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace NetMetric.CRM.QuoteManagement.Application.Handlers;
 

@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.SalesForecasting.Infrastructure.Persistence;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.SalesForecasting.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.SalesForecasting.Infrastructure.Health;
 

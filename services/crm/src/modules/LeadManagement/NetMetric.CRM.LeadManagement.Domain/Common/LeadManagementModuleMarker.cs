@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.LeadManagement.Domain.Common;
+namespace NetMetric.CRM.LeadManagement.Domain.Common;
 
 public sealed class LeadManagementModuleMarker
 {

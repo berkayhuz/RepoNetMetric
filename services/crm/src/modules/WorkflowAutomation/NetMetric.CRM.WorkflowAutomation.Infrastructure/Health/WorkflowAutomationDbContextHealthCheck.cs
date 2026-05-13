@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.WorkflowAutomation.Infrastructure.Persistence;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NetMetric.CRM.WorkflowAutomation.Infrastructure.Persistence;
 
 namespace NetMetric.CRM.WorkflowAutomation.Infrastructure.Health;
 

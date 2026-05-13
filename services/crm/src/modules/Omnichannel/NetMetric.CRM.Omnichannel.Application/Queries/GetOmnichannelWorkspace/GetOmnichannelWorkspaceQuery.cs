@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.Omnichannel.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.Omnichannel.Contracts.DTOs;
 
 namespace NetMetric.CRM.Omnichannel.Application.Queries.GetOmnichannelWorkspace;
 

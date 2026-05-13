@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.DealManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.DealManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.DealManagement.Application.Commands.Reviews;
 

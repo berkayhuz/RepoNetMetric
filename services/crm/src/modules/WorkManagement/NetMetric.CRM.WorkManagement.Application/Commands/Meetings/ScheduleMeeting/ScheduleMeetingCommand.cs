@@ -1,5 +1,5 @@
-﻿using NetMetric.CRM.WorkManagement.Contracts.DTOs;
 using MediatR;
+using NetMetric.CRM.WorkManagement.Contracts.DTOs;
 
 namespace NetMetric.CRM.WorkManagement.Application.Commands.Meetings.ScheduleMeeting;
 

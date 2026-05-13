@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.TagManagement.Application.Security;
+namespace NetMetric.CRM.TagManagement.Application.Security;
 
 public static class TagManagementPermissions
 {

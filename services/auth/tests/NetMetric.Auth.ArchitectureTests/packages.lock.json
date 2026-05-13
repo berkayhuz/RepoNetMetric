@@ -804,10 +804,7 @@
         }
       },
       "netmetric.auth.contracts": {
-        "type": "Project",
-        "dependencies": {
-          "NetMetric.Auth.Domain": "[1.0.0, )"
-        }
+        "type": "Project"
       },
       "netmetric.auth.domain": {
         "type": "Project",

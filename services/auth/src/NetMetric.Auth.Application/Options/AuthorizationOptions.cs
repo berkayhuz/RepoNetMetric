@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Options;
+namespace NetMetric.Auth.Application.Options;
 
 using Microsoft.Extensions.Options;
 

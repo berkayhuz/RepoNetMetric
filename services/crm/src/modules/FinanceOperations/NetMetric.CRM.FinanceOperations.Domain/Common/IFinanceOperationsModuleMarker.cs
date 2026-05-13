@@ -1,3 +1,3 @@
-﻿namespace NetMetric.CRM.FinanceOperations.Domain.Common;
+namespace NetMetric.CRM.FinanceOperations.Domain.Common;
 
 public interface IFinanceOperationsModuleMarker { }

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.Omnichannel.Domain.Enums;
+namespace NetMetric.CRM.Omnichannel.Domain.Enums;
 
 public enum ConversationStatus
 {

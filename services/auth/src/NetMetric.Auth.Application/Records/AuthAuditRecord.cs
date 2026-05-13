@@ -1,4 +1,4 @@
-﻿namespace NetMetric.Auth.Application.Records;
+namespace NetMetric.Auth.Application.Records;
 
 public sealed record AuthAuditRecord(
     Guid TenantId,

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using NetMetric.Auth.Application.Features.Commands;
 
 namespace NetMetric.Auth.Application.Validators;

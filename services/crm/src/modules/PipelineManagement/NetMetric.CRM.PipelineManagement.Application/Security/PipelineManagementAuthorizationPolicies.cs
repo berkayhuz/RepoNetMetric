@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.PipelineManagement.Application.Security;
+namespace NetMetric.CRM.PipelineManagement.Application.Security;
 
 public static class PipelineManagementAuthorizationPolicies
 {

@@ -1,4 +1,4 @@
-﻿namespace NetMetric.CRM.FinanceOperations.Contracts.DTOs;
+namespace NetMetric.CRM.FinanceOperations.Contracts.DTOs;
 
 public sealed class FinanceOperationsSummaryDto
 {
