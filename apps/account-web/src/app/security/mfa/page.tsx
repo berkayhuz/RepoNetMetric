@@ -1,4 +1,4 @@
-import { MfaReadOnlyPanel } from "@/features/account/components/mfa-read-only-panel";
+import { MfaManagementPanel } from "@/features/account/components/mfa-management-panel";
 import { getMfaStatusForPage } from "@/features/account/data/security-read-data";
 import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
@@ -13,5 +13,5 @@ export default async function SecurityMfaPage() {
     handleAccountApiPageError(error);
   }
 
-  return <MfaReadOnlyPanel mfaStatus={mfaStatus} />;
+  return <MfaManagementPanel mfaStatus={mfaStatus} />;
 }
