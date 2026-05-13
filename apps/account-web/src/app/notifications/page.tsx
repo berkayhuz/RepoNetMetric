@@ -1,13 +1,53 @@
-import { ScaffoldPage } from "@/features/account/components/scaffold-page";
+import { NotificationsManagementPanel } from "@/features/account/components/notifications-management-panel";
+import {
+  getNotificationPreferencesForPage,
+  getNotificationsForPage,
+} from "@/features/account/data/notifications-data";
+import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
-export default async function NotificationsPage() {
+type NotificationsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function normalizeFilter(input: string | undefined): "all" | "unread" | "read" {
+  if (input === "unread" || input === "read") {
+    return input;
+  }
+
+  return "all";
+}
+
+export default async function NotificationsPage({ searchParams }: NotificationsPageProps) {
   await requireAccountSession("/notifications");
 
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawFilter = resolvedSearchParams?.filter;
+  const filterValue =
+    typeof rawFilter === "string"
+      ? rawFilter
+      : Array.isArray(rawFilter) && typeof rawFilter[0] === "string"
+        ? rawFilter[0]
+        : undefined;
+  const activeFilter = normalizeFilter(filterValue);
+
+  let notifications;
+  let preferences;
+
+  try {
+    [notifications, preferences] = await Promise.all([
+      getNotificationsForPage(activeFilter === "all" ? undefined : activeFilter),
+      getNotificationPreferencesForPage(),
+    ]);
+  } catch (error) {
+    handleAccountApiPageError(error);
+  }
+
   return (
-    <ScaffoldPage
-      title="Notifications"
-      description="Notifications center scaffold. Notification feed and preference sync will be integrated later."
+    <NotificationsManagementPanel
+      notifications={notifications}
+      preferences={preferences}
+      activeFilter={activeFilter}
     />
   );
 }

@@ -1,0 +1,105 @@
+"use client";
+
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Text } from "@netmetric/ui";
+
+import type { AccountNotificationResponse } from "@/lib/account-api/account-api-types";
+
+import {
+  deleteNotificationAction,
+  markNotificationAsReadAction,
+} from "../actions/notification-actions";
+import { initialMutationState } from "../actions/mutation-state";
+import { SecurityActionResult } from "./security-action-result";
+
+type NotificationItemProps = {
+  item: AccountNotificationResponse;
+};
+
+function ActionButton({
+  idleLabel,
+  pendingLabel,
+  variant = "outline",
+}: {
+  idleLabel: string;
+  pendingLabel: string;
+  variant?: "outline" | "destructive";
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="sm" variant={variant} disabled={pending}>
+      {pending ? pendingLabel : idleLabel}
+    </Button>
+  );
+}
+
+function formatOccurredAt(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return date.toLocaleString();
+}
+
+export function NotificationItem({ item }: NotificationItemProps) {
+  const [readState, readAction] = useActionState(
+    markNotificationAsReadAction,
+    initialMutationState,
+  );
+  const [deleteState, deleteAction] = useActionState(
+    deleteNotificationAction,
+    initialMutationState,
+  );
+
+  return (
+    <Card>
+      <CardHeader className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={item.isRead ? "outline" : "secondary"}>
+            {item.isRead ? "Read" : "Unread"}
+          </Badge>
+          <Badge variant="outline">{item.category}</Badge>
+          <Badge variant="outline">{item.severity}</Badge>
+        </div>
+        <CardTitle className="text-base">{item.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Text className="text-sm">{item.description}</Text>
+        <Text className="text-xs text-muted-foreground">
+          Occurred: {formatOccurredAt(item.occurredAt)}
+        </Text>
+
+        {readState.status !== "idle" ? (
+          <SecurityActionResult
+            state={readState}
+            successTitle="Notification updated"
+            errorTitle="Read update failed"
+          />
+        ) : null}
+        {deleteState.status !== "idle" ? (
+          <SecurityActionResult
+            state={deleteState}
+            successTitle="Notification removed"
+            errorTitle="Remove failed"
+          />
+        ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          {!item.isRead ? (
+            <form action={readAction}>
+              <input type="hidden" name="notificationId" value={item.id} />
+              <ActionButton idleLabel="Mark read" pendingLabel="Marking..." />
+            </form>
+          ) : null}
+          <form action={deleteAction}>
+            <input type="hidden" name="notificationId" value={item.id} />
+            <input type="hidden" name="confirm" value="delete-notification" />
+            <ActionButton idleLabel="Remove" pendingLabel="Removing..." variant="destructive" />
+          </form>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
