@@ -1,26 +1,26 @@
 [
   {
     "Name": "api-gateway",
-    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\netmetric\\platform\\gateway\\src\\NetMetric.ApiGateway\\NetMetric.ApiGateway.csproj",
-    "ProcessId": 524,
-    "StartedAt": "2026-05-12T12:10:32.4396715+03:00"
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\platform\\gateway\\src\\NetMetric.ApiGateway\\NetMetric.ApiGateway.csproj",
+    "ProcessId": 24736,
+    "StartedAt": "2026-05-13T20:33:34.1804919+03:00"
   },
   {
     "Name": "netmetric.account.api",
-    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\netmetric\\services\\account\\src\\NetMetric.Account.API\\NetMetric.Account.API.csproj",
-    "ProcessId": 25020,
-    "StartedAt": "2026-05-12T12:10:33.5189913+03:00"
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\account\\src\\NetMetric.Account.API\\NetMetric.Account.API.csproj",
+    "ProcessId": 23616,
+    "StartedAt": "2026-05-13T20:33:35.2421180+03:00"
   },
   {
     "Name": "netmetric.auth.api",
-    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\netmetric\\services\\auth\\src\\NetMetric.Auth.API\\NetMetric.Auth.API.csproj",
-    "ProcessId": 11852,
-    "StartedAt": "2026-05-12T12:10:34.5795745+03:00"
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\auth\\src\\NetMetric.Auth.API\\NetMetric.Auth.API.csproj",
+    "ProcessId": 24492,
+    "StartedAt": "2026-05-13T20:33:36.3187796+03:00"
   },
   {
     "Name": "netmetric.crm.customermanagement.api",
-    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\netmetric\\services\\crm\\src\\modules\\CustomerManagement\\NetMetric.CRM.CustomerManagement.API\\NetMetric.CRM.CustomerManagement.API.csproj",
-    "ProcessId": 18600,
-    "StartedAt": "2026-05-12T12:10:35.6854482+03:00"
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\crm\\src\\modules\\CustomerManagement\\NetMetric.CRM.CustomerManagement.API\\NetMetric.CRM.CustomerManagement.API.csproj",
+    "ProcessId": 8160,
+    "StartedAt": "2026-05-13T20:33:37.3684824+03:00"
   }
 ]

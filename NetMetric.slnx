@@ -276,6 +276,19 @@
   <Folder Name="/services/notification/tests/" />
   <Folder Name="/services/search/" />
   <Folder Name="/services/tools/" />
+  <Folder Name="/services/tools/src/">
+    <Project Path="services/tools/src/NetMetric.Tools.API/NetMetric.Tools.API.csproj" />
+    <Project Path="services/tools/src/NetMetric.Tools.Application/NetMetric.Tools.Application.csproj" />
+    <Project Path="services/tools/src/NetMetric.Tools.Contracts/NetMetric.Tools.Contracts.csproj" />
+    <Project Path="services/tools/src/NetMetric.Tools.Domain/NetMetric.Tools.Domain.csproj" />
+    <Project Path="services/tools/src/NetMetric.Tools.Infrastructure/NetMetric.Tools.Infrastructure.csproj" />
+    <Project Path="services/tools/src/NetMetric.Tools.Persistence/NetMetric.Tools.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/services/tools/tests/">
+    <Project Path="services/tools/tests/NetMetric.Tools.Application.UnitTests/NetMetric.Tools.Application.UnitTests.csproj" />
+    <Project Path="services/tools/tests/NetMetric.Tools.Contracts.Tests/NetMetric.Tools.Contracts.Tests.csproj" />
+    <Project Path="services/tools/tests/NetMetric.Tools.Domain.UnitTests/NetMetric.Tools.Domain.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/contract/" />
   <Folder Name="/tests/e2e/" />

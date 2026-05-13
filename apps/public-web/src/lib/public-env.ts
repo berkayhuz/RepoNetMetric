@@ -2,8 +2,8 @@ const LOCAL_DEFAULTS = {
   siteUrl: "http://localhost:7003",
   authUrl: "http://localhost:7002",
   accountUrl: "http://localhost:7004",
-  crmUrl: "http://localhost:7005",
-  toolsUrl: "http://localhost:7006",
+  crmUrl: "http://localhost:7006",
+  toolsUrl: "http://localhost:7005",
   apiUrl: "http://localhost:5031",
 } as const;
 
