@@ -1,13 +1,17 @@
-import { ScaffoldPage } from "@/features/account/components/scaffold-page";
+import { PreferencesReadOnlyPanel } from "@/features/account/components/preferences-read-only-panel";
+import { getPreferencesForPage } from "@/features/account/data/account-read-data";
+import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
 export default async function PreferencesPage() {
   await requireAccountSession("/preferences");
 
-  return (
-    <ScaffoldPage
-      title="Preferences"
-      description="Preferences page scaffold. User preference loading and update behavior will be added in a later phase."
-    />
-  );
+  let preferences;
+  try {
+    preferences = await getPreferencesForPage();
+  } catch (error) {
+    handleAccountApiPageError(error);
+  }
+
+  return <PreferencesReadOnlyPanel preferences={preferences} />;
 }

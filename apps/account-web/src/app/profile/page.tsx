@@ -1,13 +1,17 @@
-import { ScaffoldPage } from "@/features/account/components/scaffold-page";
+import { ProfileReadOnlyPanel } from "@/features/account/components/profile-read-only-panel";
+import { getProfileForPage } from "@/features/account/data/account-read-data";
+import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
 export default async function ProfilePage() {
   await requireAccountSession("/profile");
 
-  return (
-    <ScaffoldPage
-      title="Profile"
-      description="Profile page scaffold. Profile retrieval and update flows will be implemented in a later phase."
-    />
-  );
+  let profile;
+  try {
+    profile = await getProfileForPage();
+  } catch (error) {
+    handleAccountApiPageError(error);
+  }
+
+  return <ProfileReadOnlyPanel profile={profile} />;
 }
