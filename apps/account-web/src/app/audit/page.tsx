@@ -1,13 +1,58 @@
-import { ScaffoldPage } from "@/features/account/components/scaffold-page";
+import { AuditActivityPanel } from "@/features/account/components/audit-activity-panel";
+import { getAuditEntriesForPage } from "@/features/account/data/audit-data";
+import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
-export default async function AuditPage() {
+type AuditPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function readStringParam(value: string | string[] | undefined): string | undefined {
+  if (typeof value === "string") {
+    return value.trim() || undefined;
+  }
+
+  if (Array.isArray(value) && typeof value[0] === "string") {
+    return value[0].trim() || undefined;
+  }
+
+  return undefined;
+}
+
+function normalizeLimit(raw: string | undefined): number {
+  if (!raw) {
+    return 50;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) {
+    return 50;
+  }
+
+  return Math.min(200, Math.max(1, Math.floor(parsed)));
+}
+
+export default async function AuditPage({ searchParams }: AuditPageProps) {
   await requireAccountSession("/audit");
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const eventType = readStringParam(resolvedSearchParams?.eventType);
+  const limit = normalizeLimit(readStringParam(resolvedSearchParams?.limit));
+
+  let auditEntries;
+  try {
+    auditEntries = await getAuditEntriesForPage(
+      eventType
+        ? {
+            limit,
+            eventType,
+          }
+        : { limit },
+    );
+  } catch (error) {
+    handleAccountApiPageError(error);
+  }
 
   return (
-    <ScaffoldPage
-      title="Audit"
-      description="Account audit timeline scaffold. Activity retrieval and filtering will be implemented in later phases."
-    />
+    <AuditActivityPanel audit={auditEntries} activeEventType={eventType} activeLimit={limit} />
   );
 }
