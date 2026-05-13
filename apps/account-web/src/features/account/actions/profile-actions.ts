@@ -2,12 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 
-import { accountApiClient, type UpdateMyProfileRequest } from "@/lib/account-api";
+import { AccountApiError, accountApiClient, type UpdateMyProfileRequest } from "@/lib/account-api";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import { mapMutationErrorToState } from "./mutation-error-map";
 import type { MutationState } from "./mutation-state";
+
+const avatarUploadLimitBytes = 10 * 1024 * 1024;
+const allowedAvatarMimeTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 function readOptionalString(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -22,6 +25,33 @@ function readOptionalString(formData: FormData, key: string): string | null {
 function readRequiredString(formData: FormData, key: string): string {
   const value = readOptionalString(formData, key);
   return value ?? "";
+}
+
+function mapAvatarMutationError(error: unknown): MutationState {
+  if (error instanceof AccountApiError) {
+    if (error.status === 404) {
+      return {
+        status: "error",
+        message: "Avatar was already removed.",
+      };
+    }
+
+    if (error.status === 413) {
+      return {
+        status: "error",
+        message: "Avatar file is too large. Maximum size is 10 MB.",
+      };
+    }
+
+    if (error.status === 415) {
+      return {
+        status: "error",
+        message: "Unsupported avatar file type. Use PNG, JPEG, or WEBP.",
+      };
+    }
+  }
+
+  return mapMutationErrorToState(error, "/profile");
 }
 
 export async function updateProfileAction(
@@ -55,5 +85,101 @@ export async function updateProfileAction(
     };
   } catch (error) {
     return mapMutationErrorToState(error, "/profile");
+  }
+}
+
+export async function uploadAvatarAction(
+  _previous: MutationState,
+  formData: FormData,
+): Promise<MutationState> {
+  await assertSameOriginRequest();
+
+  const fileValue = formData.get("avatarFile");
+  if (!(fileValue instanceof File)) {
+    return {
+      status: "error",
+      message: "Avatar file is required.",
+      fieldErrors: {
+        avatarFile: ["Select an avatar image file."],
+      },
+    };
+  }
+
+  if (fileValue.size <= 0) {
+    return {
+      status: "error",
+      message: "Avatar file is empty.",
+      fieldErrors: {
+        avatarFile: ["Select a non-empty avatar file."],
+      },
+    };
+  }
+
+  if (fileValue.size > avatarUploadLimitBytes) {
+    return {
+      status: "error",
+      message: "Avatar file is too large. Maximum size is 10 MB.",
+      fieldErrors: {
+        avatarFile: ["Maximum file size is 10 MB."],
+      },
+    };
+  }
+
+  if (!allowedAvatarMimeTypes.has(fileValue.type)) {
+    return {
+      status: "error",
+      message: "Unsupported avatar file type. Use PNG, JPEG, or WEBP.",
+      fieldErrors: {
+        avatarFile: ["Supported types: PNG, JPEG, WEBP."],
+      },
+    };
+  }
+
+  const uploadFormData = new FormData();
+  uploadFormData.set("file", fileValue);
+
+  try {
+    const requestOptions = await getAccountApiRequestOptions();
+    await accountApiClient.uploadProfileAvatar(uploadFormData, requestOptions);
+    revalidatePath("/profile");
+    revalidatePath("/settings");
+    revalidatePath("/");
+
+    return {
+      status: "success",
+      message: "Avatar uploaded successfully.",
+    };
+  } catch (error) {
+    return mapAvatarMutationError(error);
+  }
+}
+
+export async function removeAvatarAction(
+  _previous: MutationState,
+  formData: FormData,
+): Promise<MutationState> {
+  await assertSameOriginRequest();
+
+  const confirm = readRequiredString(formData, "confirm");
+  if (confirm !== "delete-avatar") {
+    return {
+      status: "error",
+      message: "Please confirm before deleting the avatar.",
+    };
+  }
+
+  try {
+    const requestOptions = await getAccountApiRequestOptions();
+    await accountApiClient.removeProfileAvatar(requestOptions);
+    revalidatePath("/profile");
+    revalidatePath("/settings");
+    revalidatePath("/");
+
+    return {
+      status: "success",
+      message: "Avatar removed successfully.",
+    };
+  } catch (error) {
+    return mapAvatarMutationError(error);
   }
 }

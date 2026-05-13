@@ -25,6 +25,7 @@ import {
 import type { MyProfileResponse } from "@/lib/account-api";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
+import { AvatarManagementPanel } from "./avatar-management-panel";
 import { ReadOnlyValue } from "./read-only-value";
 
 type ProfileEditFormProps = {
@@ -50,7 +51,7 @@ export function ProfileEditForm({ profile, action }: ProfileEditFormProps) {
       <div className="space-y-2">
         <Heading level={2}>Profile</Heading>
         <Text className="text-muted-foreground">
-          Update profile information. Security and avatar workflows are handled in later phases.
+          Update profile information and manage your avatar.
         </Text>
       </div>
 
@@ -160,6 +161,8 @@ export function ProfileEditForm({ profile, action }: ProfileEditFormProps) {
           </form>
         </CardContent>
       </Card>
+
+      <AvatarManagementPanel profile={profile} />
 
       <Card>
         <CardHeader>
