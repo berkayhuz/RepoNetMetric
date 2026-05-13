@@ -1,13 +1,24 @@
-import { ScaffoldPage } from "@/features/account/components/scaffold-page";
+import { PasswordSecurityPlaceholderPanel } from "@/features/account/components/password-security-placeholder-panel";
+import {
+  getMfaStatusForPage,
+  getSessionsAndDevicesForPage,
+} from "@/features/account/data/security-read-data";
+import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
 export default async function SecurityPasswordPage() {
   await requireAccountSession("/security/password");
 
-  return (
-    <ScaffoldPage
-      title="Security Password"
-      description="Password change scaffold. Real mutation flow and validations will be added in a dedicated security phase."
-    />
-  );
+  let mfaStatus;
+  let sessions;
+  try {
+    [mfaStatus, sessions] = await Promise.all([
+      getMfaStatusForPage(),
+      getSessionsAndDevicesForPage().then((result) => result.sessions),
+    ]);
+  } catch (error) {
+    handleAccountApiPageError(error);
+  }
+
+  return <PasswordSecurityPlaceholderPanel mfaStatus={mfaStatus} sessions={sessions} />;
 }
