@@ -9,5 +9,6 @@ export const accountRoutes = [
   { href: "/notifications", label: "Notifications" },
   { href: "/audit", label: "Audit" },
   { href: "/settings", label: "Settings" },
+  { href: "/settings/team", label: "Team" },
   { href: "/privacy", label: "Privacy" },
 ] as const;

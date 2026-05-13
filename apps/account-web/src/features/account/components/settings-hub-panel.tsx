@@ -66,6 +66,11 @@ export function SettingsHubPanel({ displayName, language, timeZone }: SettingsHu
             title: "Privacy",
             description: "Review consent and privacy details.",
           },
+          {
+            href: "/settings/team",
+            title: "Team",
+            description: "View members, roles, and invitations in read-only mode.",
+          },
         ].map((item) => (
           <Card key={item.href}>
             <CardHeader>
