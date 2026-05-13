@@ -22,7 +22,7 @@ export function PrivacyConsentsPanel({ consents }: PrivacyConsentsPanelProps) {
       <div className="space-y-2">
         <Heading level={2}>Privacy and consent history</Heading>
         <Text className="text-muted-foreground">
-          Review your consent timeline. Consent updates will be enabled in a later phase.
+          Review your consent timeline and accept actionable consent entries.
         </Text>
       </div>
 

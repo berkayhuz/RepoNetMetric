@@ -9,6 +9,7 @@ import {
 } from "@netmetric/ui";
 
 import type { ConsentHistoryItemResponse } from "@/lib/account-api";
+import { ConsentAcceptForm } from "./consent-accept-form";
 
 type ConsentStatusCardProps = {
   item: ConsentHistoryItemResponse;
@@ -24,6 +25,16 @@ function formatDate(value: string): string {
 }
 
 export function ConsentStatusCard({ item }: ConsentStatusCardProps) {
+  const status = item.status.trim().toLowerCase();
+  const isAccepted = status === "accepted" || status === "current";
+  const isActionable =
+    !isAccepted &&
+    (status === "required" ||
+      status === "pending" ||
+      status === "declined" ||
+      status === "revoked" ||
+      status === "expired");
+
   return (
     <Card>
       <CardHeader className="space-y-3">
@@ -38,6 +49,15 @@ export function ConsentStatusCard({ item }: ConsentStatusCardProps) {
         <Text className="text-sm text-muted-foreground">
           Decided at: {formatDate(item.decidedAt)}
         </Text>
+        {isActionable ? (
+          <div className="mt-3">
+            <ConsentAcceptForm consentType={item.consentType} version={item.version} />
+          </div>
+        ) : (
+          <Text className="mt-3 text-xs text-muted-foreground">
+            Consent action is not required for the current status.
+          </Text>
+        )}
       </CardContent>
     </Card>
   );
