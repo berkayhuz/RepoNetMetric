@@ -10,7 +10,7 @@ import {
 
 import type { TeamReadData } from "@/features/account/data/team-data";
 
-import { InvitationsReadOnlyPanel } from "./invitations-read-only-panel";
+import { InvitationManagementPanel } from "./invitation-management-panel";
 import { MembersReadOnlyPanel } from "./members-read-only-panel";
 import { RolesCatalogPanel } from "./roles-catalog-panel";
 
@@ -46,7 +46,7 @@ export function TeamManagementPanel({ teamData }: TeamManagementPanelProps) {
 
       <MembersReadOnlyPanel members={teamData.members} />
       <RolesCatalogPanel rolesCatalog={teamData.rolesCatalog} />
-      <InvitationsReadOnlyPanel invitations={teamData.invitations} />
+      <InvitationManagementPanel invitations={teamData.invitations} />
     </section>
   );
 }
