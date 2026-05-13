@@ -1,4 +1,5 @@
-import { ProfileReadOnlyPanel } from "@/features/account/components/profile-read-only-panel";
+import { updateProfileAction } from "@/features/account/actions/profile-actions";
+import { ProfileEditForm } from "@/features/account/components/profile-edit-form";
 import { getProfileForPage } from "@/features/account/data/account-read-data";
 import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
@@ -13,5 +14,5 @@ export default async function ProfilePage() {
     handleAccountApiPageError(error);
   }
 
-  return <ProfileReadOnlyPanel profile={profile} />;
+  return <ProfileEditForm profile={profile} action={updateProfileAction} />;
 }
