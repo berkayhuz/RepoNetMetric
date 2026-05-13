@@ -1,6 +1,6 @@
 import "server-only";
 
-import { accountApiConfig, joinAccountApiPath } from "./account-api-config";
+import { getAccountApiConfig, joinAccountApiPath } from "./account-api-config";
 import { accountApiEndpoints } from "./account-api-endpoints";
 import { AccountApiError, statusToAccountApiErrorKind } from "./account-api-errors";
 import { applyCorrelationId, getCorrelationIdFromHeaders } from "./correlation";
@@ -155,7 +155,7 @@ async function request<TResponse>(options: RequestOptions): Promise<TResponse> {
   }
 
   const signal = createTimeoutSignal(
-    options.timeoutMs ?? accountApiConfig.defaultTimeoutMs,
+    options.timeoutMs ?? getAccountApiConfig().defaultTimeoutMs,
     options.signal,
   );
   const requestInit: RequestInit = {

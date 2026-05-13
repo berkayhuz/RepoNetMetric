@@ -1,7 +1,7 @@
 import "server-only";
 
 export { accountApiClient } from "./account-api-client";
-export { accountApiConfig, joinAccountApiPath } from "./account-api-config";
+export { getAccountApiConfig, joinAccountApiPath } from "./account-api-config";
 export { accountApiEndpoints } from "./account-api-endpoints";
 export { AccountApiError, statusToAccountApiErrorKind } from "./account-api-errors";
 export { applyCorrelationId, getCorrelationIdFromHeaders } from "./correlation";

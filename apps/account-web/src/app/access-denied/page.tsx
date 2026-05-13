@@ -1,0 +1,18 @@
+import { Alert, AlertDescription, AlertTitle, Heading, Text } from "@netmetric/ui";
+
+export default function AccessDeniedPage() {
+  return (
+    <section className="space-y-4">
+      <Heading level={2}>Access denied</Heading>
+      <Text className="text-muted-foreground">
+        Your current account does not have permission to access this area.
+      </Text>
+      <Alert variant="destructive">
+        <AlertTitle>Authorization required</AlertTitle>
+        <AlertDescription>
+          Please contact your account administrator if this should be available to you.
+        </AlertDescription>
+      </Alert>
+    </section>
+  );
+}

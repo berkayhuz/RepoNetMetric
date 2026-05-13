@@ -1,10 +1,34 @@
 import "server-only";
 
-/**
- * Phase 1 scaffold placeholder.
- * Real account session verification and redirect flow will be implemented
- * in a dedicated auth bridge phase.
- */
-export async function requireAccountSession(): Promise<void> {
-  return;
+import { redirect } from "next/navigation";
+
+import { AccountApiError } from "@/lib/account-api";
+
+import { getCurrentAccountSession } from "./account-session";
+import { buildAuthLoginRedirectUrl } from "./safe-return-url";
+
+export async function requireAccountSession(pathname = "/"): Promise<void> {
+  try {
+    const session = await getCurrentAccountSession();
+
+    if (!session.authenticated) {
+      redirect(buildAuthLoginRedirectUrl(pathname));
+    }
+  } catch (error) {
+    if (error instanceof AccountApiError) {
+      if (error.kind === "forbidden") {
+        redirect("/access-denied");
+      }
+
+      if (error.kind === "rate_limited") {
+        redirect("/retry-later");
+      }
+
+      if (error.kind === "server_error" || error.kind === "upstream_unavailable") {
+        redirect("/service-unavailable");
+      }
+    }
+
+    throw error;
+  }
 }

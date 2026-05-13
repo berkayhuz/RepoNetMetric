@@ -30,12 +30,14 @@ const parsedEnv = accountApiServerEnvSchema.parse({
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
-export const accountApiConfig = {
-  baseUrl: resolveAccountApiBaseUrl(parsedEnv),
-  defaultTimeoutMs: 15_000,
-} as const;
+export function getAccountApiConfig() {
+  return {
+    baseUrl: resolveAccountApiBaseUrl(parsedEnv),
+    defaultTimeoutMs: 15_000,
+  } as const;
+}
 
 export function joinAccountApiPath(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${accountApiConfig.baseUrl}${normalizedPath}`;
+  return `${getAccountApiConfig().baseUrl}${normalizedPath}`;
 }

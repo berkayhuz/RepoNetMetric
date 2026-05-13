@@ -2,7 +2,7 @@ import { ScaffoldPage } from "@/features/account/components/scaffold-page";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
 export default async function SecurityPasswordPage() {
-  await requireAccountSession();
+  await requireAccountSession("/security/password");
 
   return (
     <ScaffoldPage

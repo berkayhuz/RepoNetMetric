@@ -12,7 +12,7 @@ import { PlaceholderDashboardCard } from "@/features/account/components/placehol
 import { requireAccountSession } from "@/lib/auth/require-account-session";
 
 export default async function AccountOverviewPage() {
-  await requireAccountSession();
+  await requireAccountSession("/");
 
   return (
     <section className="space-y-6">
