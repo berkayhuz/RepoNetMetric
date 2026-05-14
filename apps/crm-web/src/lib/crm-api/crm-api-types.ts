@@ -466,6 +466,18 @@ export type DealDetailDto = {
   rowVersion: string;
 };
 
+export type DealUpsertRequest = {
+  dealCode: string;
+  name: string;
+  totalAmount: number;
+  closedDate: string;
+  opportunityId?: string | null;
+  companyId?: string | null;
+  ownerUserId?: string | null;
+  notes?: string | null;
+  rowVersion?: string | null;
+};
+
 export type WorkTaskDto = {
   id: string;
   title: string;

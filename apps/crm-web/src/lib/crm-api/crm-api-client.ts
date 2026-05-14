@@ -27,6 +27,7 @@ import type {
   LeadListItemDto,
   DealDetailDto,
   DealListItemDto,
+  DealUpsertRequest,
   OpportunityDetailDto,
   OpportunityListItemDto,
   OpportunityUpdateRequest,
@@ -444,6 +445,34 @@ export const crmApiClient = {
   getDealById(dealId: string, options: CrmApiRequestOptions = {}) {
     const endpoint = crmApiEndpoints.dealsDetail(dealId);
     return request<DealDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createDeal(input: DealUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<DealDetailDto>({
+      method: crmApiEndpoints.dealsCreate.method,
+      path: crmApiEndpoints.dealsCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateDeal(dealId: string, input: DealUpsertRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsUpdate(dealId);
+    return request<DealDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteDeal(dealId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsDelete(dealId);
+    return request<void>({
       method: endpoint.method,
       path: endpoint.path,
       ...options,

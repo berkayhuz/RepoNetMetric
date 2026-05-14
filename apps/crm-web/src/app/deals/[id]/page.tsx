@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@netmetric/ui";
 
+import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
+import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import { deleteDealAction } from "@/features/deals/actions/deal-mutation-actions";
 import { getDealDetailData } from "@/features/deals/data/deals-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type DealDetailDto } from "@/lib/crm-api";
@@ -31,7 +36,15 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <section className="space-y-6">
-      <CrmPageHeader title={deal.name} description="Deal detail." />
+      <CrmPageHeader
+        title={deal.name}
+        description="Deal detail."
+        actions={
+          <Button asChild>
+            <Link href={`/deals/${resolved.id}/edit`}>Edit deal</Link>
+          </Button>
+        }
+      />
       <CrmEntityDetailPanel
         title="Deal profile"
         fields={[
@@ -49,7 +62,18 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           { label: "State", value: deal.isActive ? "Active" : "Inactive" },
         ]}
       />
-      <CrmContractPending module="Deal timeline, workspace, and mutation flows" />
+      <CrmDeleteZone
+        title="Delete Deal"
+        description="Deleting this deal removes it from active CRM views."
+      >
+        <CrmDeleteConfirmForm
+          entityLabel="Deal"
+          entityName={deal.name}
+          confirmValue="delete-deal"
+          action={deleteDealAction.bind(null, resolved.id)}
+        />
+      </CrmDeleteZone>
+      <CrmContractPending module="Deal owner change, won/lost/reopen, and review workflows" />
     </section>
   );
 }

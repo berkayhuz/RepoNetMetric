@@ -29,6 +29,7 @@ export type {
   DealListItemDto,
   DealDetailDto,
   DealOutcomeHistoryDto,
+  DealUpsertRequest,
   LeadUpdateRequest,
   LeadUpsertRequest,
   LeadOwnershipHistoryDto,

@@ -43,9 +43,10 @@ export default async function DealsPage({
   return (
     <CrmEntityListPage
       title="Deals"
-      description="Read-only deal records from consolidated CRM API."
+      description="Deal records from consolidated CRM API."
       actionPath="/deals"
-      createDisabledMessage="Deal create/update flows will be wired in a later phase."
+      createPath="/deals/new"
+      createLabel="Create deal"
       {...(query.search ? { search: query.search } : {})}
       caption="Deals"
       columns={columns}
