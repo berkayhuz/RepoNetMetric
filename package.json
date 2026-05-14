@@ -80,7 +80,13 @@
     "dev:seed:auth": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-seed-auth.ps1",
     "dev:auth:seed": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-auth-seed.ps1",
     "dev:clean": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-clean.ps1",
-    "frontend:start:crm": "pnpm --filter crm-web dev"
+    "frontend:start:crm": "pnpm --filter crm-web dev",
+    "release:smoke:local": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-LocalFrontend.ps1",
+    "release:smoke:docker": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-DockerImages.ps1",
+    "release:k8s:context": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-KubernetesContext.ps1",
+    "release:k8s:dry-run": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-KubernetesManifests.ps1 -DryRunOnly -ValidateFalse",
+    "release:smoke:staging": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-StagingDomains.ps1",
+    "release:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\New-ReleaseGateReport.ps1"
   },
   "workspaces": [
     "apps/*",

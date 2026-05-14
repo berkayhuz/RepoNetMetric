@@ -41,6 +41,8 @@ x86/
 [Aa][Rr][Mm]64/
 !scripts/release/
 !scripts/release/**
+!docs/release/
+!docs/release/**
 
 # .NET runtime/test artifacts
 TestResults/
