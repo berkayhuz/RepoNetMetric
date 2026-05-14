@@ -362,7 +362,8 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "tag-management",
     title: "Tags",
-    description: "Tag management endpoints are visible for future integration.",
+    description:
+      "Tag module currently exposes create-focused endpoints; read and assignment endpoints are pending.",
     path: "/tags",
     group: "Administration",
     iconKey: "tags",
