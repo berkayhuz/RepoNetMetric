@@ -449,6 +449,23 @@ export type WorkManagementWorkspaceDto = {
   upcomingMeetingCount: number;
 };
 
+export type CreateWorkTaskRequest = {
+  title: string;
+  description: string;
+  ownerUserId?: string | null;
+  dueAtUtc: string;
+  priority: number;
+};
+
+export type ScheduleMeetingRequest = {
+  title: string;
+  startsAtUtc: string;
+  endsAtUtc: string;
+  organizerEmail: string;
+  attendeeSummary: string;
+  requiresExternalSync: boolean;
+};
+
 export type CustomerUpsertRequest = {
   firstName: string;
   lastName: string;

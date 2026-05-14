@@ -74,6 +74,14 @@ export const crmApiEndpoints = {
     method: "GET",
     path: "/api/work-management/workspace",
   } satisfies RouteDefinition,
+  workManagementCreateTask: {
+    method: "POST",
+    path: "/api/work-management/tasks",
+  } satisfies RouteDefinition,
+  workManagementScheduleMeeting: {
+    method: "POST",
+    path: "/api/work-management/meetings",
+  } satisfies RouteDefinition,
 
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,

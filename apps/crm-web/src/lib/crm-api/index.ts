@@ -45,6 +45,8 @@ export type {
   WorkManagementWorkspaceDto,
   WorkTaskDto,
   MeetingScheduleDto,
+  CreateWorkTaskRequest,
+  ScheduleMeetingRequest,
   ProblemDetails,
   SortDirection,
 } from "./crm-api-types";

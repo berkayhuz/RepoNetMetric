@@ -35,6 +35,10 @@ import type {
   PipelineDto,
   PipelineSummaryDto,
   WorkManagementWorkspaceDto,
+  WorkTaskDto,
+  MeetingScheduleDto,
+  CreateWorkTaskRequest,
+  ScheduleMeetingRequest,
   LeadUpdateRequest,
   LeadUpsertRequest,
 } from "./crm-api-types";
@@ -516,6 +520,24 @@ export const crmApiClient = {
     return request<WorkManagementWorkspaceDto>({
       method: crmApiEndpoints.workManagementWorkspace.method,
       path: crmApiEndpoints.workManagementWorkspace.path,
+      ...options,
+    });
+  },
+
+  createWorkTask(input: CreateWorkTaskRequest, options: CrmApiRequestOptions = {}) {
+    return request<WorkTaskDto>({
+      method: crmApiEndpoints.workManagementCreateTask.method,
+      path: crmApiEndpoints.workManagementCreateTask.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  scheduleWorkMeeting(input: ScheduleMeetingRequest, options: CrmApiRequestOptions = {}) {
+    return request<MeetingScheduleDto>({
+      method: crmApiEndpoints.workManagementScheduleMeeting.method,
+      path: crmApiEndpoints.workManagementScheduleMeeting.path,
+      body: input,
       ...options,
     });
   },

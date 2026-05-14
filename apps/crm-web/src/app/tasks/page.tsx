@@ -15,7 +15,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Button,
 } from "@netmetric/ui";
+import Link from "next/link";
 
 function renderTaskRow(task: WorkTaskDto) {
   return (
@@ -52,6 +54,16 @@ export default async function TasksPage({
       <CrmPageHeader
         title="Tasks"
         description="Read-only WorkManagement workspace tasks from consolidated CRM API."
+        actions={
+          <>
+            <Button asChild>
+              <Link href="/tasks/new">Create task</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/tasks/meetings/new">Schedule meeting</Link>
+            </Button>
+          </>
+        }
       />
       <div className="rounded-lg border p-4 text-sm text-muted-foreground">
         <p>Open tasks: {workspaceSummary.openTaskCount}</p>

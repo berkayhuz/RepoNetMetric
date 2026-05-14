@@ -29,7 +29,7 @@ This document summarizes source-visible endpoint availability in `services/crm/s
 | Finance Operations              | FinanceOperations        | Yes                               | No           | Yes            | Yes              | contract_pending | Finance order phase                       |
 | Integration Hub                 | IntegrationHub           | Yes                               | Partial      | Partial        | Yes              | contract_pending | Integrations workspace phase              |
 | Knowledge Base Management       | KnowledgeBaseManagement  | Yes                               | Yes          | Yes            | Yes              | contract_pending | Knowledge base phase                      |
-| Work Management                 | WorkManagement           | Yes                               | Partial      | No             | Yes              | read_only        | Task detail and activities endpoint gap   |
+| Work Management                 | WorkManagement           | Yes                               | Partial      | No             | Yes              | active           | Add task detail + activities read routes  |
 | Workflow Automation             | WorkflowAutomation       | Yes                               | Yes          | Yes            | Yes              | contract_pending | Workflow rules phase                      |
 | Artificial Intelligence         | ArtificialIntelligence   | Yes                               | Partial      | Partial        | Yes              | contract_pending | AI provider workspace phase               |
 | Tag Management                  | TagManagement            | Yes                               | No           | No             | Yes              | contract_pending | Tags management phase                     |
@@ -38,6 +38,7 @@ This document summarizes source-visible endpoint availability in `services/crm/s
 Notes:
 
 - "Partial" means non-standard workspace/summary endpoints are source-visible but not yet mapped into crm-web list/detail patterns.
-- WorkManagement currently exposes `GET /api/work-management/workspace` for read operations; dedicated `GET /api/tasks/{id}` and `GET /api/activities` routes are not source-visible in `NetMetric.CRM.API`.
+- WorkManagement currently exposes `GET /api/work-management/workspace` for read operations and `POST /api/work-management/tasks`, `POST /api/work-management/meetings` for creation flows.
+- Dedicated `GET /api/tasks/{id}` and `GET /api/activities` routes are not source-visible in `NetMetric.CRM.API`.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
 - crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.
