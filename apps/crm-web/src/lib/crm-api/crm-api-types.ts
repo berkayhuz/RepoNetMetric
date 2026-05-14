@@ -404,6 +404,25 @@ export type PipelineBoardDto = {
   columns: PipelineBoardColumnDto[];
 };
 
+export type PipelineStageMoveRequest = {
+  newStage: number;
+  newPipelineStageId?: string | null;
+  note?: string | null;
+  lostReasonId?: string | null;
+  lostNote?: string | null;
+  rowVersion?: string | null;
+};
+
+export type PipelineStageMoveResultDto = {
+  opportunityId: string;
+  previousStage: string | number;
+  currentStage: string | number;
+  status: string | number;
+  lostReasonId?: string | null;
+  lostNote?: string | null;
+  rowVersion?: string | null;
+};
+
 export type CustomerUpsertRequest = {
   firstName: string;
   lastName: string;

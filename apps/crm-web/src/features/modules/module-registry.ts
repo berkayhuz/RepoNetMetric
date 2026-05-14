@@ -122,14 +122,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "pipeline-management",
     title: "Pipeline",
-    description: "Pipeline board is available in read-only mode via consolidated CRM API.",
+    description: "Pipeline board supports server-validated stage movement.",
     path: "/pipeline",
     group: "Sales",
     iconKey: "git-branch",
-    status: "read_only",
+    status: "active",
     backendModuleFolder: "PipelineManagement",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Implemented (read-only)",
+    implementationPhase: "Implemented",
   },
   {
     id: "quote-management",

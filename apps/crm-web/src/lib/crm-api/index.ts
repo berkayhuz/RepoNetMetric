@@ -37,6 +37,8 @@ export type {
   PipelineBoardColumnDto,
   PipelineBoardDto,
   PipelineBoardOpportunityDto,
+  PipelineStageMoveRequest,
+  PipelineStageMoveResultDto,
   PipelineDto,
   PipelineStageDto,
   PipelineSummaryDto,

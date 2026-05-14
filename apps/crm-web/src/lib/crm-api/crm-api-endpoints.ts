@@ -64,6 +64,11 @@ export const crmApiEndpoints = {
       method: "GET",
       path: `/api/opportunities/pipelines/${pipelineId}/board`,
     }) satisfies RouteDefinition,
+  pipelinesMoveOpportunityStage: (opportunityId: string) =>
+    ({
+      method: "POST",
+      path: `/api/opportunities/pipelines/items/${opportunityId}/stage`,
+    }) satisfies RouteDefinition,
 
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,

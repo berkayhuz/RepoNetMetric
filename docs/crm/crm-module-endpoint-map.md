@@ -13,7 +13,7 @@ This document summarizes source-visible endpoint availability in `services/crm/s
 | Lead Management                 | LeadManagement           | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Deal Management                 | DealManagement           | Yes                               | Yes          | Yes            | Yes              | contract_pending | Deals list/detail phase                   |
 | Opportunity Management          | OpportunityManagement    | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
-| Pipeline Management             | PipelineManagement       | Yes                               | Yes          | Yes            | Yes              | read_only        | Implemented (read-only)                   |
+| Pipeline Management             | PipelineManagement       | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Quote Management                | QuoteManagement          | Yes                               | Yes          | Yes            | Yes              | contract_pending | Quotes list/detail phase                  |
 | Sales Forecasting               | SalesForecasting         | Yes                               | Partial      | Partial        | Yes              | contract_pending | Forecast workspace phase                  |
 | Product Catalog                 | ProductCatalog           | Yes                               | Yes          | Yes            | Yes              | contract_pending | Catalog list/detail phase                 |
@@ -39,4 +39,4 @@ Notes:
 
 - "Partial" means non-standard workspace/summary endpoints are source-visible but not yet mapped into crm-web list/detail patterns.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
-- crm-web implements lead and opportunity CRUD, plus pipeline read-only, and keeps remaining non-implemented modules as route shells.
+- crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.

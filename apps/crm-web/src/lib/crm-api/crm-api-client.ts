@@ -30,6 +30,8 @@ import type {
   OpportunityUpdateRequest,
   OpportunityUpsertRequest,
   PipelineBoardDto,
+  PipelineStageMoveRequest,
+  PipelineStageMoveResultDto,
   PipelineDto,
   PipelineSummaryDto,
   LeadUpdateRequest,
@@ -491,6 +493,20 @@ export const crmApiClient = {
       method: endpoint.method,
       path: endpoint.path,
       ...(query.ownerUserId ? { query: { ownerUserId: query.ownerUserId } } : {}),
+      ...options,
+    });
+  },
+
+  moveOpportunityStage(
+    opportunityId: string,
+    input: PipelineStageMoveRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.pipelinesMoveOpportunityStage(opportunityId);
+    return request<PipelineStageMoveResultDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
       ...options,
     });
   },
