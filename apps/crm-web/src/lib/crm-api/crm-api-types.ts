@@ -523,6 +523,15 @@ export type QuoteItemDto = {
   lineTotal: number;
 };
 
+export type QuoteLineUpsertRequest = {
+  productId: string;
+  description?: string | null;
+  quantity: number;
+  unitPrice: number;
+  discountRate: number;
+  taxRate: number;
+};
+
 export type QuoteStatusHistoryDto = {
   id: string;
   oldStatus?: string | number | null;
@@ -564,6 +573,27 @@ export type QuoteDetailDto = {
   declineReason?: string | null;
   items: QuoteItemDto[];
   history: QuoteStatusHistoryDto[];
+  rowVersion: string;
+};
+
+export type QuoteUpsertRequest = {
+  quoteNumber: string;
+  proposalTitle?: string | null;
+  proposalSummary?: string | null;
+  proposalBody?: string | null;
+  quoteDate: string;
+  validUntil?: string | null;
+  opportunityId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  currencyCode: string;
+  exchangeRate: number;
+  termsAndConditions?: string | null;
+  proposalTemplateId?: string | null;
+  items: QuoteLineUpsertRequest[];
+};
+
+export type QuoteUpdateRequest = QuoteUpsertRequest & {
   rowVersion: string;
 };
 

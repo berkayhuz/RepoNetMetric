@@ -14,7 +14,7 @@ This document summarizes source-visible endpoint availability in `services/crm/s
 | Deal Management                 | DealManagement           | Yes (`DealsController`)           | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Opportunity Management          | OpportunityManagement    | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Pipeline Management             | PipelineManagement       | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
-| Quote Management                | QuoteManagement          | Yes                               | Yes          | Yes            | Yes              | read_only        | Implemented (read-only list/detail)       |
+| Quote Management                | QuoteManagement          | Yes                               | Yes          | Yes            | Yes              | active           | Implemented (basic CRUD)                  |
 | Sales Forecasting               | SalesForecasting         | Yes                               | Partial      | Partial        | Yes              | contract_pending | Forecast workspace phase                  |
 | Product Catalog                 | ProductCatalog           | Yes                               | Yes          | Yes            | Yes              | contract_pending | Catalog list/detail phase                 |
 | Support Inbox Integration       | SupportInboxIntegration  | Yes                               | Partial      | Partial        | Yes              | contract_pending | Support inbox timeline phase              |
@@ -48,6 +48,7 @@ Notes:
 - `GET /api/deals/win-loss/lost-reasons` is used for lost reason options.
 - Bulk owner change (`PATCH /api/deals/owner`) and win-loss review (`PUT /api/deals/win-loss/{dealId:guid}/review`) remain intentionally unimplemented in crm-web.
 - QuoteManagement read endpoints are wired in crm-web: `GET /api/quotes`, `GET /api/quotes/{quoteId:guid}`.
-- QuoteManagement mutation and approval lifecycle endpoints remain intentionally unimplemented in crm-web for this phase.
+- QuoteManagement basic CRUD is wired in crm-web: `POST /api/quotes`, `PUT /api/quotes/{quoteId:guid}`, `DELETE /api/quotes/{quoteId:guid}`.
+- QuoteManagement lifecycle and CPQ flows (`submit/approve/reject/sent/accepted/declined/expired/revisions`, workspace/timeline/validation UI) remain intentionally unimplemented in crm-web for this phase.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
 - crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.

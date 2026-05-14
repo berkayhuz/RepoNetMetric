@@ -30,6 +30,8 @@ import type {
   DealUpsertRequest,
   QuoteDetailDto,
   QuoteListItemDto,
+  QuoteUpdateRequest,
+  QuoteUpsertRequest,
   AssignDealOwnerRequest,
   DealOutcomeRequest,
   DealLostReasonDto,
@@ -459,6 +461,34 @@ export const crmApiClient = {
   getQuoteById(quoteId: string, options: CrmApiRequestOptions = {}) {
     const endpoint = crmApiEndpoints.quotesDetail(quoteId);
     return request<QuoteDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createQuote(input: QuoteUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<QuoteDetailDto>({
+      method: crmApiEndpoints.quotesCreate.method,
+      path: crmApiEndpoints.quotesCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateQuote(quoteId: string, input: QuoteUpdateRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesUpdate(quoteId);
+    return request<QuoteDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteQuote(quoteId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesDelete(quoteId);
+    return request<void>({
       method: endpoint.method,
       path: endpoint.path,
       ...options,

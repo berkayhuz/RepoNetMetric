@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@netmetric/ui";
 
+import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
+import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import { deleteQuoteAction } from "@/features/quotes/actions/quote-mutation-actions";
 import { getQuoteDetailData } from "@/features/quotes/data/quotes-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type QuoteDetailDto } from "@/lib/crm-api";
@@ -31,7 +36,15 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
 
   return (
     <section className="space-y-6">
-      <CrmPageHeader title={quote.quoteNumber} description="Quote detail." />
+      <CrmPageHeader
+        title={quote.quoteNumber}
+        description="Quote detail."
+        actions={
+          <Button asChild>
+            <Link href={`/quotes/${resolved.id}/edit`}>Edit quote</Link>
+          </Button>
+        }
+      />
       <CrmEntityDetailPanel
         title="Quote profile"
         fields={[
@@ -58,6 +71,17 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           },
         ]}
       />
+      <CrmDeleteZone
+        title="Delete Quote"
+        description="Deleting this quote removes it from active CRM views."
+      >
+        <CrmDeleteConfirmForm
+          entityLabel="Quote"
+          entityName={quote.quoteNumber}
+          confirmValue="delete-quote"
+          action={deleteQuoteAction.bind(null, resolved.id)}
+        />
+      </CrmDeleteZone>
       <CrmContractPending module="Quote lifecycle actions, line editing, and approval operations" />
     </section>
   );

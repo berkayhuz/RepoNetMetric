@@ -51,7 +51,8 @@ export default async function QuotesPage({
       title="Quotes"
       description="Quote records from consolidated CRM API."
       actionPath="/quotes"
-      createDisabledMessage="Quote mutations are coming in a later phase."
+      createPath="/quotes/new"
+      createLabel="Create quote"
       {...(query.search ? { search: query.search } : {})}
       caption="Quotes"
       columns={columns}
