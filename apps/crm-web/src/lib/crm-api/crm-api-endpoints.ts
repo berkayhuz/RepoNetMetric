@@ -147,6 +147,92 @@ export const crmApiEndpoints = {
     path: "/api/support-inbox/messages",
   } satisfies RouteDefinition,
 
+  ticketSlaPoliciesList: {
+    method: "GET",
+    path: "/api/ticket-sla/policies",
+  } satisfies RouteDefinition,
+  ticketSlaPolicyCreate: {
+    method: "POST",
+    path: "/api/ticket-sla/policies",
+  } satisfies RouteDefinition,
+  ticketSlaPolicyUpdate: (policyId: string) =>
+    ({
+      method: "PUT",
+      path: `/api/ticket-sla/policies/${policyId}`,
+    }) satisfies RouteDefinition,
+  ticketSlaPolicyDelete: (policyId: string) =>
+    ({
+      method: "DELETE",
+      path: `/api/ticket-sla/policies/${policyId}`,
+    }) satisfies RouteDefinition,
+  ticketSlaPolicyEscalationRules: (policyId: string) =>
+    ({
+      method: "GET",
+      path: `/api/ticket-sla/policies/${policyId}/escalation-rules`,
+    }) satisfies RouteDefinition,
+  ticketSlaEscalationRuleCreate: {
+    method: "POST",
+    path: "/api/ticket-sla/escalation-rules",
+  } satisfies RouteDefinition,
+  ticketSlaEscalationRuleUpdate: (ruleId: string) =>
+    ({
+      method: "PUT",
+      path: `/api/ticket-sla/escalation-rules/${ruleId}`,
+    }) satisfies RouteDefinition,
+  ticketSlaWorkspace: (ticketId: string) =>
+    ({
+      method: "GET",
+      path: `/api/ticket-sla/tickets/${ticketId}/workspace`,
+    }) satisfies RouteDefinition,
+  ticketSlaEscalationRuns: (ticketId: string) =>
+    ({
+      method: "GET",
+      path: `/api/ticket-sla/tickets/${ticketId}/escalation-runs`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowQueues: {
+    method: "GET",
+    path: "/api/ticket-workflow/queues",
+  } satisfies RouteDefinition,
+  ticketWorkflowQueueCreate: {
+    method: "POST",
+    path: "/api/ticket-workflow/queues",
+  } satisfies RouteDefinition,
+  ticketWorkflowQueueUpdate: (queueId: string) =>
+    ({
+      method: "PUT",
+      path: `/api/ticket-workflow/queues/${queueId}`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowQueueDelete: (queueId: string) =>
+    ({
+      method: "DELETE",
+      path: `/api/ticket-workflow/queues/${queueId}`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowAssignmentHistory: (ticketId: string) =>
+    ({
+      method: "GET",
+      path: `/api/ticket-workflow/tickets/${ticketId}/assignments`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowStatusHistory: (ticketId: string) =>
+    ({
+      method: "GET",
+      path: `/api/ticket-workflow/tickets/${ticketId}/status-history`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowAssignQueue: (ticketId: string) =>
+    ({
+      method: "PATCH",
+      path: `/api/ticket-workflow/tickets/${ticketId}/queue`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowAssignOwner: (ticketId: string) =>
+    ({
+      method: "PATCH",
+      path: `/api/ticket-workflow/tickets/${ticketId}/owner`,
+    }) satisfies RouteDefinition,
+  ticketWorkflowRecordStatusChange: (ticketId: string) =>
+    ({
+      method: "POST",
+      path: `/api/ticket-workflow/tickets/${ticketId}/status-history`,
+    }) satisfies RouteDefinition,
+
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,
   addressesAddToCustomer: (customerId: string) =>

@@ -56,6 +56,20 @@ import type {
   WorkManagementWorkspaceDto,
   SupportInboxConnectionDto,
   SupportInboxMessageDto,
+  TicketEscalationRunDto,
+  TicketSlaEscalationRuleDto,
+  TicketSlaPolicyDto,
+  TicketSlaPolicyUpsertRequest,
+  TicketSlaEscalationRuleUpsertRequest,
+  TicketSlaWorkspaceDto,
+  TicketWorkflowQueueDto,
+  TicketWorkflowQueueUpsertRequest,
+  TicketWorkflowQueueUpdateRequest,
+  AssignTicketWorkflowQueueRequest,
+  AssignTicketWorkflowOwnerRequest,
+  RecordTicketWorkflowStatusChangeRequest,
+  TicketAssignmentHistoryDto,
+  TicketStatusHistoryDto,
   WorkTaskDto,
   MeetingScheduleDto,
   CreateWorkTaskRequest,
@@ -847,6 +861,202 @@ export const crmApiClient = {
       },
       ...options,
     }).then(normalizePagedResult<SupportInboxMessageDto>);
+  },
+
+  listTicketSlaPolicies(options: CrmApiRequestOptions = {}) {
+    return request<TicketSlaPolicyDto[]>({
+      method: crmApiEndpoints.ticketSlaPoliciesList.method,
+      path: crmApiEndpoints.ticketSlaPoliciesList.path,
+      ...options,
+    });
+  },
+
+  createTicketSlaPolicy(input: TicketSlaPolicyUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<{ id: string }>({
+      method: crmApiEndpoints.ticketSlaPolicyCreate.method,
+      path: crmApiEndpoints.ticketSlaPolicyCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateTicketSlaPolicy(
+    policyId: string,
+    input: TicketSlaPolicyUpsertRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketSlaPolicyUpdate(policyId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteTicketSlaPolicy(policyId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketSlaPolicyDelete(policyId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listTicketSlaEscalationRules(policyId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketSlaPolicyEscalationRules(policyId);
+    return request<TicketSlaEscalationRuleDto[]>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createTicketSlaEscalationRule(
+    input: TicketSlaEscalationRuleUpsertRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    return request<{ id: string }>({
+      method: crmApiEndpoints.ticketSlaEscalationRuleCreate.method,
+      path: crmApiEndpoints.ticketSlaEscalationRuleCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateTicketSlaEscalationRule(
+    ruleId: string,
+    input: TicketSlaEscalationRuleUpsertRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketSlaEscalationRuleUpdate(ruleId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  getTicketSlaWorkspace(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketSlaWorkspace(ticketId);
+    return request<TicketSlaWorkspaceDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listTicketEscalationRuns(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketSlaEscalationRuns(ticketId);
+    return request<TicketEscalationRunDto[]>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listTicketWorkflowQueues(options: CrmApiRequestOptions = {}) {
+    return request<TicketWorkflowQueueDto[]>({
+      method: crmApiEndpoints.ticketWorkflowQueues.method,
+      path: crmApiEndpoints.ticketWorkflowQueues.path,
+      ...options,
+    });
+  },
+
+  createTicketWorkflowQueue(
+    input: TicketWorkflowQueueUpsertRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    return request<{ id: string }>({
+      method: crmApiEndpoints.ticketWorkflowQueueCreate.method,
+      path: crmApiEndpoints.ticketWorkflowQueueCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateTicketWorkflowQueue(
+    queueId: string,
+    input: TicketWorkflowQueueUpdateRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketWorkflowQueueUpdate(queueId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteTicketWorkflowQueue(queueId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketWorkflowQueueDelete(queueId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listTicketAssignmentHistory(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketWorkflowAssignmentHistory(ticketId);
+    return request<TicketAssignmentHistoryDto[]>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listTicketStatusHistory(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketWorkflowStatusHistory(ticketId);
+    return request<TicketStatusHistoryDto[]>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  assignTicketWorkflowQueue(
+    ticketId: string,
+    input: AssignTicketWorkflowQueueRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketWorkflowAssignQueue(ticketId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  assignTicketWorkflowOwner(
+    ticketId: string,
+    input: AssignTicketWorkflowOwnerRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketWorkflowAssignOwner(ticketId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  recordTicketWorkflowStatusChange(
+    ticketId: string,
+    input: RecordTicketWorkflowStatusChangeRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.ticketWorkflowRecordStatusChange(ticketId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
   },
 
   createWorkTask(input: CreateWorkTaskRequest, options: CrmApiRequestOptions = {}) {

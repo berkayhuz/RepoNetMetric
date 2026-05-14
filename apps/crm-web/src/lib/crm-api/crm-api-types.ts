@@ -673,6 +673,131 @@ export type SupportInboxMessageDto = {
   processingError?: string | null;
 };
 
+export type TicketSlaPolicyDto = {
+  id: string;
+  name: string;
+  ticketCategoryId?: string | null;
+  priority: number;
+  firstResponseTargetMinutes: number;
+  resolutionTargetMinutes: number;
+  isDefault: boolean;
+};
+
+export type TicketSlaEscalationRuleDto = {
+  id: string;
+  slaPolicyId: string;
+  metricType: string;
+  triggerBeforeOrAfterMinutes: number;
+  actionType: string;
+  targetTeamId?: string | null;
+  targetUserId?: string | null;
+  isEnabled: boolean;
+};
+
+export type TicketSlaWorkspaceDto = {
+  ticketId: string;
+  slaPolicyId: string;
+  firstResponseDueAtUtc: string;
+  resolutionDueAtUtc: string;
+  firstRespondedAtUtc?: string | null;
+  resolvedAtUtc?: string | null;
+  isFirstResponseBreached: boolean;
+  isResolutionBreached: boolean;
+};
+
+export type TicketEscalationRunDto = {
+  id: string;
+  ticketId: string;
+  escalationRuleId: string;
+  metricType: string;
+  executedAtUtc: string;
+  note: string;
+};
+
+export type TicketSlaPolicyUpsertRequest = {
+  name: string;
+  ticketCategoryId?: string | null;
+  priority: number;
+  firstResponseTargetMinutes: number;
+  resolutionTargetMinutes: number;
+  isDefault: boolean;
+};
+
+export type TicketSlaEscalationRuleUpsertRequest = {
+  slaPolicyId: string;
+  metricType: string;
+  triggerBeforeOrAfterMinutes: number;
+  actionType: string;
+  targetTeamId?: string | null;
+  targetUserId?: string | null;
+  isEnabled: boolean;
+};
+
+export type TicketWorkflowQueueDto = {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  assignmentStrategy: string;
+  isDefault: boolean;
+};
+
+export type TicketWorkflowQueueUpsertRequest = {
+  code: string;
+  name: string;
+  description?: string | null;
+  assignmentStrategy: number;
+  isDefault: boolean;
+};
+
+export type TicketWorkflowQueueUpdateRequest = {
+  name: string;
+  description?: string | null;
+  assignmentStrategy: number;
+  isDefault: boolean;
+};
+
+export type AssignTicketWorkflowQueueRequest = {
+  previousQueueId?: string | null;
+  newQueueId: string;
+  reason?: string | null;
+};
+
+export type AssignTicketWorkflowOwnerRequest = {
+  previousOwnerUserId?: string | null;
+  newOwnerUserId: string;
+  queueId?: string | null;
+  reason?: string | null;
+};
+
+export type RecordTicketWorkflowStatusChangeRequest = {
+  previousStatus: string;
+  newStatus: string;
+  note?: string | null;
+};
+
+export type TicketAssignmentHistoryDto = {
+  id: string;
+  ticketId: string;
+  previousOwnerUserId?: string | null;
+  newOwnerUserId?: string | null;
+  previousQueueId?: string | null;
+  newQueueId?: string | null;
+  changedByUserId?: string | null;
+  reason?: string | null;
+  changedAtUtc: string;
+};
+
+export type TicketStatusHistoryDto = {
+  id: string;
+  ticketId: string;
+  previousStatus: string;
+  newStatus: string;
+  changedByUserId?: string | null;
+  note?: string | null;
+  changedAtUtc: string;
+};
+
 export type TicketListItemDto = {
   id: string;
   ticketNumber: string;
