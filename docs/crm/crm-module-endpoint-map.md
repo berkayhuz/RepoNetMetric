@@ -44,6 +44,8 @@ Notes:
 - Source-visible read endpoints (`GET /api/tags`, `GET /api/tags/{id}`) and assignment endpoints (`assign/unassign`, `entity tags`) are not present in the consolidated API controller surface.
 - DealManagement read endpoints are wired in crm-web: `GET /api/deals`, `GET /api/deals/{dealId:guid}`.
 - DealManagement basic mutations are wired in crm-web: `POST /api/deals`, `PUT /api/deals/{dealId:guid}`, `DELETE /api/deals/{dealId:guid}`.
-- Deal owner change, won/lost/reopen, and win-loss review endpoints remain intentionally unimplemented in crm-web.
+- Deal lifecycle actions are wired in crm-web: `PATCH /api/deals/{dealId:guid}/owner`, `POST /api/deals/{dealId:guid}/won`, `POST /api/deals/{dealId:guid}/lost`, `POST /api/deals/{dealId:guid}/reopen`.
+- `GET /api/deals/win-loss/lost-reasons` is used for lost reason options.
+- Bulk owner change (`PATCH /api/deals/owner`) and win-loss review (`PUT /api/deals/win-loss/{dealId:guid}/review`) remain intentionally unimplemented in crm-web.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
 - crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.

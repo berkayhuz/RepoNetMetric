@@ -28,6 +28,9 @@ import type {
   DealDetailDto,
   DealListItemDto,
   DealUpsertRequest,
+  AssignDealOwnerRequest,
+  DealOutcomeRequest,
+  DealLostReasonDto,
   OpportunityDetailDto,
   OpportunityListItemDto,
   OpportunityUpdateRequest,
@@ -475,6 +478,58 @@ export const crmApiClient = {
     return request<void>({
       method: endpoint.method,
       path: endpoint.path,
+      ...options,
+    });
+  },
+
+  assignDealOwner(
+    dealId: string,
+    input: AssignDealOwnerRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.dealsAssignOwner(dealId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  markDealWon(dealId: string, input: DealOutcomeRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsMarkWon(dealId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  markDealLost(dealId: string, input: DealOutcomeRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsMarkLost(dealId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  reopenDeal(dealId: string, input: DealOutcomeRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsReopen(dealId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  listDealLostReasons(options: CrmApiRequestOptions = {}) {
+    return request<DealLostReasonDto[]>({
+      method: crmApiEndpoints.dealsLostReasons.method,
+      path: crmApiEndpoints.dealsLostReasons.path,
       ...options,
     });
   },

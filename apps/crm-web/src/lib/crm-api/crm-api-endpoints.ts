@@ -52,6 +52,18 @@ export const crmApiEndpoints = {
     ({ method: "PUT", path: `/api/deals/${dealId}` }) satisfies RouteDefinition,
   dealsDelete: (dealId: string) =>
     ({ method: "DELETE", path: `/api/deals/${dealId}` }) satisfies RouteDefinition,
+  dealsAssignOwner: (dealId: string) =>
+    ({ method: "PATCH", path: `/api/deals/${dealId}/owner` }) satisfies RouteDefinition,
+  dealsMarkWon: (dealId: string) =>
+    ({ method: "POST", path: `/api/deals/${dealId}/won` }) satisfies RouteDefinition,
+  dealsMarkLost: (dealId: string) =>
+    ({ method: "POST", path: `/api/deals/${dealId}/lost` }) satisfies RouteDefinition,
+  dealsReopen: (dealId: string) =>
+    ({ method: "POST", path: `/api/deals/${dealId}/reopen` }) satisfies RouteDefinition,
+  dealsLostReasons: {
+    method: "GET",
+    path: "/api/deals/win-loss/lost-reasons",
+  } satisfies RouteDefinition,
 
   opportunitiesList: { method: "GET", path: "/api/opportunities" } satisfies RouteDefinition,
   opportunitiesDetail: (opportunityId: string) =>

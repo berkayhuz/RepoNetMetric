@@ -7,10 +7,20 @@ import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import {
+  changeDealOwnerAction,
+  markDealLostAction,
+  markDealWonAction,
+  reopenDealAction,
+} from "@/features/deals/actions/deal-lifecycle-actions";
 import { deleteDealAction } from "@/features/deals/actions/deal-mutation-actions";
-import { getDealDetailData } from "@/features/deals/data/deals-data";
+import { getDealDetailData, getDealLostReasonsData } from "@/features/deals/data/deals-data";
+import {
+  DealLifecycleActionPanel,
+  DealOwnerActionPanel,
+} from "@/features/deals/forms/deal-lifecycle-panels";
 import { isGuid } from "@/features/shared/data/guid";
-import { CrmApiError, type DealDetailDto } from "@/lib/crm-api";
+import { CrmApiError, type DealDetailDto, type DealLostReasonDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 
@@ -23,9 +33,11 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
   }
 
   let deal: DealDetailDto;
+  let lostReasons: DealLostReasonDto[] = [];
 
   try {
     deal = await getDealDetailData(resolved.id, `/deals/${resolved.id}`);
+    lostReasons = await getDealLostReasonsData(`/deals/${resolved.id}`);
   } catch (error) {
     if (error instanceof CrmApiError && error.kind === "not_found") {
       notFound();
@@ -62,6 +74,36 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           { label: "State", value: deal.isActive ? "Active" : "Inactive" },
         ]}
       />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DealOwnerActionPanel
+          dealId={resolved.id}
+          ownerUserId={deal.ownerUserId ?? null}
+          action={changeDealOwnerAction.bind(null, resolved.id)}
+        />
+        <DealLifecycleActionPanel
+          title="Mark as Won"
+          description="Mark this deal as won."
+          confirmValue="mark-deal-won"
+          action={markDealWonAction.bind(null, resolved.id)}
+          rowVersion={deal.rowVersion}
+        />
+        <DealLifecycleActionPanel
+          title="Mark as Lost"
+          description="Mark this deal as lost and optionally select a reason."
+          confirmValue="mark-deal-lost"
+          action={markDealLostAction.bind(null, resolved.id)}
+          showLostReason
+          lostReasons={lostReasons}
+          rowVersion={deal.rowVersion}
+        />
+        <DealLifecycleActionPanel
+          title="Reopen Deal"
+          description="Reopen this deal after win/loss closure."
+          confirmValue="reopen-deal"
+          action={reopenDealAction.bind(null, resolved.id)}
+          rowVersion={deal.rowVersion}
+        />
+      </div>
       <CrmDeleteZone
         title="Delete Deal"
         description="Deleting this deal removes it from active CRM views."
@@ -73,7 +115,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           action={deleteDealAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Deal owner change, won/lost/reopen, and review workflows" />
+      <CrmContractPending module="Deal bulk owner change and win-loss review workflows" />
     </section>
   );
 }

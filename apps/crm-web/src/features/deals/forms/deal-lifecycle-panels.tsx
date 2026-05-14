@@ -1,0 +1,146 @@
+"use client";
+
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+  Input,
+  NativeSelect,
+  NativeSelectOption,
+  Textarea,
+} from "@netmetric/ui";
+
+import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
+import {
+  initialCrmMutationState,
+  type CrmMutationState,
+} from "@/features/shared/actions/mutation-state";
+import type { DealLostReasonDto } from "@/lib/crm-api";
+
+function SubmitButton({ label, pendingLabel }: Readonly<{ label: string; pendingLabel: string }>) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" variant="outline" disabled={pending} aria-busy={pending}>
+      {pending ? pendingLabel : label}
+    </Button>
+  );
+}
+
+export function DealOwnerActionPanel({
+  dealId,
+  ownerUserId,
+  action,
+}: Readonly<{
+  dealId: string;
+  ownerUserId?: string | null;
+  action: (state: CrmMutationState, formData: FormData) => Promise<CrmMutationState>;
+}>) {
+  const [state, formAction] = useActionState(action, initialCrmMutationState);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Owner</CardTitle>
+        <CardDescription>Update deal owner using a user ID.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <CrmMutationResult state={state} />
+        <form action={formAction} className="space-y-3">
+          <Field>
+            <FieldLabel htmlFor={`deal-owner-${dealId}`}>Owner user ID</FieldLabel>
+            <FieldContent>
+              <Input
+                id={`deal-owner-${dealId}`}
+                name="ownerUserId"
+                defaultValue={ownerUserId ?? ""}
+              />
+              <FieldError>{state.fieldErrors?.ownerUserId?.[0]}</FieldError>
+            </FieldContent>
+          </Field>
+          <SubmitButton label="Change owner" pendingLabel="Updating owner..." />
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function DealLifecycleActionPanel({
+  title,
+  description,
+  confirmValue,
+  action,
+  showLostReason,
+  lostReasons,
+  rowVersion,
+}: Readonly<{
+  title: string;
+  description: string;
+  confirmValue: "mark-deal-won" | "mark-deal-lost" | "reopen-deal";
+  action: (state: CrmMutationState, formData: FormData) => Promise<CrmMutationState>;
+  showLostReason?: boolean;
+  lostReasons?: DealLostReasonDto[];
+  rowVersion?: string;
+}>) {
+  const [state, formAction] = useActionState(action, initialCrmMutationState);
+
+  return (
+    <Card className="border-destructive/30">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <CrmMutationResult state={state} />
+        <form action={formAction} className="space-y-3">
+          <input type="hidden" name="confirm" value={confirmValue} />
+          <input type="hidden" name="rowVersion" value={rowVersion ?? ""} />
+          <Field>
+            <FieldLabel htmlFor={`${confirmValue}-occurredAt`}>Occurred at (optional)</FieldLabel>
+            <FieldContent>
+              <Input id={`${confirmValue}-occurredAt`} name="occurredAt" type="datetime-local" />
+              <FieldError>{state.fieldErrors?.occurredAt?.[0]}</FieldError>
+            </FieldContent>
+          </Field>
+          {showLostReason ? (
+            <Field>
+              <FieldLabel htmlFor={`${confirmValue}-lostReasonId`}>Lost reason</FieldLabel>
+              <FieldContent>
+                <NativeSelect
+                  id={`${confirmValue}-lostReasonId`}
+                  name="lostReasonId"
+                  defaultValue=""
+                >
+                  <NativeSelectOption value="">Select a lost reason</NativeSelectOption>
+                  {(lostReasons ?? []).map((reason) => (
+                    <NativeSelectOption key={reason.id} value={reason.id}>
+                      {reason.name}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+                <FieldError>{state.fieldErrors?.lostReasonId?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+          ) : null}
+          <Field>
+            <FieldLabel htmlFor={`${confirmValue}-note`}>Note</FieldLabel>
+            <FieldContent>
+              <Textarea id={`${confirmValue}-note`} name="note" rows={3} />
+              <FieldError>{state.fieldErrors?.note?.[0]}</FieldError>
+            </FieldContent>
+          </Field>
+          <SubmitButton label={title} pendingLabel="Processing..." />
+        </form>
+      </CardContent>
+    </Card>
+  );
+}

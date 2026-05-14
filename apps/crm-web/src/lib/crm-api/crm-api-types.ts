@@ -478,6 +478,24 @@ export type DealUpsertRequest = {
   rowVersion?: string | null;
 };
 
+export type AssignDealOwnerRequest = {
+  ownerUserId?: string | null;
+};
+
+export type DealOutcomeRequest = {
+  occurredAt?: string | null;
+  lostReasonId?: string | null;
+  note?: string | null;
+  rowVersion?: string | null;
+};
+
+export type DealLostReasonDto = {
+  id: string;
+  name: string;
+  description?: string | null;
+  isDefault: boolean;
+};
+
 export type WorkTaskDto = {
   id: string;
   title: string;

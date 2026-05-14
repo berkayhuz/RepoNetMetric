@@ -33,3 +33,18 @@ export async function getDealDetailData(dealId: string, returnPath: string) {
     handleCrmApiPageError(error, returnPath);
   }
 }
+
+export async function getDealLostReasonsData(returnPath: string) {
+  try {
+    const authContext = await getCrmApiAuthContext();
+    const correlationId = await getRequestCorrelationId();
+    const options = {
+      ...(authContext ? { authContext } : {}),
+      ...(correlationId ? { correlationId } : {}),
+    };
+
+    return await crmApiClient.listDealLostReasons(options);
+  } catch (error) {
+    handleCrmApiPageError(error, returnPath);
+  }
+}
