@@ -182,14 +182,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "ticket-management",
     title: "Tickets",
-    description: "Ticket lifecycle APIs are source-visible.",
+    description: "Ticket records with list, detail, and basic mutation flows.",
     path: "/tickets",
     group: "Service / Support",
     iconKey: "ticket",
-    status: "contract_pending",
+    status: "active",
     backendModuleFolder: "TicketManagement",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Phase 13 candidate",
+    implementationPhase: "Implemented",
   },
   {
     id: "ticket-sla",

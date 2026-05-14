@@ -649,6 +649,72 @@ export type WorkManagementWorkspaceDto = {
   upcomingMeetingCount: number;
 };
 
+export type TicketListItemDto = {
+  id: string;
+  ticketNumber: string;
+  subject: string;
+  status: string | number;
+  priority: string | number;
+  ticketType: string | number;
+  assignedUserId?: string | null;
+  customerId?: string | null;
+  contactId?: string | null;
+  openedAt: string;
+  closedAt?: string | null;
+  isActive: boolean;
+};
+
+export type TicketCommentDto = {
+  id: string;
+  comment: string;
+  isInternal: boolean;
+  createdAt: string;
+  createdBy?: string | null;
+};
+
+export type TicketDetailDto = {
+  id: string;
+  ticketNumber: string;
+  subject: string;
+  description?: string | null;
+  status: string | number;
+  priority: string | number;
+  ticketType: string | number;
+  channel: string | number;
+  assignedUserId?: string | null;
+  customerId?: string | null;
+  contactId?: string | null;
+  ticketCategoryId?: string | null;
+  slaPolicyId?: string | null;
+  firstResponseDueAt?: string | null;
+  resolveDueAt?: string | null;
+  openedAt: string;
+  closedAt?: string | null;
+  notes?: string | null;
+  isActive: boolean;
+  comments: TicketCommentDto[];
+  rowVersion: string;
+};
+
+export type TicketUpsertRequest = {
+  subject: string;
+  description?: string | null;
+  ticketType: number;
+  channel: number;
+  priority: number;
+  assignedUserId?: string | null;
+  customerId?: string | null;
+  contactId?: string | null;
+  ticketCategoryId?: string | null;
+  slaPolicyId?: string | null;
+  firstResponseDueAt?: string | null;
+  resolveDueAt?: string | null;
+  notes?: string | null;
+  rowVersion?: string | null;
+};
+
+export type TicketUpdateRequest = TicketUpsertRequest;
+
 export type CreateWorkTaskRequest = {
   title: string;
   description: string;

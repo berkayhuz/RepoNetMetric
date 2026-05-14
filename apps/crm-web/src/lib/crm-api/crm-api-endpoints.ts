@@ -90,6 +90,15 @@ export const crmApiEndpoints = {
   quotesCreateRevision: (quoteId: string) =>
     ({ method: "POST", path: `/api/quotes/${quoteId}/revisions` }) satisfies RouteDefinition,
 
+  ticketsList: { method: "GET", path: "/api/tickets" } satisfies RouteDefinition,
+  ticketsDetail: (ticketId: string) =>
+    ({ method: "GET", path: `/api/tickets/${ticketId}` }) satisfies RouteDefinition,
+  ticketsCreate: { method: "POST", path: "/api/tickets" } satisfies RouteDefinition,
+  ticketsUpdate: (ticketId: string) =>
+    ({ method: "PUT", path: `/api/tickets/${ticketId}` }) satisfies RouteDefinition,
+  ticketsDelete: (ticketId: string) =>
+    ({ method: "DELETE", path: `/api/tickets/${ticketId}` }) satisfies RouteDefinition,
+
   opportunitiesList: { method: "GET", path: "/api/opportunities" } satisfies RouteDefinition,
   opportunitiesDetail: (opportunityId: string) =>
     ({ method: "GET", path: `/api/opportunities/${opportunityId}` }) satisfies RouteDefinition,

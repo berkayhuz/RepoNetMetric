@@ -28,6 +28,10 @@ import type {
   DealDetailDto,
   DealListItemDto,
   DealUpsertRequest,
+  TicketDetailDto,
+  TicketListItemDto,
+  TicketUpdateRequest,
+  TicketUpsertRequest,
   QuoteDetailDto,
   QuoteDateNoteRequest,
   QuoteDeclineRequest,
@@ -461,6 +465,52 @@ export const crmApiClient = {
       query: listQueryToRecord(query),
       ...options,
     }).then(normalizePagedResult<QuoteListItemDto>);
+  },
+
+  listTickets(query: CrmListQuery = {}, options: CrmApiRequestOptions = {}) {
+    return request<unknown>({
+      method: crmApiEndpoints.ticketsList.method,
+      path: crmApiEndpoints.ticketsList.path,
+      query: listQueryToRecord(query),
+      ...options,
+    }).then(normalizePagedResult<TicketListItemDto>);
+  },
+
+  getTicketById(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketsDetail(ticketId);
+    return request<TicketDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createTicket(input: TicketUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<TicketDetailDto>({
+      method: crmApiEndpoints.ticketsCreate.method,
+      path: crmApiEndpoints.ticketsCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateTicket(ticketId: string, input: TicketUpdateRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketsUpdate(ticketId);
+    return request<TicketDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteTicket(ticketId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.ticketsDelete(ticketId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
   },
 
   getQuoteById(quoteId: string, options: CrmApiRequestOptions = {}) {

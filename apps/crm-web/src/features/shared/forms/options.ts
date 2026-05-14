@@ -69,6 +69,23 @@ export const priorityOptions = [
   { value: 3, label: "Critical" },
 ] as const;
 
+export const ticketTypeOptions = [
+  { value: 0, label: "Support" },
+  { value: 1, label: "Incident" },
+  { value: 2, label: "Problem" },
+  { value: 3, label: "Question" },
+  { value: 4, label: "Task" },
+] as const;
+
+export const ticketChannelOptions = [
+  { value: 0, label: "Web" },
+  { value: 1, label: "Email" },
+  { value: 2, label: "Phone" },
+  { value: 3, label: "Chat" },
+  { value: 4, label: "Social" },
+  { value: 5, label: "API" },
+] as const;
+
 export const opportunityStageOptions = [
   { value: 0, label: "Prospecting" },
   { value: 1, label: "Qualification" },
