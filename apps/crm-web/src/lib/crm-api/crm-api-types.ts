@@ -423,6 +423,49 @@ export type PipelineStageMoveResultDto = {
   rowVersion?: string | null;
 };
 
+export type DealListItemDto = {
+  id: string;
+  dealCode: string;
+  name: string;
+  totalAmount?: number | null;
+  closedDate: string;
+  opportunityId?: string | null;
+  companyId?: string | null;
+  ownerUserId?: string | null;
+  stage: string | number;
+  outcome: string | number;
+  isActive: boolean;
+};
+
+export type DealOutcomeHistoryDto = {
+  id: string;
+  outcome: string;
+  stage: string;
+  occurredAt: string;
+  changedByUserId?: string | null;
+  lostReasonId?: string | null;
+  note?: string | null;
+};
+
+export type DealDetailDto = {
+  id: string;
+  dealCode: string;
+  name: string;
+  totalAmount?: number | null;
+  closedDate: string;
+  opportunityId?: string | null;
+  companyId?: string | null;
+  ownerUserId?: string | null;
+  stage: string | number;
+  outcome: string | number;
+  lostReasonId?: string | null;
+  lostNote?: string | null;
+  isActive: boolean;
+  review?: unknown | null;
+  history: DealOutcomeHistoryDto[];
+  rowVersion: string;
+};
+
 export type WorkTaskDto = {
   id: string;
   title: string;

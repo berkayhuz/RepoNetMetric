@@ -25,6 +25,8 @@ import type {
   HttpMethod,
   LeadDetailDto,
   LeadListItemDto,
+  DealDetailDto,
+  DealListItemDto,
   OpportunityDetailDto,
   OpportunityListItemDto,
   OpportunityUpdateRequest,
@@ -428,6 +430,24 @@ export const crmApiClient = {
       query: listQueryToRecord(query),
       ...options,
     }).then(normalizePagedResult<OpportunityListItemDto>);
+  },
+
+  listDeals(query: CrmListQuery = {}, options: CrmApiRequestOptions = {}) {
+    return request<unknown>({
+      method: crmApiEndpoints.dealsList.method,
+      path: crmApiEndpoints.dealsList.path,
+      query: listQueryToRecord(query),
+      ...options,
+    }).then(normalizePagedResult<DealListItemDto>);
+  },
+
+  getDealById(dealId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.dealsDetail(dealId);
+    return request<DealDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
   },
 
   getOpportunityById(opportunityId: string, options: CrmApiRequestOptions = {}) {

@@ -98,14 +98,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "deal-management",
     title: "Deals",
-    description: "Deal endpoints are visible and pending frontend integration.",
+    description: "Deal list/detail endpoints are wired as read-only views.",
     path: "/deals",
     group: "Sales",
     iconKey: "handshake",
-    status: "contract_pending",
+    status: "read_only",
     backendModuleFolder: "DealManagement",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Phase 11 candidate",
+    implementationPhase: "Implemented (read-only)",
   },
   {
     id: "opportunity-management",

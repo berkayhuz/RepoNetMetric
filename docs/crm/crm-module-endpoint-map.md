@@ -11,7 +11,7 @@ This document summarizes source-visible endpoint availability in `services/crm/s
 | Address Management              | CustomerManagement       | Yes (`AddressesController`)       | No           | No             | Yes              | active           | Implemented in detail pages               |
 | Customer Intelligence           | CustomerIntelligence     | Yes                               | No           | Partial        | Yes              | contract_pending | Add read-only intelligence workspace      |
 | Lead Management                 | LeadManagement           | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
-| Deal Management                 | DealManagement           | Yes                               | Yes          | Yes            | Yes              | contract_pending | Deals list/detail phase                   |
+| Deal Management                 | DealManagement           | Yes (`DealsController`)           | Yes          | Yes            | Yes              | read_only        | Add deal mutations in dedicated phase     |
 | Opportunity Management          | OpportunityManagement    | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Pipeline Management             | PipelineManagement       | Yes                               | Yes          | Yes            | Yes              | active           | Implemented                               |
 | Quote Management                | QuoteManagement          | Yes                               | Yes          | Yes            | Yes              | contract_pending | Quotes list/detail phase                  |
@@ -42,5 +42,6 @@ Notes:
 - Dedicated `GET /api/tasks/{id}` and `GET /api/activities` routes are not source-visible in `NetMetric.CRM.API`.
 - TagManagement currently exposes create-focused endpoints only (`POST /api/tags`, `POST /api/tags/groups`, `POST /api/tags/smart-label-rules`, `POST /api/tags/classification-schemes`).
 - Source-visible read endpoints (`GET /api/tags`, `GET /api/tags/{id}`) and assignment endpoints (`assign/unassign`, `entity tags`) are not present in the consolidated API controller surface.
+- DealManagement read endpoints are source-visible and wired in crm-web: `GET /api/deals`, `GET /api/deals/{dealId:guid}`. Mutation endpoints remain intentionally unimplemented in crm-web for this phase.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
 - crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.
