@@ -327,6 +327,27 @@ export type OpportunityDetailDto = {
   rowVersion: string;
 };
 
+export type OpportunityUpsertRequest = {
+  opportunityCode: string;
+  name: string;
+  description?: string | null;
+  estimatedAmount: number;
+  expectedRevenue?: number | null;
+  probability: number;
+  estimatedCloseDate?: string | null;
+  stage: number;
+  status: number;
+  priority: number;
+  leadId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  notes?: string | null;
+};
+
+export type OpportunityUpdateRequest = OpportunityUpsertRequest & {
+  rowVersion: string;
+};
+
 export type PipelineSummaryDto = {
   id: string;
   name: string;

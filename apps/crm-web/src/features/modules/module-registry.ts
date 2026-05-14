@@ -110,15 +110,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "opportunity-management",
     title: "Opportunities",
-    description:
-      "Opportunity list/detail are available in read-only mode via consolidated CRM API.",
+    description: "Opportunity records with list, detail, and mutation flows.",
     path: "/opportunities",
     group: "Sales",
     iconKey: "target",
-    status: "read_only",
+    status: "active",
     backendModuleFolder: "OpportunityManagement",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Implemented (read-only)",
+    implementationPhase: "Implemented",
   },
   {
     id: "pipeline-management",

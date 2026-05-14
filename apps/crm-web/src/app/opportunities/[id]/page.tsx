@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@netmetric/ui";
 
+import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
+import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import { deleteOpportunityAction } from "@/features/opportunities/actions/opportunity-mutation-actions";
 import { getOpportunityDetailData } from "@/features/opportunities/data/opportunities-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type OpportunityDetailDto } from "@/lib/crm-api";
@@ -35,7 +40,15 @@ export default async function OpportunityDetailPage({
 
   return (
     <section className="space-y-6">
-      <CrmPageHeader title={opportunity.name} description="Read-only opportunity detail." />
+      <CrmPageHeader
+        title={opportunity.name}
+        description="Opportunity detail."
+        actions={
+          <Button asChild>
+            <Link href={`/opportunities/${resolved.id}/edit`}>Edit opportunity</Link>
+          </Button>
+        }
+      />
       <CrmEntityDetailPanel
         title="Opportunity profile"
         fields={[
@@ -53,6 +66,17 @@ export default async function OpportunityDetailPage({
           { label: "State", value: opportunity.isActive ? "Active" : "Inactive" },
         ]}
       />
+      <CrmDeleteZone
+        title="Delete Opportunity"
+        description="Deleting this opportunity removes it from active CRM and pipeline views."
+      >
+        <CrmDeleteConfirmForm
+          entityLabel="Opportunity"
+          entityName={opportunity.name}
+          confirmValue="delete-opportunity"
+          action={deleteOpportunityAction.bind(null, resolved.id)}
+        />
+      </CrmDeleteZone>
       <CrmContractPending module="Opportunity timeline, quote, and stage transition operations" />
     </section>
   );

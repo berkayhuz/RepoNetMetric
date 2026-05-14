@@ -27,6 +27,8 @@ import type {
   LeadListItemDto,
   OpportunityDetailDto,
   OpportunityListItemDto,
+  OpportunityUpdateRequest,
+  OpportunityUpsertRequest,
   PipelineBoardDto,
   PipelineDto,
   PipelineSummaryDto,
@@ -424,6 +426,38 @@ export const crmApiClient = {
   getOpportunityById(opportunityId: string, options: CrmApiRequestOptions = {}) {
     const endpoint = crmApiEndpoints.opportunitiesDetail(opportunityId);
     return request<OpportunityDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createOpportunity(input: OpportunityUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<OpportunityDetailDto>({
+      method: crmApiEndpoints.opportunitiesCreate.method,
+      path: crmApiEndpoints.opportunitiesCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateOpportunity(
+    opportunityId: string,
+    input: OpportunityUpdateRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.opportunitiesUpdate(opportunityId);
+    return request<OpportunityDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteOpportunity(opportunityId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.opportunitiesDelete(opportunityId);
+    return request<void>({
       method: endpoint.method,
       path: endpoint.path,
       ...options,

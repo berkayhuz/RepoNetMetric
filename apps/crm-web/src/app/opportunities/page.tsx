@@ -53,9 +53,10 @@ export default async function OpportunitiesPage({
   return (
     <CrmEntityListPage
       title="Opportunities"
-      description="Read-only opportunity list from consolidated CRM API."
+      description="Opportunity records from consolidated CRM API."
       actionPath="/opportunities"
-      createDisabledMessage="Opportunity create/update/delete flows are planned for a later phase."
+      createPath="/opportunities/new"
+      createLabel="Create opportunity"
       {...(query.search ? { search: query.search } : {})}
       caption="Opportunities"
       columns={columns}

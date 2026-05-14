@@ -32,6 +32,8 @@ export type {
   LeadScoreDto,
   OpportunityDetailDto,
   OpportunityListItemDto,
+  OpportunityUpdateRequest,
+  OpportunityUpsertRequest,
   PipelineBoardColumnDto,
   PipelineBoardDto,
   PipelineBoardOpportunityDto,

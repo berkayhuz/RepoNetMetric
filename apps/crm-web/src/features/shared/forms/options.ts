@@ -68,3 +68,20 @@ export const priorityOptions = [
   { value: 2, label: "High" },
   { value: 3, label: "Critical" },
 ] as const;
+
+export const opportunityStageOptions = [
+  { value: 0, label: "Prospecting" },
+  { value: 1, label: "Qualification" },
+  { value: 2, label: "Needs analysis" },
+  { value: 3, label: "Proposal" },
+  { value: 4, label: "Negotiation" },
+  { value: 5, label: "Won" },
+  { value: 6, label: "Lost" },
+] as const;
+
+export const opportunityStatusOptions = [
+  { value: 0, label: "Open" },
+  { value: 1, label: "Won" },
+  { value: 2, label: "Lost" },
+  { value: 3, label: "Cancelled" },
+] as const;
