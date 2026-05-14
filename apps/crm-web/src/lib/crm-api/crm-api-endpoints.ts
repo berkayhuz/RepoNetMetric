@@ -44,6 +44,22 @@ export const crmApiEndpoints = {
   leadsDelete: (leadId: string) =>
     ({ method: "DELETE", path: `/api/leads/${leadId}` }) satisfies RouteDefinition,
 
+  opportunitiesList: { method: "GET", path: "/api/opportunities" } satisfies RouteDefinition,
+  opportunitiesDetail: (opportunityId: string) =>
+    ({ method: "GET", path: `/api/opportunities/${opportunityId}` }) satisfies RouteDefinition,
+
+  pipelinesList: { method: "GET", path: "/api/opportunities/pipelines" } satisfies RouteDefinition,
+  pipelinesDetail: (pipelineId: string) =>
+    ({
+      method: "GET",
+      path: `/api/opportunities/pipelines/${pipelineId}`,
+    }) satisfies RouteDefinition,
+  pipelinesBoard: (pipelineId: string) =>
+    ({
+      method: "GET",
+      path: `/api/opportunities/pipelines/${pipelineId}/board`,
+    }) satisfies RouteDefinition,
+
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,
   addressesAddToCustomer: (customerId: string) =>

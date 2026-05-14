@@ -286,6 +286,103 @@ export type LeadUpdateRequest = LeadUpsertRequest & {
   rowVersion?: string | null;
 };
 
+export type OpportunityListItemDto = {
+  id: string;
+  opportunityCode: string;
+  name: string;
+  estimatedAmount?: number | null;
+  expectedRevenue?: number | null;
+  probability: number;
+  stage: string | number;
+  status: string | number;
+  priority: string | number;
+  estimatedCloseDate?: string | null;
+  leadId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  isActive: boolean;
+};
+
+export type OpportunityDetailDto = {
+  id: string;
+  opportunityCode: string;
+  name: string;
+  description?: string | null;
+  estimatedAmount?: number | null;
+  expectedRevenue?: number | null;
+  probability: number;
+  estimatedCloseDate?: string | null;
+  stage: string | number;
+  pipelineId?: string | null;
+  pipelineStageId?: string | null;
+  status: string | number;
+  priority: string | number;
+  leadId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  lostReasonId?: string | null;
+  lostNote?: string | null;
+  notes?: string | null;
+  isActive: boolean;
+  rowVersion: string;
+};
+
+export type PipelineSummaryDto = {
+  id: string;
+  name: string;
+  stageCount: number;
+  isDefault: boolean;
+};
+
+export type PipelineStageDto = {
+  id: string;
+  pipelineId: string;
+  name: string;
+  description?: string | null;
+  displayOrder: number;
+  probability: number;
+  isWinStage: boolean;
+  isLostStage: boolean;
+  forecastCategory: string | number;
+  rowVersion: string;
+};
+
+export type PipelineDto = {
+  id: string;
+  name: string;
+  description?: string | null;
+  isDefault: boolean;
+  displayOrder: number;
+  stages: PipelineStageDto[];
+  rowVersion: string;
+};
+
+export type PipelineBoardOpportunityDto = {
+  id: string;
+  name: string;
+  opportunityCode: string;
+  amount: number;
+  customerName?: string | null;
+  estimatedCloseDate?: string | null;
+  isStale: boolean;
+  warningCount: number;
+};
+
+export type PipelineBoardColumnDto = {
+  stageId: string;
+  name: string;
+  probability: number;
+  opportunityCount: number;
+  totalValue: number;
+  opportunities: PipelineBoardOpportunityDto[];
+};
+
+export type PipelineBoardDto = {
+  pipelineId: string;
+  pipelineName: string;
+  columns: PipelineBoardColumnDto[];
+};
+
 export type CustomerUpsertRequest = {
   firstName: string;
   lastName: string;

@@ -25,6 +25,11 @@ import type {
   HttpMethod,
   LeadDetailDto,
   LeadListItemDto,
+  OpportunityDetailDto,
+  OpportunityListItemDto,
+  PipelineBoardDto,
+  PipelineDto,
+  PipelineSummaryDto,
   LeadUpdateRequest,
   LeadUpsertRequest,
 } from "./crm-api-types";
@@ -403,6 +408,55 @@ export const crmApiClient = {
     return request<void>({
       method: endpoint.method,
       path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listOpportunities(query: CrmListQuery = {}, options: CrmApiRequestOptions = {}) {
+    return request<unknown>({
+      method: crmApiEndpoints.opportunitiesList.method,
+      path: crmApiEndpoints.opportunitiesList.path,
+      query: listQueryToRecord(query),
+      ...options,
+    }).then(normalizePagedResult<OpportunityListItemDto>);
+  },
+
+  getOpportunityById(opportunityId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.opportunitiesDetail(opportunityId);
+    return request<OpportunityDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listPipelines(options: CrmApiRequestOptions = {}) {
+    return request<PipelineSummaryDto[]>({
+      method: crmApiEndpoints.pipelinesList.method,
+      path: crmApiEndpoints.pipelinesList.path,
+      ...options,
+    });
+  },
+
+  getPipelineById(pipelineId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.pipelinesDetail(pipelineId);
+    return request<PipelineDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  getPipelineBoard(
+    pipelineId: string,
+    query: { ownerUserId?: string } = {},
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.pipelinesBoard(pipelineId);
+    return request<PipelineBoardDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...(query.ownerUserId ? { query: { ownerUserId: query.ownerUserId } } : {}),
       ...options,
     });
   },
