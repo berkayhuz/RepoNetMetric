@@ -189,6 +189,103 @@ export type ContactDetailDto = {
   rowVersion: string;
 };
 
+export type LeadListItemDto = {
+  id: string;
+  leadCode: string;
+  fullName: string;
+  companyName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  status: string | number;
+  source: string | number;
+  priority: string | number;
+  ownerUserId?: string | null;
+  estimatedBudget?: number | null;
+  nextContactDate?: string | null;
+  totalScore: number;
+  grade: string | number;
+  qualificationFramework: string | number;
+  slaTargetTime?: string | null;
+  slaBreached: boolean;
+  isActive: boolean;
+  rowVersion: string;
+};
+
+export type LeadScoreDto = {
+  id: string;
+  score: number;
+  scoreReason?: string | null;
+  scoredByUserId?: string | null;
+  scoredAt: string;
+};
+
+export type LeadOwnershipHistoryDto = {
+  id: string;
+  previousOwnerId?: string | null;
+  newOwnerId?: string | null;
+  assignmentReason?: string | null;
+  assignmentRuleId?: string | null;
+  assignedAt: string;
+  assignedByUserId?: string | null;
+};
+
+export type LeadDetailDto = {
+  id: string;
+  leadCode: string;
+  fullName: string;
+  companyName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  jobTitle?: string | null;
+  description?: string | null;
+  estimatedBudget?: number | null;
+  nextContactDate?: string | null;
+  source: string | number;
+  status: string | number;
+  priority: string | number;
+  companyId?: string | null;
+  ownerUserId?: string | null;
+  convertedCustomerId?: string | null;
+  notes?: string | null;
+  totalScore: number;
+  fitScore: number;
+  grade: string | number;
+  qualificationFramework: string | number;
+  qualificationData?: string | null;
+  slaTargetTime?: string | null;
+  firstContactTime?: string | null;
+  slaBreached: boolean;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  referrerUrl?: string | null;
+  isActive: boolean;
+  scores: LeadScoreDto[];
+  ownershipHistories: LeadOwnershipHistoryDto[];
+  rowVersion: string;
+};
+
+export type LeadUpsertRequest = {
+  fullName: string;
+  companyName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  jobTitle?: string | null;
+  description?: string | null;
+  estimatedBudget?: number | null;
+  nextContactDate?: string | null;
+  source: number;
+  status: number;
+  priority: number;
+  companyId?: string | null;
+  ownerUserId?: string | null;
+  notes?: string | null;
+};
+
+export type LeadUpdateRequest = LeadUpsertRequest & {
+  rowVersion?: string | null;
+};
+
 export type CustomerUpsertRequest = {
   firstName: string;
   lastName: string;

@@ -4,8 +4,9 @@ import { Button, Input, buttonVariants } from "@netmetric/ui";
 
 type CrmListToolbarProps = {
   actionPath: string;
-  createPath: string;
-  createLabel: string;
+  createPath?: string;
+  createLabel?: string;
+  createDisabledMessage?: string;
   search?: string;
 };
 
@@ -13,6 +14,7 @@ export function CrmListToolbar({
   actionPath,
   createPath,
   createLabel,
+  createDisabledMessage,
   search,
 }: Readonly<CrmListToolbarProps>) {
   return (
@@ -28,9 +30,13 @@ export function CrmListToolbar({
         <Button type="submit" name="search" value="" variant="outline">
           Clear
         </Button>
-        <Link href={createPath} className={buttonVariants({ variant: "secondary" })}>
-          {createLabel}
-        </Link>
+        {createPath && createLabel ? (
+          <Link href={createPath} className={buttonVariants({ variant: "secondary" })}>
+            {createLabel}
+          </Link>
+        ) : createDisabledMessage ? (
+          <p className="text-sm text-muted-foreground">{createDisabledMessage}</p>
+        ) : null}
       </div>
     </form>
   );

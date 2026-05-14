@@ -30,8 +30,4 @@
     <PackageReference Include="StackExchange.Redis" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

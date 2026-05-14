@@ -23,6 +23,10 @@ import type {
   CustomerListItemDto,
   CustomerUpsertRequest,
   HttpMethod,
+  LeadDetailDto,
+  LeadListItemDto,
+  LeadUpdateRequest,
+  LeadUpsertRequest,
 } from "./crm-api-types";
 
 type RequestOptions = CrmApiRequestOptions & {
@@ -351,6 +355,52 @@ export const crmApiClient = {
   getContactById(contactId: string, options: CrmApiRequestOptions = {}) {
     const endpoint = crmApiEndpoints.contactsDetail(contactId);
     return request<ContactDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  listLeads(query: CrmListQuery = {}, options: CrmApiRequestOptions = {}) {
+    return request<unknown>({
+      method: crmApiEndpoints.leadsList.method,
+      path: crmApiEndpoints.leadsList.path,
+      query: listQueryToRecord(query),
+      ...options,
+    }).then(normalizePagedResult<LeadListItemDto>);
+  },
+
+  getLeadById(leadId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.leadsDetail(leadId);
+    return request<LeadDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  createLead(input: LeadUpsertRequest, options: CrmApiRequestOptions = {}) {
+    return request<LeadDetailDto>({
+      method: crmApiEndpoints.leadsCreate.method,
+      path: crmApiEndpoints.leadsCreate.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  updateLead(leadId: string, input: LeadUpdateRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.leadsUpdate(leadId);
+    return request<LeadDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  deleteLead(leadId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.leadsDelete(leadId);
+    return request<void>({
       method: endpoint.method,
       path: endpoint.path,
       ...options,

@@ -115,7 +115,6 @@
     <Project Path="services/crm/src/modules/CustomerIntelligence/NetMetric.CRM.CustomerIntelligence.Infrastructure/NetMetric.CRM.CustomerIntelligence.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/services/crm/src/modules/src/CustomerManagement/">
-    <Project Path="services/crm/src/modules/CustomerManagement/NetMetric.CRM.CustomerManagement.API/NetMetric.CRM.CustomerManagement.API.csproj" />
     <Project Path="services/crm/src/modules/CustomerManagement/NetMetric.CRM.CustomerManagement.Application/NetMetric.CRM.CustomerManagement.Application.csproj" />
     <Project Path="services/crm/src/modules/CustomerManagement/NetMetric.CRM.CustomerManagement.Contracts/NetMetric.CRM.CustomerManagement.Contracts.csproj" />
     <Project Path="services/crm/src/modules/CustomerManagement/NetMetric.CRM.CustomerManagement.Domain/NetMetric.CRM.CustomerManagement.Domain.csproj" />

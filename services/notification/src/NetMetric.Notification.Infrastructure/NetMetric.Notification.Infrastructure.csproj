@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\..\packages\dotnet\src\NetMetric.Messaging.RabbitMq\NetMetric.Messaging.RabbitMq.csproj" />
     <ProjectReference Include="..\..\..\auth\src\NetMetric.Auth.Contracts\NetMetric.Auth.Contracts.csproj" />
     <ProjectReference Include="..\NetMetric.Notification.Application\NetMetric.Notification.Application.csproj" />
@@ -18,10 +24,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     <PackageReference Include="MimeKit" />
     <PackageReference Include="RabbitMQ.Client" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

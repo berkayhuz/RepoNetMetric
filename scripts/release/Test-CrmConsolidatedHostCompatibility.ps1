@@ -1,5 +1,6 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
+  [Alias("BaseUrl")]
   [string]$GatewayBaseUrl = "http://localhost:5030",
   [string]$CrmApiProjectPath = "services/crm/src/NetMetric.CRM.API/NetMetric.CRM.API.csproj",
   [switch]$RouteInventoryOnly,
@@ -16,7 +17,6 @@ $gatewayJsonPath = Join-Path $repoRoot "platform/gateway/src/NetMetric.ApiGatewa
 $gatewayDevJsonPath = Join-Path $repoRoot "platform/gateway/src/NetMetric.ApiGateway/appsettings.Development.json"
 $gatewayProdJsonPath = Join-Path $repoRoot "platform/gateway/src/NetMetric.ApiGateway/appsettings.Production.json"
 $crmControllerRoot = Join-Path $repoRoot "services/crm/src/NetMetric.CRM.API/Controllers/CustomerManagement"
-$standaloneControllerRoot = Join-Path $repoRoot "services/crm/src/modules/CustomerManagement/NetMetric.CRM.CustomerManagement.API/Controllers"
 
 function Write-Pass([string]$Message) { Write-Host "[PASS] $Message" -ForegroundColor Green }
 function Write-Fail([string]$Message) { Write-Host "[FAIL] $Message" -ForegroundColor Red }
@@ -169,29 +169,22 @@ function Test-GatewayRoutingConfig {
   return $ok
 }
 
-function Test-ControllerParity {
-  $pairs = @(
-    @{ A = (Join-Path $crmControllerRoot "CustomersController.cs"); B = (Join-Path $standaloneControllerRoot "CustomersController.cs") },
-    @{ A = (Join-Path $crmControllerRoot "CompaniesController.cs"); B = (Join-Path $standaloneControllerRoot "CompaniesController.cs") },
-    @{ A = (Join-Path $crmControllerRoot "ContactsController.cs"); B = (Join-Path $standaloneControllerRoot "ContactsController.cs") },
-    @{ A = (Join-Path $crmControllerRoot "AddressesController.cs"); B = (Join-Path $standaloneControllerRoot "AddressesController.cs") }
+function Test-ConsolidatedControllerPresence {
+  $requiredControllerFiles = @(
+    "CustomersController.cs",
+    "CompaniesController.cs",
+    "ContactsController.cs",
+    "AddressesController.cs"
   )
 
   $ok = $true
-  foreach ($pair in $pairs) {
-    if (-not (Test-Path $pair.A) -or -not (Test-Path $pair.B)) {
-      Write-Fail "Parity file missing: $($pair.A) or $($pair.B)"
-      $ok = $false
-      continue
-    }
-
-    $a = (Get-Content $pair.A -Raw).Trim()
-    $b = (Get-Content $pair.B -Raw).Trim()
-    if ($a -ne $b) {
-      Write-Fail "Controller parity mismatch: $([System.IO.Path]::GetFileName($pair.A))"
+  foreach ($file in $requiredControllerFiles) {
+    $path = Join-Path $crmControllerRoot $file
+    if (-not (Test-Path $path)) {
+      Write-Fail "Missing consolidated controller: $file"
       $ok = $false
     } else {
-      Write-Pass "Controller parity confirmed: $([System.IO.Path]::GetFileName($pair.A))"
+      Write-Pass "Consolidated controller present: $file"
     }
   }
 
@@ -366,10 +359,10 @@ try {
 
   $okRoute = Test-RouteInventory
   $okGateway = Test-GatewayRoutingConfig
-  $okParity = Test-ControllerParity
+  $okControllers = Test-ConsolidatedControllerPresence
 
   if ($RouteInventoryOnly) {
-    if ($okRoute -and $okGateway -and $okParity) { exit 0 }
+    if ($okRoute -and $okGateway -and $okControllers) { exit 0 }
     exit 1
   }
 
@@ -382,7 +375,7 @@ try {
 
   $okSmoke = Test-CrmCompatibilitySmoke -Token $token
 
-  if ($okRoute -and $okGateway -and $okParity -and $okSmoke) {
+  if ($okRoute -and $okGateway -and $okControllers -and $okSmoke) {
     Write-Pass "CRM consolidated host compatibility smoke PASSED."
     exit 0
   }
@@ -393,3 +386,4 @@ try {
 finally {
   Pop-Location
 }
+

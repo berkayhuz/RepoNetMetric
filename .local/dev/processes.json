@@ -18,8 +18,8 @@
     "StartedAt": "2026-05-13T20:33:36.3187796+03:00"
   },
   {
-    "Name": "netmetric.crm.customermanagement.api",
-    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\crm\\src\\modules\\CustomerManagement\\NetMetric.CRM.CustomerManagement.API\\NetMetric.CRM.CustomerManagement.API.csproj",
+    "Name": "netmetric.crm.api",
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\crm\\src\\NetMetric.CRM.API\\NetMetric.CRM.API.csproj",
     "ProcessId": 8160,
     "StartedAt": "2026-05-13T20:33:37.3684824+03:00"
   }

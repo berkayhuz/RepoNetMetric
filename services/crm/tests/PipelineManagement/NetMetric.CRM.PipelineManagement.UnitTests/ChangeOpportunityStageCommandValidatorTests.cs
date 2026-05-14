@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NetMetric.CRM.PipelineManagement.Application.Commands;
 using NetMetric.CRM.PipelineManagement.Application.Validators;
-using NetMetric.CRM.Shared.Domain.Enums;
+using NetMetric.CRM.Types;
 
 namespace NetMetric.CRM.PipelineManagement.UnitTests;
 

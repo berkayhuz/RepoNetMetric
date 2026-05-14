@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\modules\CustomerManagement\NetMetric.CRM.CustomerManagement.API\NetMetric.CRM.CustomerManagement.API.csproj" />
     <ProjectReference Include="..\..\..\src\NetMetric.CRM.API\NetMetric.CRM.API.csproj" />
   </ItemGroup>
 

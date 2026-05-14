@@ -32,25 +32,30 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/customers", label: "Customers" },
-  { href: "/companies", label: "Companies" },
-  { href: "/contacts", label: "Contacts" },
-  { href: "/leads", label: "Leads" },
-  { href: "/opportunities", label: "Opportunities" },
-  { href: "/pipeline", label: "Pipeline" },
-  { href: "/tasks", label: "Tasks" },
-  { href: "/activities", label: "Activities" },
-  { href: "/settings", label: "Settings" },
-] as const;
+import {
+  crmModuleGroups,
+  crmModuleRegistry,
+  getCrmModulesByGroup,
+  type CrmModuleStatus,
+} from "@/features/modules/module-registry";
+
+const statusLabelByKey: Record<CrmModuleStatus, string> = {
+  active: "Active",
+  read_only: "Read only",
+  contract_pending: "Contract pending",
+  coming_soon: "Coming soon",
+};
 
 function pageTitle(pathname: string): string {
-  if (pathname === "/") return "Dashboard";
-  const item = navItems.find(
-    (navItem) => pathname === navItem.href || pathname.startsWith(`${navItem.href}/`),
+  if (pathname === "/") {
+    return "Dashboard";
+  }
+
+  const matched = crmModuleRegistry.find(
+    (item) => pathname === item.path || pathname.startsWith(`${item.path}/`),
   );
-  return item?.label ?? "CRM";
+
+  return matched?.title ?? "CRM";
 }
 
 export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -72,23 +77,39 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {navItems.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.href || pathname.startsWith(`${item.href}/`)}
-                    >
-                      <Link href={item.href}>{item.label}</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {crmModuleGroups.map((group) => {
+            const modules = getCrmModulesByGroup(group);
+            if (!modules.length) {
+              return null;
+            }
+
+            return (
+              <SidebarGroup key={group}>
+                <SidebarGroupLabel>{group}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {modules.map((moduleItem) => {
+                      const isActive =
+                        pathname === moduleItem.path || pathname.startsWith(`${moduleItem.path}/`);
+
+                      return (
+                        <SidebarMenuItem key={moduleItem.id}>
+                          <SidebarMenuButton asChild isActive={isActive}>
+                            <Link
+                              href={moduleItem.path}
+                              aria-label={`${moduleItem.title} (${statusLabelByKey[moduleItem.status]})`}
+                            >
+                              {moduleItem.title}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          })}
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>

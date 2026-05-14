@@ -9,10 +9,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\packages\dotnet\src\NetMetric.Entities\NetMetric.Entities.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\packages\dotnet\src\NetMetric.Persistence.EntityFrameworkCore\NetMetric.Persistence.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\packages\dotnet\src\NetMetric.Tenancy\NetMetric.Tenancy.csproj" />

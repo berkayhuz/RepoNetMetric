@@ -24,6 +24,12 @@ export type {
   CustomerListItemDto,
   CustomerUpsertRequest,
   HttpMethod,
+  LeadDetailDto,
+  LeadListItemDto,
+  LeadUpdateRequest,
+  LeadUpsertRequest,
+  LeadOwnershipHistoryDto,
+  LeadScoreDto,
   ProblemDetails,
   SortDirection,
 } from "./crm-api-types";

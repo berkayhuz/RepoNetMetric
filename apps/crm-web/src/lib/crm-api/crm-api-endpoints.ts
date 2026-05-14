@@ -35,6 +35,15 @@ export const crmApiEndpoints = {
   contactsDelete: (contactId: string) =>
     ({ method: "DELETE", path: `/api/contacts/${contactId}` }) satisfies RouteDefinition,
 
+  leadsList: { method: "GET", path: "/api/leads" } satisfies RouteDefinition,
+  leadsDetail: (leadId: string) =>
+    ({ method: "GET", path: `/api/leads/${leadId}` }) satisfies RouteDefinition,
+  leadsCreate: { method: "POST", path: "/api/leads" } satisfies RouteDefinition,
+  leadsUpdate: (leadId: string) =>
+    ({ method: "PUT", path: `/api/leads/${leadId}` }) satisfies RouteDefinition,
+  leadsDelete: (leadId: string) =>
+    ({ method: "DELETE", path: `/api/leads/${leadId}` }) satisfies RouteDefinition,
+
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,
   addressesAddToCustomer: (customerId: string) =>

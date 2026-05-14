@@ -647,7 +647,6 @@
           "NetMetric.CRM.CalendarSync.Infrastructure": "[1.0.0, )",
           "NetMetric.CRM.ContractLifecycle.Infrastructure": "[1.0.0, )",
           "NetMetric.CRM.CustomerIntelligence.Infrastructure": "[1.0.0, )",
-          "NetMetric.CRM.CustomerManagement.API": "[1.0.0, )",
           "NetMetric.CRM.CustomerManagement.Infrastructure": "[1.0.0, )",
           "NetMetric.CRM.DealManagement.Infrastructure": "[1.0.0, )",
           "NetMetric.CRM.DocumentManagement.Infrastructure": "[1.0.0, )",
@@ -859,20 +858,6 @@
           "NetMetric.Persistence.EntityFrameworkCore.Auditing": "[1.0.0, )",
           "NetMetric.Persistence.EntityFrameworkCore.SoftDelete": "[1.0.0, )",
           "NetMetric.Persistence.EntityFrameworkCore.Tenancy": "[1.0.0, )"
-        }
-      },
-      "netmetric.crm.customermanagement.api": {
-        "type": "Project",
-        "dependencies": {
-          "MediatR": "[14.1.0, )",
-          "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.7, )",
-          "Microsoft.AspNetCore.OpenApi": "[10.0.7, )",
-          "Microsoft.IdentityModel.Tokens": "[8.17.0, )",
-          "NetMetric.Authorization.AspNetCore": "[1.0.0, )",
-          "NetMetric.CRM.CustomerManagement.Application": "[1.0.0, )",
-          "NetMetric.CRM.CustomerManagement.Contracts": "[1.0.0, )",
-          "NetMetric.CRM.CustomerManagement.Domain": "[1.0.0, )",
-          "NetMetric.CRM.CustomerManagement.Infrastructure": "[1.0.0, )"
         }
       },
       "netmetric.crm.customermanagement.application": {

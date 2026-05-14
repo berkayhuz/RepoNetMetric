@@ -10,6 +10,7 @@ namespace NetMetric.CRM.IntegrationHub.Infrastructure.Providers;
 
 public sealed class DefaultIntegrationProviderCatalog : IIntegrationProviderCatalog
 {
+    private const string SampleVerifyValue = "sample-verify-value";
     private static readonly ProviderCapabilityDescriptor MockCapabilities = new(true, true, false, false, false, true, true);
     private static readonly ProviderCapabilityDescriptor PlaceholderCapabilities = new(true, true, true, false, true, true, true);
 

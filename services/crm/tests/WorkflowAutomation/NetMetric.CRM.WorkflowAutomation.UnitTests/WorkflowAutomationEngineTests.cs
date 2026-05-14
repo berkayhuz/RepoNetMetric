@@ -336,12 +336,17 @@ public sealed class WorkflowAutomationEngineTests
         }
 
         public WorkflowActionDispatcher CreateDispatcher()
-            => new(
+        {
+            var workflowOptions = Options.Create(new WorkflowAutomationOptions());
+            return new WorkflowActionDispatcher(
                 Context,
                 new WorkflowActionPermissionGuard(_currentUser),
                 new WorkflowPayloadRedactor(),
                 new HttpClient(),
-                Options.Create(new WorkflowAutomationOptions()));
+                new WebhookOutboundRequestValidator(workflowOptions, new SystemWebhookDnsResolver()),
+                NullLogger<WorkflowActionDispatcher>.Instance,
+                workflowOptions);
+        }
 
         public WorkflowRuleEngine CreateEngine(IWorkflowActionDispatcher dispatcher)
             => new(

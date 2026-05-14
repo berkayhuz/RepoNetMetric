@@ -30,3 +30,41 @@ export const addressTypeOptions = [
   { value: 3, label: "Home" },
   { value: 4, label: "Work" },
 ] as const;
+
+export const leadSourceOptions = [
+  { value: 0, label: "Manual" },
+  { value: 1, label: "Website" },
+  { value: 2, label: "Referral" },
+  { value: 3, label: "Campaign" },
+  { value: 4, label: "Email" },
+  { value: 5, label: "Phone" },
+  { value: 6, label: "Social media" },
+  { value: 7, label: "Event" },
+  { value: 8, label: "Partner" },
+  { value: 9, label: "Web form" },
+  { value: 10, label: "Landing page" },
+  { value: 11, label: "Support inbox" },
+  { value: 12, label: "Chat" },
+  { value: 13, label: "API" },
+  { value: 99, label: "Other" },
+] as const;
+
+export const leadStatusOptions = [
+  { value: 0, label: "New" },
+  { value: 1, label: "Contacted" },
+  { value: 2, label: "Qualified" },
+  { value: 3, label: "Unqualified" },
+  { value: 4, label: "Converted" },
+  { value: 5, label: "Won" },
+  { value: 6, label: "Lost" },
+  { value: 7, label: "Archived" },
+  { value: 8, label: "Recycled" },
+  { value: 9, label: "Nurturing" },
+] as const;
+
+export const priorityOptions = [
+  { value: 0, label: "Low" },
+  { value: 1, label: "Medium" },
+  { value: 2, label: "High" },
+  { value: 3, label: "Critical" },
+] as const;

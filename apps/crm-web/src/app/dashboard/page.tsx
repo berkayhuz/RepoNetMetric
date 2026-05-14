@@ -4,6 +4,7 @@ import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { DashboardSummaryCard } from "@/components/dashboard/dashboard-summary-card";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
 import { getDashboardData } from "@/features/dashboard/data/dashboard-data";
+import { crmModuleRegistry } from "@/features/modules/module-registry";
 
 export default async function DashboardPage() {
   const data = await getDashboardData("/dashboard");
@@ -69,49 +70,10 @@ export default async function DashboardPage() {
 
       <DashboardSection
         title="Module Overview"
-        description="Active modules and contract-pending modules in this phase."
+        description="Current CRM module map with implementation and contract status."
       >
         <DashboardModuleGrid
-          modules={[
-            {
-              title: "Customers",
-              href: "/customers",
-              status: "active",
-              description: "List, detail, and CRUD flows are available.",
-            },
-            {
-              title: "Companies",
-              href: "/companies",
-              status: "active",
-              description: "List, detail, and CRUD flows are available.",
-            },
-            {
-              title: "Contacts",
-              href: "/contacts",
-              status: "active",
-              description: "List, detail, and CRUD flows are available.",
-            },
-            {
-              title: "Leads",
-              status: "contract-pending",
-              description: "Waiting for source-visible API contract confirmation.",
-            },
-            {
-              title: "Opportunities",
-              status: "contract-pending",
-              description: "Waiting for source-visible API contract confirmation.",
-            },
-            {
-              title: "Pipeline",
-              status: "contract-pending",
-              description: "Waiting for source-visible API contract confirmation.",
-            },
-            {
-              title: "Tasks / Activities",
-              status: "contract-pending",
-              description: "Waiting for source-visible API contract confirmation.",
-            },
-          ]}
+          modules={crmModuleRegistry.filter((item) => item.id !== "dashboard")}
         />
       </DashboardSection>
     </section>

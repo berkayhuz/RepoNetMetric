@@ -29,7 +29,7 @@ public sealed class CustomerOperationalServiceTests
         var otherTenant = Customer(Guid.NewGuid(), owner, "Ada", "Lovelace", "ada@example.test", "15550100");
         await fixture.SeedCustomersAsync(source, match, otherTenant);
 
-        var service = new DuplicateDetectionService(fixture.DbContext, fixture.Security);
+        var service = new DuplicateDetectionService(fixture.DbContext);
         var result = await service.FindCustomerDuplicatesAsync(source, CancellationToken.None);
 
         result.Should().ContainSingle();
@@ -91,7 +91,7 @@ public sealed class CustomerOperationalServiceTests
             new Dictionary<string, string?> { ["customer name"] = "Grace Hopper", ["email"] = "grace@example.test" },
             new Dictionary<string, string?> { ["customer name"] = "Broken Row", ["email"] = "invalid-email" });
 
-        var validate = new ValidateCustomerImportBatchCommandHandler(fixture.DbContext, fixture.CurrentUser, new DuplicateDetectionService(fixture.DbContext, fixture.Security));
+        var validate = new ValidateCustomerImportBatchCommandHandler(fixture.DbContext, fixture.CurrentUser, new DuplicateDetectionService(fixture.DbContext));
         var result = await validate.Handle(new ValidateCustomerImportBatchCommand(batchId), CancellationToken.None);
 
         result.TotalRows.Should().Be(3);
