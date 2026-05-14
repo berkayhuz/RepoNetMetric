@@ -496,6 +496,77 @@ export type DealLostReasonDto = {
   isDefault: boolean;
 };
 
+export type QuoteListItemDto = {
+  id: string;
+  quoteNumber: string;
+  proposalTitle?: string | null;
+  status: string | number;
+  quoteDate: string;
+  validUntil?: string | null;
+  grandTotal?: number | null;
+  currencyCode: string;
+  opportunityId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  revisionNumber: number;
+  isActive: boolean;
+};
+
+export type QuoteItemDto = {
+  id: string;
+  productId: string;
+  description?: string | null;
+  quantity: number;
+  unitPrice: number;
+  discountRate: number;
+  taxRate: number;
+  lineTotal: number;
+};
+
+export type QuoteStatusHistoryDto = {
+  id: string;
+  oldStatus?: string | number | null;
+  newStatus: string | number;
+  changedAt: string;
+  changedByUserId?: string | null;
+  note?: string | null;
+};
+
+export type QuoteDetailDto = {
+  id: string;
+  quoteNumber: string;
+  proposalTitle?: string | null;
+  proposalSummary?: string | null;
+  proposalBody?: string | null;
+  status: string | number;
+  quoteDate: string;
+  validUntil?: string | null;
+  subTotal?: number | null;
+  discountTotal?: number | null;
+  taxTotal?: number | null;
+  grandTotal?: number | null;
+  termsAndConditions?: string | null;
+  opportunityId?: string | null;
+  customerId?: string | null;
+  ownerUserId?: string | null;
+  currencyCode: string;
+  exchangeRate?: number | null;
+  revisionNumber: number;
+  parentQuoteId?: string | null;
+  proposalTemplateId?: string | null;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
+  sentAt?: string | null;
+  acceptedAt?: string | null;
+  declinedAt?: string | null;
+  expiredAt?: string | null;
+  rejectionReason?: string | null;
+  declineReason?: string | null;
+  items: QuoteItemDto[];
+  history: QuoteStatusHistoryDto[];
+  rowVersion: string;
+};
+
 export type WorkTaskDto = {
   id: string;
   title: string;

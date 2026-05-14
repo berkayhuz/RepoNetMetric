@@ -65,6 +65,10 @@ export const crmApiEndpoints = {
     path: "/api/deals/win-loss/lost-reasons",
   } satisfies RouteDefinition,
 
+  quotesList: { method: "GET", path: "/api/quotes" } satisfies RouteDefinition,
+  quotesDetail: (quoteId: string) =>
+    ({ method: "GET", path: `/api/quotes/${quoteId}` }) satisfies RouteDefinition,
+
   opportunitiesList: { method: "GET", path: "/api/opportunities" } satisfies RouteDefinition,
   opportunitiesDetail: (opportunityId: string) =>
     ({ method: "GET", path: `/api/opportunities/${opportunityId}` }) satisfies RouteDefinition,

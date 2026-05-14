@@ -134,14 +134,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "quote-management",
     title: "Quotes",
-    description: "Quote lifecycle and CPQ workspace endpoints are visible.",
+    description: "Quote records are available in read-only mode via consolidated CRM API.",
     path: "/quotes",
     group: "Sales",
     iconKey: "file-text",
-    status: "contract_pending",
+    status: "read_only",
     backendModuleFolder: "QuoteManagement",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Phase 12 candidate",
+    implementationPhase: "Implemented (read-only)",
   },
   {
     id: "sales-forecasting",

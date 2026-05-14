@@ -28,6 +28,8 @@ import type {
   DealDetailDto,
   DealListItemDto,
   DealUpsertRequest,
+  QuoteDetailDto,
+  QuoteListItemDto,
   AssignDealOwnerRequest,
   DealOutcomeRequest,
   DealLostReasonDto,
@@ -443,6 +445,24 @@ export const crmApiClient = {
       query: listQueryToRecord(query),
       ...options,
     }).then(normalizePagedResult<DealListItemDto>);
+  },
+
+  listQuotes(query: CrmListQuery = {}, options: CrmApiRequestOptions = {}) {
+    return request<unknown>({
+      method: crmApiEndpoints.quotesList.method,
+      path: crmApiEndpoints.quotesList.path,
+      query: listQueryToRecord(query),
+      ...options,
+    }).then(normalizePagedResult<QuoteListItemDto>);
+  },
+
+  getQuoteById(quoteId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesDetail(quoteId);
+    return request<QuoteDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
   },
 
   getDealById(dealId: string, options: CrmApiRequestOptions = {}) {
