@@ -73,6 +73,22 @@ export const crmApiEndpoints = {
     ({ method: "PUT", path: `/api/quotes/${quoteId}` }) satisfies RouteDefinition,
   quotesDelete: (quoteId: string) =>
     ({ method: "DELETE", path: `/api/quotes/${quoteId}` }) satisfies RouteDefinition,
+  quotesSubmit: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/submit` }) satisfies RouteDefinition,
+  quotesApprove: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/approve` }) satisfies RouteDefinition,
+  quotesReject: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/reject` }) satisfies RouteDefinition,
+  quotesMarkSent: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/sent` }) satisfies RouteDefinition,
+  quotesAccept: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/accepted` }) satisfies RouteDefinition,
+  quotesDecline: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/declined` }) satisfies RouteDefinition,
+  quotesExpire: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/expired` }) satisfies RouteDefinition,
+  quotesCreateRevision: (quoteId: string) =>
+    ({ method: "POST", path: `/api/quotes/${quoteId}/revisions` }) satisfies RouteDefinition,
 
   opportunitiesList: { method: "GET", path: "/api/opportunities" } satisfies RouteDefinition,
   opportunitiesDetail: (opportunityId: string) =>

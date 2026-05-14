@@ -597,6 +597,32 @@ export type QuoteUpdateRequest = QuoteUpsertRequest & {
   rowVersion: string;
 };
 
+export type QuoteNoteRequest = {
+  note?: string | null;
+  rowVersion?: string | null;
+};
+
+export type QuoteReasonRequest = {
+  reason: string;
+  rowVersion?: string | null;
+};
+
+export type QuoteDateNoteRequest = {
+  at?: string | null;
+  note?: string | null;
+  rowVersion?: string | null;
+};
+
+export type QuoteDeclineRequest = {
+  at?: string | null;
+  reason: string;
+  rowVersion?: string | null;
+};
+
+export type CreateQuoteRevisionRequest = {
+  newQuoteNumber: string;
+};
+
 export type WorkTaskDto = {
   id: string;
   title: string;

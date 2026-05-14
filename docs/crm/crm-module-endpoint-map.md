@@ -49,6 +49,7 @@ Notes:
 - Bulk owner change (`PATCH /api/deals/owner`) and win-loss review (`PUT /api/deals/win-loss/{dealId:guid}/review`) remain intentionally unimplemented in crm-web.
 - QuoteManagement read endpoints are wired in crm-web: `GET /api/quotes`, `GET /api/quotes/{quoteId:guid}`.
 - QuoteManagement basic CRUD is wired in crm-web: `POST /api/quotes`, `PUT /api/quotes/{quoteId:guid}`, `DELETE /api/quotes/{quoteId:guid}`.
-- QuoteManagement lifecycle and CPQ flows (`submit/approve/reject/sent/accepted/declined/expired/revisions`, workspace/timeline/validation UI) remain intentionally unimplemented in crm-web for this phase.
+- QuoteManagement lifecycle actions are wired in crm-web: `POST /api/quotes/{quoteId:guid}/submit`, `POST /api/quotes/{quoteId:guid}/approve`, `POST /api/quotes/{quoteId:guid}/reject`, `POST /api/quotes/{quoteId:guid}/sent`, `POST /api/quotes/{quoteId:guid}/accepted`, `POST /api/quotes/{quoteId:guid}/declined`, `POST /api/quotes/{quoteId:guid}/expired`, `POST /api/quotes/{quoteId:guid}/revisions`.
+- QuoteManagement CPQ/workspace/timeline/validation dedicated route UIs remain intentionally unimplemented in crm-web for this phase.
 - "Unknown" indicates module folder visibility without a clearly mapped dedicated controller surface in `NetMetric.CRM.API` route naming.
 - crm-web implements lead/opportunity CRUD and pipeline stage movement, and keeps remaining non-implemented modules as route shells.

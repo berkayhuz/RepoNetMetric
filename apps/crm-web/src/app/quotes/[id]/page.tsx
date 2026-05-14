@@ -7,8 +7,19 @@ import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import {
+  acceptQuoteAction,
+  approveQuoteAction,
+  createQuoteRevisionAction,
+  declineQuoteAction,
+  expireQuoteAction,
+  markQuoteSentAction,
+  rejectQuoteAction,
+  submitQuoteAction,
+} from "@/features/quotes/actions/quote-lifecycle-actions";
 import { deleteQuoteAction } from "@/features/quotes/actions/quote-mutation-actions";
 import { getQuoteDetailData } from "@/features/quotes/data/quotes-data";
+import { QuoteLifecycleActionPanel } from "@/features/quotes/forms/quote-lifecycle-panels";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type QuoteDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
@@ -71,6 +82,69 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           },
         ]}
       />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <QuoteLifecycleActionPanel
+          title="Submit for Approval"
+          description="Submit this quote for approval."
+          confirmValue="submit-quote"
+          action={submitQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+        />
+        <QuoteLifecycleActionPanel
+          title="Approve Quote"
+          description="Approve this quote when review is complete."
+          confirmValue="approve-quote"
+          action={approveQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+        />
+        <QuoteLifecycleActionPanel
+          title="Reject Quote"
+          description="Reject this quote with a required reason."
+          confirmValue="reject-quote"
+          action={rejectQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+          showReason
+        />
+        <QuoteLifecycleActionPanel
+          title="Mark as Sent"
+          description="Mark this quote as sent to the customer."
+          confirmValue="send-quote"
+          action={markQuoteSentAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+          showDate
+        />
+        <QuoteLifecycleActionPanel
+          title="Accept Quote"
+          description="Record acceptance of this quote."
+          confirmValue="accept-quote"
+          action={acceptQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+          showDate
+        />
+        <QuoteLifecycleActionPanel
+          title="Decline Quote"
+          description="Record quote decline with a reason."
+          confirmValue="decline-quote"
+          action={declineQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+          showReason
+        />
+        <QuoteLifecycleActionPanel
+          title="Expire Quote"
+          description="Mark this quote as expired."
+          confirmValue="expire-quote"
+          action={expireQuoteAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+          showDate
+        />
+        <QuoteLifecycleActionPanel
+          title="Create Revision"
+          description="Create a new revision from this quote."
+          confirmValue="revise-quote"
+          action={createQuoteRevisionAction.bind(null, resolved.id)}
+          rowVersion={quote.rowVersion}
+        />
+      </div>
       <CrmDeleteZone
         title="Delete Quote"
         description="Deleting this quote removes it from active CRM views."
@@ -82,7 +156,7 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           action={deleteQuoteAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Quote lifecycle actions, line editing, and approval operations" />
+      <CrmContractPending module="Quote CPQ workspace, timeline, and validation route UIs" />
     </section>
   );
 }

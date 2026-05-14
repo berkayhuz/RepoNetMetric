@@ -29,9 +29,14 @@ import type {
   DealListItemDto,
   DealUpsertRequest,
   QuoteDetailDto,
+  QuoteDateNoteRequest,
+  QuoteDeclineRequest,
   QuoteListItemDto,
+  QuoteNoteRequest,
+  QuoteReasonRequest,
   QuoteUpdateRequest,
   QuoteUpsertRequest,
+  CreateQuoteRevisionRequest,
   AssignDealOwnerRequest,
   DealOutcomeRequest,
   DealLostReasonDto,
@@ -491,6 +496,90 @@ export const crmApiClient = {
     return request<void>({
       method: endpoint.method,
       path: endpoint.path,
+      ...options,
+    });
+  },
+
+  submitQuote(quoteId: string, input: QuoteNoteRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesSubmit(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  approveQuote(quoteId: string, input: QuoteNoteRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesApprove(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  rejectQuote(quoteId: string, input: QuoteReasonRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesReject(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  markQuoteSent(quoteId: string, input: QuoteDateNoteRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesMarkSent(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  acceptQuote(quoteId: string, input: QuoteDateNoteRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesAccept(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  declineQuote(quoteId: string, input: QuoteDeclineRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesDecline(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  expireQuote(quoteId: string, input: QuoteDateNoteRequest, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.quotesExpire(quoteId);
+    return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
+      ...options,
+    });
+  },
+
+  createQuoteRevision(
+    quoteId: string,
+    input: CreateQuoteRevisionRequest,
+    options: CrmApiRequestOptions = {},
+  ) {
+    const endpoint = crmApiEndpoints.quotesCreateRevision(quoteId);
+    return request<QuoteDetailDto>({
+      method: endpoint.method,
+      path: endpoint.path,
+      body: input,
       ...options,
     });
   },
