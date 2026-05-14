@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@netmetric/ui";
 
+import { AddressSection } from "@/components/address/address-section";
 import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
 import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
@@ -58,6 +59,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           { label: "Status", value: customer.isActive ? "Active" : "Inactive" },
         ]}
       />
+      <AddressSection entityType="customer" entityId={resolved.id} addresses={customer.addresses} />
       <CrmDeleteZone
         title="Delete Customer"
         description="Deleting this customer removes it from active CRM views."

@@ -22,3 +22,11 @@ export const booleanOptions = [
   { value: "false", label: "No" },
   { value: "true", label: "Yes" },
 ] as const;
+
+export const addressTypeOptions = [
+  { value: 0, label: "Other" },
+  { value: 1, label: "Billing" },
+  { value: 2, label: "Shipping" },
+  { value: 3, label: "Home" },
+  { value: 4, label: "Work" },
+] as const;

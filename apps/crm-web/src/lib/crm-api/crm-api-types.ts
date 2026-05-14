@@ -250,4 +250,15 @@ export type ContactUpsertRequest = {
   rowVersion?: string | null;
 };
 
-export type AddressUpsertRequest = Record<string, unknown>;
+export type AddressUpsertRequest = {
+  addressType: string | number;
+  line1: string;
+  line2?: string | null;
+  district?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  zipCode?: string | null;
+  isDefault: boolean;
+  rowVersion?: string | null;
+};
