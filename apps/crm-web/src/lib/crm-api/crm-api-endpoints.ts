@@ -138,6 +138,15 @@ export const crmApiEndpoints = {
     path: "/api/work-management/meetings",
   } satisfies RouteDefinition,
 
+  supportInboxConnectionsList: {
+    method: "GET",
+    path: "/api/support-inbox/connections",
+  } satisfies RouteDefinition,
+  supportInboxMessagesList: {
+    method: "GET",
+    path: "/api/support-inbox/messages",
+  } satisfies RouteDefinition,
+
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,
   addressesAddToCustomer: (customerId: string) =>

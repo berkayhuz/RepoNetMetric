@@ -649,6 +649,30 @@ export type WorkManagementWorkspaceDto = {
   upcomingMeetingCount: number;
 };
 
+export type SupportInboxConnectionDto = {
+  id: string;
+  name: string;
+  provider: string;
+  emailAddress: string;
+  host: string;
+  port: number;
+  username: string;
+  useSsl: boolean;
+  isActive: boolean;
+};
+
+export type SupportInboxMessageDto = {
+  id: string;
+  connectionId: string;
+  ticketId?: string | null;
+  externalMessageId: string;
+  fromAddress: string;
+  subject: string;
+  receivedAtUtc: string;
+  status: string;
+  processingError?: string | null;
+};
+
 export type TicketListItemDto = {
   id: string;
   ticketNumber: string;

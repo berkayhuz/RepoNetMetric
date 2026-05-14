@@ -67,6 +67,8 @@ export type {
   PipelineStageDto,
   PipelineSummaryDto,
   WorkManagementWorkspaceDto,
+  SupportInboxConnectionDto,
+  SupportInboxMessageDto,
   WorkTaskDto,
   MeetingScheduleDto,
   CreateWorkTaskRequest,

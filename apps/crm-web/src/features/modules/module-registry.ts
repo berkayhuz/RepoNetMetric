@@ -170,14 +170,14 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
   {
     id: "support-inbox",
     title: "Support Inbox",
-    description: "Support inbox endpoints are available and pending integration.",
+    description: "Support inbox connections and messages are available as read-only views.",
     path: "/support-inbox",
     group: "Service / Support",
     iconKey: "inbox",
-    status: "contract_pending",
+    status: "read_only",
     backendModuleFolder: "SupportInboxIntegration",
     endpointDiscoveryStatus: "source_visible",
-    implementationPhase: "Phase 13 candidate",
+    implementationPhase: "Implemented (read-only)",
   },
   {
     id: "ticket-management",

@@ -54,6 +54,8 @@ import type {
   PipelineDto,
   PipelineSummaryDto,
   WorkManagementWorkspaceDto,
+  SupportInboxConnectionDto,
+  SupportInboxMessageDto,
   WorkTaskDto,
   MeetingScheduleDto,
   CreateWorkTaskRequest,
@@ -815,6 +817,36 @@ export const crmApiClient = {
       path: crmApiEndpoints.workManagementWorkspace.path,
       ...options,
     });
+  },
+
+  listSupportInboxConnections(options: CrmApiRequestOptions = {}) {
+    return request<SupportInboxConnectionDto[]>({
+      method: crmApiEndpoints.supportInboxConnectionsList.method,
+      path: crmApiEndpoints.supportInboxConnectionsList.path,
+      ...options,
+    });
+  },
+
+  listSupportInboxMessages(
+    query: {
+      connectionId?: string;
+      linkedToTicket?: boolean;
+      page?: number;
+      pageSize?: number;
+    } = {},
+    options: CrmApiRequestOptions = {},
+  ) {
+    return request<unknown>({
+      method: crmApiEndpoints.supportInboxMessagesList.method,
+      path: crmApiEndpoints.supportInboxMessagesList.path,
+      query: {
+        connectionId: query.connectionId,
+        linkedToTicket: query.linkedToTicket,
+        page: query.page,
+        pageSize: query.pageSize,
+      },
+      ...options,
+    }).then(normalizePagedResult<SupportInboxMessageDto>);
   },
 
   createWorkTask(input: CreateWorkTaskRequest, options: CrmApiRequestOptions = {}) {
