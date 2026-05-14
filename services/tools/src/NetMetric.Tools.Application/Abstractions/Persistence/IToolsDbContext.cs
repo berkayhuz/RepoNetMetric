@@ -1,5 +1,5 @@
-using NetMetric.Tools.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.Tools.Domain.Entities;
 
 namespace NetMetric.Tools.Application.Abstractions.Persistence;
 

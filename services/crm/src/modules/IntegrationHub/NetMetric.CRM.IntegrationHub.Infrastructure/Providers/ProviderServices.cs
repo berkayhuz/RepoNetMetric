@@ -40,7 +40,7 @@ public sealed class DefaultIntegrationProviderCatalog : IIntegrationProviderCata
                 new ProviderFieldDescriptor("displayName", "Display Name", "Visible connection name", false, true, "WhatsApp Business", "Any non-empty value."),
                 new ProviderFieldDescriptor("businessAccountId", "Business Account ID", "Meta business account identifier", false, true, "1234567890", "Numeric account id."),
                 new ProviderFieldDescriptor("phoneNumberId", "Phone Number ID", "WhatsApp phone number id", false, true, "10987654321", "Numeric phone number id."),
-                new ProviderFieldDescriptor("verifyToken", "Verify Token", "Webhook verify token used for challenge validation", true, true, "verify-token", "At least 8 characters."),
+                new ProviderFieldDescriptor("verifyToken", "Verify Token", "Webhook verify token used for challenge validation", true, true, SampleVerifyValue, "At least 8 characters."),
                 new ProviderFieldDescriptor("accessToken", "Access Token", "System user token placeholder", true, true, "EAAG...", "Must start with EA and be long-lived in production."),
                 new ProviderFieldDescriptor("webhookSigningSecret", "Webhook Signing Secret", "App secret used for webhook signature checks", true, true, "app-secret", "At least 16 characters.")
             ],
@@ -58,7 +58,7 @@ public sealed class DefaultIntegrationProviderCatalog : IIntegrationProviderCata
                 new ProviderFieldDescriptor("businessAccountId", "Business Account ID", "Meta business account identifier", false, true, "1234567890", "Numeric account id."),
                 new ProviderFieldDescriptor("pageId", "Page ID", "Linked Facebook page id", false, true, "9988776655", "Numeric page id."),
                 new ProviderFieldDescriptor("instagramBusinessAccountId", "Instagram Business Account ID", "Instagram business account id", false, true, "1122334455", "Numeric account id."),
-                new ProviderFieldDescriptor("verifyToken", "Verify Token", "Webhook verify token used for challenge validation", true, true, "verify-token", "At least 8 characters."),
+                new ProviderFieldDescriptor("verifyToken", "Verify Token", "Webhook verify token used for challenge validation", true, true, SampleVerifyValue, "At least 8 characters."),
                 new ProviderFieldDescriptor("accessToken", "Access Token", "System user token placeholder", true, true, "EAAG...", "Must start with EA and be long-lived in production."),
                 new ProviderFieldDescriptor("webhookSigningSecret", "Webhook Signing Secret", "App secret used for webhook signature checks", true, true, "app-secret", "At least 16 characters.")
             ],

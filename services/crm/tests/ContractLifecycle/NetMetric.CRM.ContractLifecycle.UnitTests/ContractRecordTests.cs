@@ -1,0 +1,17 @@
+using FluentAssertions;
+using NetMetric.CRM.ContractLifecycle.Domain.Entities.Contracts;
+
+namespace NetMetric.CRM.ContractLifecycle.UnitTests;
+
+public sealed class ContractRecordTests
+{
+    [Fact]
+    public void Constructor_Should_Set_Required_Fields()
+    {
+        var entity = new ContractRecord("CODE-1", "Name 1", "Desc");
+        entity.Code.Should().Be("CODE-1");
+        entity.Name.Should().Be("Name 1");
+        entity.Description.Should().Be("Desc");
+        entity.IsActive.Should().BeTrue();
+    }
+}

@@ -1,0 +1,56 @@
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NetMetric.CRM.API.Compatibility;
+using NetMetric.CRM.TagManagement.Application.Features.Classifications.Commands.CreateClassificationScheme;
+using NetMetric.CRM.TagManagement.Application.Features.SmartLabels.Commands.CreateSmartLabelRule;
+using NetMetric.CRM.TagManagement.Application.Features.TagGroups.Commands.CreateTagGroup;
+using NetMetric.CRM.TagManagement.Application.Features.Tags.Commands.CreateTag;
+
+namespace NetMetric.CRM.API.Controllers.Tags;
+
+[ApiController]
+[Route("api/tags")]
+[Authorize(Policy = AuthorizationPolicies.TagsRead)]
+public sealed class TagsController(IMediator mediator) : ControllerBase
+{
+    [HttpPost]
+    [Authorize(Policy = AuthorizationPolicies.TagsManage)]
+    public async Task<IActionResult> CreateTag([FromBody] CreateTagRequest request, CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(new CreateTagCommand(request.Name, request.Color), cancellationToken);
+        return CreatedAtAction(nameof(CreateTag), new { id }, new { id });
+    }
+
+    [HttpPost("groups")]
+    [Authorize(Policy = AuthorizationPolicies.TagsManage)]
+    public async Task<IActionResult> CreateGroup([FromBody] CreateTagGroupRequest request, CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(new CreateTagGroupCommand(request.Name, request.Color), cancellationToken);
+        return CreatedAtAction(nameof(CreateGroup), new { id }, new { id });
+    }
+
+    [HttpPost("smart-label-rules")]
+    [Authorize(Policy = AuthorizationPolicies.SmartLabelsManage)]
+    public async Task<IActionResult> CreateSmartLabelRule([FromBody] CreateSmartLabelRuleRequest request, CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(new CreateSmartLabelRuleCommand(request.Name, request.EntityType, request.ConditionJson), cancellationToken);
+        return CreatedAtAction(nameof(CreateSmartLabelRule), new { id }, new { id });
+    }
+
+    [HttpPost("classification-schemes")]
+    [Authorize(Policy = AuthorizationPolicies.ClassificationsManage)]
+    public async Task<IActionResult> CreateClassificationScheme([FromBody] CreateClassificationSchemeRequest request, CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(new CreateClassificationSchemeCommand(request.Name, request.EntityType), cancellationToken);
+        return CreatedAtAction(nameof(CreateClassificationScheme), new { id }, new { id });
+    }
+
+    public sealed record CreateTagRequest(string Name, string Color);
+
+    public sealed record CreateTagGroupRequest(string Name, string? Color);
+
+    public sealed record CreateSmartLabelRuleRequest(string Name, string EntityType, string ConditionJson);
+
+    public sealed record CreateClassificationSchemeRequest(string Name, string EntityType);
+}

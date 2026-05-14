@@ -80,7 +80,9 @@
   </Folder>
   <Folder Name="/services/billing/" />
   <Folder Name="/services/crm/" />
-  <Folder Name="/services/crm/src/" />
+  <Folder Name="/services/crm/src/">
+    <Project Path="services/crm/src/NetMetric.CRM.API/NetMetric.CRM.API.csproj" Id="f10fda0f-31ac-4458-98ab-07d558402efe" />
+  </Folder>
   <Folder Name="/services/crm/src/modules/" />
   <Folder Name="/services/crm/src/modules/src/" />
   <Folder Name="/services/crm/src/modules/src/AnalyticsReporting/">
@@ -304,4 +306,98 @@
     <Project Path="tools/NetMetric.LocalSmoke/NetMetric.LocalSmoke.csproj" />
   </Folder>
   <Folder Name="/tools/migration-bundles/" />
+
+
+  <Folder Name="/services/crm/tests/AnalyticsReporting/">
+    <Project Path="services/crm/tests/AnalyticsReporting/NetMetric.CRM.AnalyticsReporting.ArchitectureTests/NetMetric.CRM.AnalyticsReporting.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/AnalyticsReporting/NetMetric.CRM.AnalyticsReporting.UnitTests/NetMetric.CRM.AnalyticsReporting.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/ContractLifecycle/">
+    <Project Path="services/crm/tests/ContractLifecycle/NetMetric.CRM.ContractLifecycle.ArchitectureTests/NetMetric.CRM.ContractLifecycle.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/ContractLifecycle/NetMetric.CRM.ContractLifecycle.UnitTests/NetMetric.CRM.ContractLifecycle.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/CustomerIntelligence/">
+    <Project Path="services/crm/tests/CustomerIntelligence/NetMetric.CRM.CustomerIntelligence.ArchitectureTests/NetMetric.CRM.CustomerIntelligence.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/CustomerIntelligence/NetMetric.CRM.CustomerIntelligence.UnitTests/NetMetric.CRM.CustomerIntelligence.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/CustomerManagement/">
+    <Project Path="services/crm/tests/CustomerManagement/NetMetric.CRM.CustomerManagement.ArchitectureTests/NetMetric.CRM.CustomerManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/CustomerManagement/NetMetric.CRM.CustomerManagement.UnitTests/NetMetric.CRM.CustomerManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/DealManagement/">
+    <Project Path="services/crm/tests/DealManagement/NetMetric.CRM.DealManagement.ArchitectureTests/NetMetric.CRM.DealManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/DealManagement/NetMetric.CRM.DealManagement.UnitTests/NetMetric.CRM.DealManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/DocumentManagement/">
+    <Project Path="services/crm/tests/DocumentManagement/NetMetric.CRM.DocumentManagement.ArchitectureTests/NetMetric.CRM.DocumentManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/DocumentManagement/NetMetric.CRM.DocumentManagement.UnitTests/NetMetric.CRM.DocumentManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/FinanceOperations/">
+    <Project Path="services/crm/tests/FinanceOperations/NetMetric.CRM.FinanceOperations.ArchitectureTests/NetMetric.CRM.FinanceOperations.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/FinanceOperations/NetMetric.CRM.FinanceOperations.UnitTests/NetMetric.CRM.FinanceOperations.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/IntegrationHub/">
+    <Project Path="services/crm/tests/IntegrationHub/NetMetric.CRM.IntegrationHub.ArchitectureTests/NetMetric.CRM.IntegrationHub.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/IntegrationHub/NetMetric.CRM.IntegrationHub.UnitTests/NetMetric.CRM.IntegrationHub.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/KnowledgeBaseManagement/">
+    <Project Path="services/crm/tests/KnowledgeBaseManagement/NetMetric.CRM.KnowledgeBaseManagement.ArchitectureTests/NetMetric.CRM.KnowledgeBaseManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/KnowledgeBaseManagement/NetMetric.CRM.KnowledgeBaseManagement.UnitTests/NetMetric.CRM.KnowledgeBaseManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/LeadManagement/">
+    <Project Path="services/crm/tests/LeadManagement/NetMetric.CRM.LeadManagement.ArchitectureTests/NetMetric.CRM.LeadManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/LeadManagement/NetMetric.CRM.LeadManagement.UnitTests/NetMetric.CRM.LeadManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/MarketingAutomation/">
+    <Project Path="services/crm/tests/MarketingAutomation/NetMetric.CRM.MarketingAutomation.ArchitectureTests/NetMetric.CRM.MarketingAutomation.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/MarketingAutomation/NetMetric.CRM.MarketingAutomation.UnitTests/NetMetric.CRM.MarketingAutomation.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/OpportunityManagement/">
+    <Project Path="services/crm/tests/OpportunityManagement/NetMetric.CRM.OpportunityManagement.ArchitectureTests/NetMetric.CRM.OpportunityManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/OpportunityManagement/NetMetric.CRM.OpportunityManagement.UnitTests/NetMetric.CRM.OpportunityManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/PipelineManagement/">
+    <Project Path="services/crm/tests/PipelineManagement/NetMetric.CRM.PipelineManagement.ArchitectureTests/NetMetric.CRM.PipelineManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/PipelineManagement/NetMetric.CRM.PipelineManagement.UnitTests/NetMetric.CRM.PipelineManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/ProductCatalog/">
+    <Project Path="services/crm/tests/ProductCatalog/NetMetric.CRM.ProductCatalog.ArchitectureTests/NetMetric.CRM.ProductCatalog.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/ProductCatalog/NetMetric.CRM.ProductCatalog.UnitTests/NetMetric.CRM.ProductCatalog.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/QuoteManagement/">
+    <Project Path="services/crm/tests/QuoteManagement/NetMetric.CRM.QuoteManagement.ArchitectureTests/NetMetric.CRM.QuoteManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/QuoteManagement/NetMetric.CRM.QuoteManagement.UnitTests/NetMetric.CRM.QuoteManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/SalesForecasting/">
+    <Project Path="services/crm/tests/SalesForecasting/NetMetric.CRM.SalesForecasting.ArchitectureTests/NetMetric.CRM.SalesForecasting.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/SalesForecasting/NetMetric.CRM.SalesForecasting.UnitTests/NetMetric.CRM.SalesForecasting.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/SupportInboxIntegration/">
+    <Project Path="services/crm/tests/SupportInboxIntegration/NetMetric.CRM.SupportInboxIntegration.ArchitectureTests/NetMetric.CRM.SupportInboxIntegration.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/SupportInboxIntegration/NetMetric.CRM.SupportInboxIntegration.UnitTests/NetMetric.CRM.SupportInboxIntegration.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/TagManagement/">
+    <Project Path="services/crm/tests/TagManagement/NetMetric.CRM.TagManagement.ArchitectureTests/NetMetric.CRM.TagManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/TagManagement/NetMetric.CRM.TagManagement.UnitTests/NetMetric.CRM.TagManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/TenantManagement/">
+    <Project Path="services/crm/tests/TenantManagement/NetMetric.CRM.TenantManagement.ArchitectureTests/NetMetric.CRM.TenantManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/TenantManagement/NetMetric.CRM.TenantManagement.UnitTests/NetMetric.CRM.TenantManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/TicketManagement/">
+    <Project Path="services/crm/tests/TicketManagement/NetMetric.CRM.TicketManagement.ArchitectureTests/NetMetric.CRM.TicketManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/TicketManagement/NetMetric.CRM.TicketManagement.UnitTests/NetMetric.CRM.TicketManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/TicketSlaManagement/">
+    <Project Path="services/crm/tests/TicketSlaManagement/NetMetric.CRM.TicketSlaManagement.ArchitectureTests/NetMetric.CRM.TicketSlaManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/TicketSlaManagement/NetMetric.CRM.TicketSlaManagement.UnitTests/NetMetric.CRM.TicketSlaManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/TicketWorkflowManagement/">
+    <Project Path="services/crm/tests/TicketWorkflowManagement/NetMetric.CRM.TicketWorkflowManagement.ArchitectureTests/NetMetric.CRM.TicketWorkflowManagement.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/TicketWorkflowManagement/NetMetric.CRM.TicketWorkflowManagement.UnitTests/NetMetric.CRM.TicketWorkflowManagement.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/crm/tests/WorkflowAutomation/">
+    <Project Path="services/crm/tests/WorkflowAutomation/NetMetric.CRM.WorkflowAutomation.ArchitectureTests/NetMetric.CRM.WorkflowAutomation.ArchitectureTests.csproj" />
+    <Project Path="services/crm/tests/WorkflowAutomation/NetMetric.CRM.WorkflowAutomation.UnitTests/NetMetric.CRM.WorkflowAutomation.UnitTests.csproj" />
+  </Folder>
 </Solution>
