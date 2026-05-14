@@ -42,6 +42,9 @@ export type {
   PipelineDto,
   PipelineStageDto,
   PipelineSummaryDto,
+  WorkManagementWorkspaceDto,
+  WorkTaskDto,
+  MeetingScheduleDto,
   ProblemDetails,
   SortDirection,
 } from "./crm-api-types";

@@ -34,6 +34,7 @@ import type {
   PipelineStageMoveResultDto,
   PipelineDto,
   PipelineSummaryDto,
+  WorkManagementWorkspaceDto,
   LeadUpdateRequest,
   LeadUpsertRequest,
 } from "./crm-api-types";
@@ -507,6 +508,14 @@ export const crmApiClient = {
       method: endpoint.method,
       path: endpoint.path,
       body: input,
+      ...options,
+    });
+  },
+
+  getWorkManagementWorkspace(options: CrmApiRequestOptions = {}) {
+    return request<WorkManagementWorkspaceDto>({
+      method: crmApiEndpoints.workManagementWorkspace.method,
+      path: crmApiEndpoints.workManagementWorkspace.path,
       ...options,
     });
   },

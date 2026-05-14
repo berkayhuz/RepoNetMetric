@@ -423,6 +423,32 @@ export type PipelineStageMoveResultDto = {
   rowVersion?: string | null;
 };
 
+export type WorkTaskDto = {
+  id: string;
+  title: string;
+  description: string;
+  ownerUserId?: string | null;
+  dueAtUtc: string;
+  priority: number;
+  status: string;
+};
+
+export type MeetingScheduleDto = {
+  id: string;
+  title: string;
+  startsAtUtc: string;
+  endsAtUtc: string;
+  organizerEmail?: string | null;
+  requiresExternalSync: boolean;
+};
+
+export type WorkManagementWorkspaceDto = {
+  tasks: WorkTaskDto[];
+  meetings: MeetingScheduleDto[];
+  openTaskCount: number;
+  upcomingMeetingCount: number;
+};
+
 export type CustomerUpsertRequest = {
   firstName: string;
   lastName: string;

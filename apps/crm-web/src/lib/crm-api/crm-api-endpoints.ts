@@ -70,6 +70,11 @@ export const crmApiEndpoints = {
       path: `/api/opportunities/pipelines/items/${opportunityId}/stage`,
     }) satisfies RouteDefinition,
 
+  workManagementWorkspace: {
+    method: "GET",
+    path: "/api/work-management/workspace",
+  } satisfies RouteDefinition,
+
   addressesAddToCompany: (companyId: string) =>
     ({ method: "POST", path: `/api/addresses/companies/${companyId}` }) satisfies RouteDefinition,
   addressesAddToCustomer: (customerId: string) =>
