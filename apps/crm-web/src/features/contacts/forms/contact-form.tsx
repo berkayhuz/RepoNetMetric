@@ -1,0 +1,239 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Button,
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+  FieldSet,
+  Input,
+  NativeSelect,
+  NativeSelectOption,
+  Textarea,
+} from "@netmetric/ui";
+import { useForm } from "react-hook-form";
+
+import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
+import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
+import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
+import { genderOptions } from "@/features/shared/forms/options";
+
+import { createContactAction, updateContactAction } from "../actions/contact-mutation-actions";
+import { contactFormSchema, type ContactFormInput } from "./contact-form-schema";
+
+type ContactFormProps = {
+  mode: "create" | "edit";
+  contactId?: string;
+  initialValues?: Partial<ContactFormInput>;
+};
+
+const defaults: ContactFormInput = {
+  firstName: "",
+  lastName: "",
+  title: "",
+  email: "",
+  mobilePhone: "",
+  workPhone: "",
+  personalPhone: "",
+  birthDate: "",
+  gender: 0,
+  department: "",
+  jobTitle: "",
+  description: "",
+  notes: "",
+  ownerUserId: "",
+  companyId: "",
+  customerId: "",
+  isPrimaryContact: false,
+  rowVersion: "",
+};
+
+export function ContactForm({ mode, contactId, initialValues }: Readonly<ContactFormProps>) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [result, setResult] = useState(initialCrmMutationState);
+  const form = useForm<ContactFormInput>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: { ...defaults, ...initialValues },
+  });
+
+  const onSubmit = (values: ContactFormInput) => {
+    setResult(initialCrmMutationState);
+    startTransition(async () => {
+      const response =
+        mode === "create"
+          ? await createContactAction(values)
+          : await updateContactAction(contactId ?? "", values);
+      setResult(response);
+      if (response.fieldErrors) {
+        for (const [field, errors] of Object.entries(response.fieldErrors)) {
+          const first = errors[0];
+          if (first) form.setError(field as keyof ContactFormInput, { message: first });
+        }
+      }
+      if (response.status === "success" && response.redirectTo) {
+        router.push(response.redirectTo);
+        router.refresh();
+      }
+    });
+  };
+
+  return (
+    <form className="space-y-6" noValidate onSubmit={form.handleSubmit(onSubmit)}>
+      <CrmFormErrorSummary
+        {...(result.status === "error" && result.message ? { message: result.message } : {})}
+        {...(result.fieldErrors ? { errors: result.fieldErrors } : {})}
+      />
+      <CrmMutationResult state={result} />
+
+      <FieldSet className="grid gap-4 sm:grid-cols-2">
+        <Field>
+          <FieldLabel htmlFor="contact-firstName">First name</FieldLabel>
+          <FieldContent>
+            <Input id="contact-firstName" {...form.register("firstName")} />
+            <FieldError>{form.formState.errors.firstName?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-lastName">Last name</FieldLabel>
+          <FieldContent>
+            <Input id="contact-lastName" {...form.register("lastName")} />
+            <FieldError>{form.formState.errors.lastName?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-email">Email</FieldLabel>
+          <FieldContent>
+            <Input id="contact-email" type="email" {...form.register("email")} />
+            <FieldError>{form.formState.errors.email?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-mobilePhone">Mobile phone</FieldLabel>
+          <FieldContent>
+            <Input id="contact-mobilePhone" {...form.register("mobilePhone")} />
+            <FieldError>{form.formState.errors.mobilePhone?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-workPhone">Work phone</FieldLabel>
+          <FieldContent>
+            <Input id="contact-workPhone" {...form.register("workPhone")} />
+            <FieldError>{form.formState.errors.workPhone?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-personalPhone">Personal phone</FieldLabel>
+          <FieldContent>
+            <Input id="contact-personalPhone" {...form.register("personalPhone")} />
+            <FieldError>{form.formState.errors.personalPhone?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-birthDate">Birth date</FieldLabel>
+          <FieldContent>
+            <Input id="contact-birthDate" type="date" {...form.register("birthDate")} />
+            <FieldError>{form.formState.errors.birthDate?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-gender">Gender</FieldLabel>
+          <FieldContent>
+            <NativeSelect id="contact-gender" {...form.register("gender")}>
+              {genderOptions.map((o) => (
+                <NativeSelectOption key={`contact-gender-${o.value}`} value={String(o.value)}>
+                  {o.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+            <FieldError>{form.formState.errors.gender?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-primary">Primary contact</FieldLabel>
+          <FieldContent>
+            <NativeSelect id="contact-primary" {...form.register("isPrimaryContact")}>
+              <NativeSelectOption value="false">No</NativeSelectOption>
+              <NativeSelectOption value="true">Yes</NativeSelectOption>
+            </NativeSelect>
+            <FieldError>{form.formState.errors.isPrimaryContact?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-companyId">Company ID</FieldLabel>
+          <FieldContent>
+            <Input id="contact-companyId" {...form.register("companyId")} />
+            <FieldError>{form.formState.errors.companyId?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-customerId">Customer ID</FieldLabel>
+          <FieldContent>
+            <Input id="contact-customerId" {...form.register("customerId")} />
+            <FieldError>{form.formState.errors.customerId?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-ownerUserId">Owner user ID</FieldLabel>
+          <FieldContent>
+            <Input id="contact-ownerUserId" {...form.register("ownerUserId")} />
+            <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-title">Title</FieldLabel>
+          <FieldContent>
+            <Input id="contact-title" {...form.register("title")} />
+            <FieldError>{form.formState.errors.title?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-department">Department</FieldLabel>
+          <FieldContent>
+            <Input id="contact-department" {...form.register("department")} />
+            <FieldError>{form.formState.errors.department?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-jobTitle">Job title</FieldLabel>
+          <FieldContent>
+            <Input id="contact-jobTitle" {...form.register("jobTitle")} />
+            <FieldError>{form.formState.errors.jobTitle?.message}</FieldError>
+          </FieldContent>
+        </Field>
+      </FieldSet>
+
+      <FieldSet className="grid gap-4">
+        <Field>
+          <FieldLabel htmlFor="contact-description">Description</FieldLabel>
+          <FieldContent>
+            <Textarea id="contact-description" rows={4} {...form.register("description")} />
+            <FieldError>{form.formState.errors.description?.message}</FieldError>
+          </FieldContent>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="contact-notes">Notes</FieldLabel>
+          <FieldContent>
+            <Textarea id="contact-notes" rows={4} {...form.register("notes")} />
+            <FieldError>{form.formState.errors.notes?.message}</FieldError>
+          </FieldContent>
+        </Field>
+      </FieldSet>
+
+      {mode === "edit" ? <input type="hidden" {...form.register("rowVersion")} /> : null}
+
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <Button type="button" variant="outline" onClick={() => router.back()}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isPending} aria-busy={isPending}>
+          {isPending ? "Saving..." : mode === "create" ? "Create contact" : "Save contact"}
+        </Button>
+      </div>
+    </form>
+  );
+}

@@ -36,6 +36,8 @@ export default async function CustomersPage({
       title="Customers"
       description="Read-only customer list from CRM API."
       actionPath="/customers"
+      createPath="/customers/new"
+      createLabel="New customer"
       {...(query.search ? { search: query.search } : {})}
       caption="Customers"
       columns={columns}

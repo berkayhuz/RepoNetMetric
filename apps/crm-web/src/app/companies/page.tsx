@@ -36,6 +36,8 @@ export default async function CompaniesPage({
       title="Companies"
       description="Read-only company list from CRM API."
       actionPath="/companies"
+      createPath="/companies/new"
+      createLabel="New company"
       {...(query.search ? { search: query.search } : {})}
       caption="Companies"
       columns={columns}

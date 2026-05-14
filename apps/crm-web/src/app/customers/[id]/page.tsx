@@ -1,11 +1,16 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Button } from "@netmetric/ui";
 
+import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
+import { CrmDeleteZone } from "@/components/delete/crm-delete-zone";
 import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
+import { deleteCustomerAction } from "@/features/customers/actions/customer-mutation-actions";
 import { getCustomerDetailData } from "@/features/customers/data/customers-data";
 import { isGuid } from "@/features/shared/data/guid";
-import { CrmApiError } from "@/lib/crm-api";
+import { CrmApiError, type CustomerDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 
@@ -17,7 +22,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     notFound();
   }
 
-  let customer;
+  let customer: CustomerDetailDto;
 
   try {
     customer = await getCustomerDetailData(resolved.id, `/customers/${resolved.id}`);
@@ -31,7 +36,15 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <section className="space-y-6">
-      <CrmPageHeader title={customer.fullName} description="Read-only customer detail." />
+      <CrmPageHeader
+        title={customer.fullName}
+        description="Read-only customer detail."
+        actions={
+          <Button asChild>
+            <Link href={`/customers/${resolved.id}/edit`}>Edit customer</Link>
+          </Button>
+        }
+      />
       <CrmEntityDetailPanel
         title="Profile"
         fields={[
@@ -45,6 +58,17 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           { label: "Status", value: customer.isActive ? "Active" : "Inactive" },
         ]}
       />
+      <CrmDeleteZone
+        title="Delete Customer"
+        description="Deleting this customer removes it from active CRM views."
+      >
+        <CrmDeleteConfirmForm
+          entityLabel="Customer"
+          entityName={customer.fullName}
+          confirmValue="delete-customer"
+          action={deleteCustomerAction.bind(null, resolved.id)}
+        />
+      </CrmDeleteZone>
       <CrmContractPending module="Customer timeline and activities" />
     </section>
   );

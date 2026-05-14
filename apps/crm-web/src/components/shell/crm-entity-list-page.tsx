@@ -3,13 +3,15 @@ import type { CrmPagedResult } from "@/lib/crm-api";
 import { CrmEmptyState } from "./crm-empty-state";
 import { CrmEntityTable, type CrmEntityTableColumn } from "./crm-entity-table";
 import { CrmListToolbar } from "./crm-list-toolbar";
-import { CrmPagination } from "./crm-pagination";
 import { CrmPageHeader } from "./crm-page-header";
+import { CrmPagination } from "./crm-pagination";
 
 export function CrmEntityListPage<TItem extends { id: string }>({
   title,
   description,
   actionPath,
+  createPath,
+  createLabel,
   search,
   caption,
   columns,
@@ -20,6 +22,8 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   title: string;
   description: string;
   actionPath: string;
+  createPath: string;
+  createLabel: string;
   search?: string;
   caption: string;
   columns: CrmEntityTableColumn<TItem>[];
@@ -30,7 +34,12 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   return (
     <section className="space-y-6">
       <CrmPageHeader title={title} description={description} />
-      <CrmListToolbar actionPath={actionPath} {...(search ? { search } : {})} />
+      <CrmListToolbar
+        actionPath={actionPath}
+        createPath={createPath}
+        createLabel={createLabel}
+        {...(search ? { search } : {})}
+      />
 
       {paged.items.length === 0 ? (
         <CrmEmptyState

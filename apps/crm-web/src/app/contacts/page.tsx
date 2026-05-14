@@ -40,6 +40,8 @@ export default async function ContactsPage({
       title="Contacts"
       description="Read-only contact list from CRM API."
       actionPath="/contacts"
+      createPath="/contacts/new"
+      createLabel="New contact"
       {...(query.search ? { search: query.search } : {})}
       caption="Contacts"
       columns={columns}

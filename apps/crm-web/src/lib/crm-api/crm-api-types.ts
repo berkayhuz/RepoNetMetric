@@ -189,7 +189,65 @@ export type ContactDetailDto = {
   rowVersion: string;
 };
 
-export type CustomerUpsertRequest = Record<string, unknown>;
-export type CompanyUpsertRequest = Record<string, unknown>;
-export type ContactUpsertRequest = Record<string, unknown>;
+export type CustomerUpsertRequest = {
+  firstName: string;
+  lastName: string;
+  title?: string | null;
+  email?: string | null;
+  mobilePhone?: string | null;
+  workPhone?: string | null;
+  personalPhone?: string | null;
+  birthDate?: string | null;
+  gender: GenderType;
+  department?: string | null;
+  jobTitle?: string | null;
+  description?: string | null;
+  notes?: string | null;
+  ownerUserId?: string | null;
+  customerType: CustomerType;
+  identityNumber?: string | null;
+  isVip: boolean;
+  companyId?: string | null;
+  rowVersion?: string | null;
+};
+
+export type CompanyUpsertRequest = {
+  name: string;
+  taxNumber?: string | null;
+  taxOffice?: string | null;
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  sector?: string | null;
+  employeeCountRange?: string | null;
+  annualRevenue?: number | null;
+  description?: string | null;
+  notes?: string | null;
+  companyType: CompanyType;
+  ownerUserId?: string | null;
+  parentCompanyId?: string | null;
+  rowVersion?: string | null;
+};
+
+export type ContactUpsertRequest = {
+  firstName: string;
+  lastName: string;
+  title?: string | null;
+  email?: string | null;
+  mobilePhone?: string | null;
+  workPhone?: string | null;
+  personalPhone?: string | null;
+  birthDate?: string | null;
+  gender: GenderType;
+  department?: string | null;
+  jobTitle?: string | null;
+  description?: string | null;
+  notes?: string | null;
+  ownerUserId?: string | null;
+  companyId?: string | null;
+  customerId?: string | null;
+  isPrimaryContact: boolean;
+  rowVersion?: string | null;
+};
+
 export type AddressUpsertRequest = Record<string, unknown>;
