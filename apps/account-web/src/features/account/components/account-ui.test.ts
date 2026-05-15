@@ -162,6 +162,7 @@ describe("Account forms and panels", () => {
   it("renders default avatar when avatar url is missing", () => {
     render(createElement(UserAvatar, { displayName: "Ada Lovelace", avatarUrl: null }));
     expect(screen.getByLabelText("Ada Lovelace default avatar")).toBeTruthy();
+    expect(screen.getByText("AL")).toBeTruthy();
   });
 
   it("exposes revoke-one and revoke-all-other actions", () => {

@@ -11,6 +11,7 @@ using NetMetric.Account.Contracts.Profiles;
 using NetMetric.Account.Domain.Common;
 using NetMetric.Account.Domain.Profiles;
 using NetMetric.Clock;
+using NetMetric.Media;
 using NetMetric.Media.Abstractions;
 using NetMetric.Media.Models;
 
@@ -42,23 +43,31 @@ public sealed class UploadMyAvatarCommandHandler(
             return Result<AvatarUploadResponse>.Failure(Error.NotFound("Profile"));
         }
 
-        var upload = await mediaAssetService.UploadImageAsync(
-            new MediaUploadRequest(
-                currentUser.TenantId.ToString(),
-                "avatar",
-                currentUser.UserId.ToString(),
-                command.FileName,
-                command.ContentType,
-                command.Content,
-                command.Length,
-                "account"),
-            cancellationToken);
+        MediaUploadResult upload;
+        try
+        {
+            upload = await mediaAssetService.UploadImageAsync(
+                new MediaUploadRequest(
+                    currentUser.TenantId.ToString(),
+                    "avatar",
+                    currentUser.UserId.ToString(),
+                    command.FileName,
+                    command.ContentType,
+                    command.Content,
+                    command.Length,
+                    "account"),
+                cancellationToken);
+        }
+        catch (MediaValidationException exception)
+        {
+            return Result<AvatarUploadResponse>.Failure(Error.Validation(exception.Message));
+        }
 
-        var safeFileName = Path.GetFileName(command.FileName);
+        var safeFileName = BuildSafeFileName(command.FileName, upload.Extension);
         var asset = AccountMediaAsset.CreateAvatar(
             tenantId,
             userId,
-            command.FileName,
+            safeFileName,
             safeFileName,
             upload.ContentType,
             upload.Extension,
@@ -85,6 +94,38 @@ public sealed class UploadMyAvatarCommandHandler(
             "avatar",
             asset.CreatedAtUtc));
     }
+
+    private static string BuildSafeFileName(string fileName, string extension)
+    {
+        var candidate = Path.GetFileName(fileName.Replace('\\', '/'));
+        var baseName = Path.GetFileNameWithoutExtension(candidate);
+        var safeBaseName = SanitizeFileNameSegment(baseName);
+        if (string.IsNullOrWhiteSpace(safeBaseName))
+        {
+            safeBaseName = "avatar";
+        }
+
+        var safeFileName = $"{safeBaseName}{extension}";
+        return safeFileName.Length <= 260 ? safeFileName : $"avatar{extension}";
+    }
+
+    private static string SanitizeFileNameSegment(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var chars = value
+            .Trim()
+            .Select(character => IsSafeFileNameCharacter(character) ? character : '-')
+            .ToArray();
+
+        return new string(chars).Trim('-', '.', '_');
+    }
+
+    private static bool IsSafeFileNameCharacter(char value) =>
+        value is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '_' or '.';
 }
 
 public sealed record RemoveMyAvatarCommand : IRequest<Result<bool>>;

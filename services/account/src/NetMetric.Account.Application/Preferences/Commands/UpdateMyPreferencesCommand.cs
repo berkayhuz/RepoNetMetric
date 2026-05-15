@@ -112,7 +112,6 @@ public sealed class UpdateMyPreferencesCommandHandler(
                 profile.FirstName,
                 profile.LastName,
                 profile.PhoneNumber,
-                profile.AvatarUrl,
                 profile.JobTitle,
                 profile.Department,
                 effectiveTimeZone,

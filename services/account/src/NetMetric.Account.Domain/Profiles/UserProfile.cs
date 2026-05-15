@@ -60,7 +60,6 @@ public sealed class UserProfile
         string firstName,
         string lastName,
         string? phoneNumber,
-        string? avatarUrl,
         string? jobTitle,
         string? department,
         string timeZone,
@@ -71,8 +70,6 @@ public sealed class UserProfile
         LastName = NormalizeRequired(lastName, 100, nameof(lastName));
         DisplayName = BuildDisplayName(FirstName, LastName);
         PhoneNumber = NormalizeOptional(phoneNumber, 32, nameof(phoneNumber));
-        AvatarUrl = NormalizeOptional(avatarUrl, 2048, nameof(avatarUrl));
-        AvatarMediaAssetId = AvatarUrl is null ? AvatarMediaAssetId : null;
         JobTitle = NormalizeOptional(jobTitle, 120, nameof(jobTitle));
         Department = NormalizeOptional(department, 120, nameof(department));
         TimeZone = NormalizeRequired(timeZone, 100, nameof(timeZone));

@@ -16,6 +16,8 @@ using NetMetric.Account.Domain.Common;
 using NetMetric.Account.Domain.Preferences;
 using NetMetric.Account.Domain.Profiles;
 using NetMetric.Clock;
+using NetMetric.Media.Abstractions;
+using NetMetric.Media.Models;
 
 namespace NetMetric.Account.Application.UnitTests;
 
@@ -73,6 +75,82 @@ public sealed class ProfileAndPreferencesCommandTests
     }
 
     [Fact]
+    public async Task UpdateMyProfile_ShouldPreserveExistingAvatar()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var current = CreateCurrentUser();
+        var profile = UserProfile.Create(TenantId.From(current.TenantId), UserId.From(current.UserId), "A", "B", now);
+        var assetId = Guid.NewGuid();
+        profile.AssignManagedAvatar(assetId, "https://cdn.netmetric.net/netmetric/media/avatar.png", now);
+
+        var handler = new NetMetric.Account.Application.Profiles.Commands.UpdateMyProfileCommandHandler(
+            MockCurrentUser(current),
+            Mock.Of<IClock>(c => c.UtcNow == now),
+            MockRepo(profile),
+            Mock.Of<IAccountDbContext>(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()) == Task.FromResult(1)),
+            Mock.Of<IConcurrencyTokenWriter>(),
+            Mock.Of<IAccountAuditWriter>());
+
+        var result = await handler.Handle(
+            new NetMetric.Account.Application.Profiles.Commands.UpdateMyProfileCommand(
+                new NetMetric.Account.Contracts.Profiles.UpdateMyProfileRequest(
+                    "Ada", "Lovelace", null, null, null, "Engineer", null, "UTC", "en-US", null)),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        profile.AvatarUrl.Should().Be("https://cdn.netmetric.net/netmetric/media/avatar.png");
+        profile.AvatarMediaAssetId.Should().Be(assetId);
+    }
+
+    [Fact]
+    public async Task UploadMyAvatar_ShouldStoreSafeFileNameAndLocalPublicUrl()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var current = CreateCurrentUser();
+        var profile = UserProfile.Create(TenantId.From(current.TenantId), UserId.From(current.UserId), "Ada", "Lovelace", now);
+        var mediaAssets = new List<AccountMediaAsset>();
+        var mediaAssetService = new Mock<IMediaAssetService>();
+        mediaAssetService
+            .Setup(x => x.UploadImageAsync(It.IsAny<MediaUploadRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MediaUploadResult(
+                "image/png",
+                ".png",
+                128,
+                new string('a', 64),
+                1,
+                1,
+                "LocalFile",
+                "netmetric/media/tenant/avatar/original.png",
+                "http://localhost:5301/uploads/netmetric/media/tenant/avatar/original.png"));
+
+        var handler = new NetMetric.Account.Application.Profiles.Commands.UploadMyAvatarCommandHandler(
+            MockCurrentUser(current),
+            Mock.Of<IClock>(c => c.UtcNow == now),
+            MockRepo(profile),
+            MockRepoList(mediaAssets),
+            Mock.Of<IAccountDbContext>(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()) == Task.FromResult(1)),
+            mediaAssetService.Object);
+
+        await using var content = new MemoryStream([0x89, 0x50, 0x4E, 0x47]);
+        var result = await handler.Handle(
+            new NetMetric.Account.Application.Profiles.Commands.UploadMyAvatarCommand(
+                "..\\secret.png",
+                "image/png",
+                content,
+                content.Length),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.PublicUrl.Should().Be("http://localhost:5301/uploads/netmetric/media/tenant/avatar/original.png");
+        result.Value.PublicUrl.Should().NotContain(Path.GetFullPath(".runlogs/media"));
+        mediaAssets.Should().ContainSingle();
+        mediaAssets[0].OriginalFileName.Should().Be("secret.png");
+        mediaAssets[0].SafeFileName.Should().Be("secret.png");
+        mediaAssets[0].OriginalFileName.Should().NotContain("..");
+        mediaAssets[0].OriginalFileName.Should().NotContain("\\");
+    }
+
+    [Fact]
     public async Task UpdateMyPreferences_ShouldRejectInaccessibleDefaultOrganization()
     {
         var now = DateTimeOffset.UtcNow;
@@ -104,6 +182,18 @@ public sealed class ProfileAndPreferencesCommandTests
     }
 
     [Fact]
+    public void UpdateMyProfileValidator_ShouldRejectAvatarUrlInput()
+    {
+        var validator = new NetMetric.Account.Application.Profiles.Commands.UpdateMyProfileCommandValidator();
+
+        var avatarUrlUpdate = validator.Validate(new NetMetric.Account.Application.Profiles.Commands.UpdateMyProfileCommand(
+            new NetMetric.Account.Contracts.Profiles.UpdateMyProfileRequest(
+                "Ada", "Lovelace", null, null, "https://evil.example/avatar.png", null, null, "UTC", "en-US", null)));
+
+        avatarUrlUpdate.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
     public void UpdateMyPreferencesValidator_ShouldEnforceOptionGuards()
     {
         var validator = new UpdateMyPreferencesCommandValidator();
@@ -129,6 +219,12 @@ public sealed class ProfileAndPreferencesCommandTests
         where TEntity : class
     {
         var list = new List<TEntity> { entity };
+        return MockRepoList(list);
+    }
+
+    private static IRepository<IAccountDbContext, TEntity> MockRepoList<TEntity>(List<TEntity> list)
+        where TEntity : class
+    {
         var mock = new Mock<IRepository<IAccountDbContext, TEntity>>();
         mock.SetupGet(x => x.Query).Returns(new TestAsyncEnumerable<TEntity>(list));
         mock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<Func<TEntity, bool>>>(), It.IsAny<CancellationToken>()))

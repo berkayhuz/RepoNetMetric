@@ -4,6 +4,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using NetMetric.Account.Api.DependencyInjection;
@@ -17,6 +18,7 @@ using NetMetric.Account.Persistence.DependencyInjection;
 using NetMetric.Account.Persistence.Options;
 using NetMetric.AspNetCore.Health;
 using NetMetric.AspNetCore.Localization.DependencyInjection;
+using NetMetric.Media.Options;
 
 if (args.Contains("--healthcheck", StringComparer.OrdinalIgnoreCase))
 {
@@ -84,6 +86,7 @@ app.UseNetMetricLocalization();
 app.UseAccountOperationalHardening();
 app.UseAccountExceptionHandling();
 app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseDevelopmentLocalMedia();
 app.UseAuthentication();
 app.UseMiddleware<SessionActivityMiddleware>();
 app.UseAuthorization();
@@ -130,6 +133,39 @@ static void ValidateProductionHosts(IConfiguration configuration, IHostEnvironme
             host.Contains("TEST", StringComparison.OrdinalIgnoreCase)))
     {
         throw new InvalidOperationException("AllowedHosts must name production Account API hosts outside Development.");
+    }
+}
+
+internal static class LocalMediaApplicationBuilderExtensions
+{
+    public static IApplicationBuilder UseDevelopmentLocalMedia(this WebApplication app)
+    {
+        if (!app.Environment.IsDevelopment() &&
+            !app.Environment.IsEnvironment("Test") &&
+            !app.Environment.IsEnvironment("Testing"))
+        {
+            return app;
+        }
+
+        var mediaOptions = app.Services.GetRequiredService<IOptions<MediaOptions>>().Value;
+        if (!string.Equals(mediaOptions.StorageProvider, "LocalFile", StringComparison.OrdinalIgnoreCase))
+        {
+            return app;
+        }
+
+        var rootPath = Path.GetFullPath(mediaOptions.Local.RootPath);
+        Directory.CreateDirectory(rootPath);
+
+        return app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(rootPath),
+            RequestPath = mediaOptions.Local.RequestPath,
+            ServeUnknownFileTypes = false,
+            OnPrepareResponse = context =>
+            {
+                context.Context.Response.Headers.CacheControl = "public, max-age=300";
+            }
+        });
     }
 }
 

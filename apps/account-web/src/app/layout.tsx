@@ -75,18 +75,16 @@ export default async function RootLayout({
   const uiPreferences = await resolveUiPreferences();
   return (
     <html lang={uiPreferences.lang} className={inter.variable} suppressHydrationWarning>
-      <head>
-        <Script
-          id="netmetric-theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
-        />
-      </head>
       <body>
         <ThemeProvider defaultTheme={uiPreferences.theme}>
           <AccountShell localeName={uiPreferences.localeName}>{children}</AccountShell>
         </ThemeProvider>
       </body>
+      <Script
+        id="netmetric-theme-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+      />
     </html>
   );
 }

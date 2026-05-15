@@ -4,6 +4,7 @@
 // </copyright>
 
 using Microsoft.Extensions.Options;
+using NetMetric.Media;
 using NetMetric.Media.Abstractions;
 using NetMetric.Media.Models;
 using NetMetric.Media.Options;
@@ -23,7 +24,7 @@ public sealed class MediaAssetService(
         var validation = await imageValidator.ValidateAsync(request.OriginalFileName, request.ContentType, request.Content, request.Length, cancellationToken);
         if (!validation.IsValid || string.IsNullOrWhiteSpace(validation.CanonicalContentType) || string.IsNullOrWhiteSpace(validation.Extension))
         {
-            throw new InvalidOperationException(validation.FailureReason ?? "Image validation failed.");
+            throw new MediaValidationException(validation.FailureReason ?? "Image validation failed.");
         }
 
         var tenantSegment = SanitizePathSegment(request.TenantId);

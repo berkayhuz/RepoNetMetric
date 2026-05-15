@@ -65,7 +65,6 @@ export async function updateProfileAction(
     lastName: readRequiredString(formData, "lastName"),
     phoneCountryIso2: readOptionalString(formData, "phoneCountryIso2"),
     phoneNationalNumber: readOptionalString(formData, "phoneNationalNumber"),
-    avatarUrl: readOptionalString(formData, "avatarUrl"),
     jobTitle: readOptionalString(formData, "jobTitle"),
     department: readOptionalString(formData, "department"),
     timeZone: readRequiredString(formData, "timeZone"),

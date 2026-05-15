@@ -28,7 +28,9 @@ public sealed class UpdateMyProfileCommandValidator : AbstractValidator<UpdateMy
         RuleFor(x => x.Request.LastName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Request.PhoneCountryIso2).MaximumLength(2);
         RuleFor(x => x.Request.PhoneNationalNumber).MaximumLength(32);
-        RuleFor(x => x.Request.AvatarUrl).MaximumLength(2048);
+        RuleFor(x => x.Request.AvatarUrl)
+            .Must(string.IsNullOrWhiteSpace)
+            .WithMessage("Avatar URL is managed by the avatar upload endpoints.");
         RuleFor(x => x.Request.JobTitle).MaximumLength(120);
         RuleFor(x => x.Request.Department).MaximumLength(120);
         RuleFor(x => x.Request.TimeZone).NotEmpty().MaximumLength(100);
@@ -85,7 +87,6 @@ public sealed class UpdateMyProfileCommandHandler(
             command.Request.FirstName,
             command.Request.LastName,
             normalizedPhone,
-            command.Request.AvatarUrl,
             command.Request.JobTitle,
             command.Request.Department,
             effectiveTimeZone,

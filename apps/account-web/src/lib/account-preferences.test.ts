@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getThemeInitScript } from "@netmetric/ui";
 
 import { formatAccountDateTime } from "./account-date";
 import { mapAccountLanguageToLocale, mapAccountThemeToUiTheme } from "./account-locale";
@@ -37,5 +38,14 @@ describe("account date and ui preference mapping", () => {
     expect(mapAccountThemeToUiTheme("Dark")).toBe("dark");
     expect(mapAccountThemeToUiTheme("Light")).toBe("light");
     expect(mapAccountThemeToUiTheme("Unknown")).toBe("system");
+  });
+
+  it("keeps the theme init script aligned with theme preference values", () => {
+    const script = getThemeInitScript();
+
+    expect(script).toContain("netmetric-theme");
+    expect(script).toContain("stored==='light'||stored==='dark'||stored==='system'");
+    expect(script).toContain("matchMedia('(prefers-color-scheme: dark)'");
+    expect(script).toContain("classList.toggle('dark'");
   });
 });
