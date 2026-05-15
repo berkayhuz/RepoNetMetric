@@ -439,7 +439,8 @@
           "NetMetric.Account.Domain": "[1.0.0, )",
           "NetMetric.Clock": "[1.0.0, )",
           "NetMetric.Localization": "[1.0.0, )",
-          "NetMetric.Media": "[1.0.0, )"
+          "NetMetric.Media": "[1.0.0, )",
+          "libphonenumber-csharp": "[9.0.6, )"
         }
       },
       "netmetric.account.contracts": {
@@ -475,6 +476,12 @@
           "FluentValidation": "12.1.1",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "2.1.0"
         }
+      },
+      "libphonenumber-csharp": {
+        "type": "CentralTransitive",
+        "requested": "[9.0.6, )",
+        "resolved": "9.0.6",
+        "contentHash": "xCVdtoYkcnkVhCSZd3llz9Z2A9jM4TZR2c4DpDweGvLkxNBCFkpSXuR6fzeWKThcMjg0oA3fwdOKCU8FK+Krxw=="
       },
       "MediatR": {
         "type": "CentralTransitive",

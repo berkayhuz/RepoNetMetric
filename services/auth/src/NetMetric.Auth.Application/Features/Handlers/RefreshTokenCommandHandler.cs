@@ -139,7 +139,9 @@ public sealed class RefreshTokenCommandHandler(
             membership.GetRoles(),
             membership.GetPermissions(),
             tenant.Id,
-            session.Id);
+            session.Id,
+            new DateTimeOffset(session.CreatedAt, TimeSpan.Zero),
+            user.MfaEnabled ? ["pwd", "mfa"] : ["pwd"]);
 
         return new AuthenticationTokenResponse(
             accessToken.Token,

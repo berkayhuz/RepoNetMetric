@@ -18,6 +18,12 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "2.1.0"
         }
       },
+      "libphonenumber-csharp": {
+        "type": "Direct",
+        "requested": "[9.0.6, )",
+        "resolved": "9.0.6",
+        "contentHash": "xCVdtoYkcnkVhCSZd3llz9Z2A9jM4TZR2c4DpDweGvLkxNBCFkpSXuR6fzeWKThcMjg0oA3fwdOKCU8FK+Krxw=="
+      },
       "MediatR": {
         "type": "Direct",
         "requested": "[14.1.0, )",

@@ -2,8 +2,18 @@ import Link from "next/link";
 import { Badge, Heading, Text } from "@netmetric/ui";
 
 import { accountRoutes } from "@/features/account/config/account-routes";
+import { getCurrentAccountSession } from "@/lib/auth/account-session";
+import { UserAvatar } from "./user-avatar";
 
-export function AccountHeader() {
+type AccountHeaderProps = {
+  localeName: string;
+};
+
+export async function AccountHeader({ localeName }: AccountHeaderProps) {
+  const session = await getCurrentAccountSession();
+  const displayName = session.authenticated ? session.overview.displayName : "Account user";
+  const avatarUrl = session.authenticated ? session.overview.avatarUrl : null;
+
   return (
     <header className="border-b border-border/80 bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -12,9 +22,14 @@ export function AccountHeader() {
             <Heading level={1} className="text-xl">
               NetMetric Account
             </Heading>
-            <Text className="text-sm text-muted-foreground">Account portal scaffold</Text>
+            <Text className="text-sm text-muted-foreground">
+              Account portal scaffold · {localeName}
+            </Text>
           </div>
-          <Badge variant="secondary">Phase 1</Badge>
+          <div className="flex items-center gap-3">
+            <UserAvatar displayName={displayName} avatarUrl={avatarUrl ?? null} />
+            <Badge variant="secondary">Phase 1</Badge>
+          </div>
         </div>
         <nav aria-label="Account navigation">
           <ul className="flex flex-wrap gap-2">

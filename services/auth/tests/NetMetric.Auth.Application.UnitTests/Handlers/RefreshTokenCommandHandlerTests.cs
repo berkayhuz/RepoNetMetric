@@ -143,7 +143,9 @@ public sealed class RefreshTokenCommandHandlerTests
                 It.IsAny<IReadOnlyCollection<string>>(),
                 It.IsAny<IReadOnlyCollection<string>>(),
                 tenantId,
-                session.Id))
+                session.Id,
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<IReadOnlyCollection<string>?>()))
             .Returns(AuthTestDataBuilder.AccessTokenDescriptor("new-access-token"));
 
         var sut = fixture.CreateSut();

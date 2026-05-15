@@ -20,9 +20,10 @@ public sealed class HttpCurrentUserAccessor(IHttpContextAccessor httpContextAcce
         var tenantId = ReadGuid(user, "tenant_id") ?? ReadGuid(user, "tenantId");
         var userId = ReadGuid(user, ClaimTypes.NameIdentifier) ?? ReadGuid(user, "sub") ?? ReadGuid(user, "user_id");
         var sessionId = ReadGuid(user, "sid") ?? ReadGuid(user, "session_id");
-        var authenticatedAt = ReadUnixTime(user, "auth_time");
+        var authenticatedAt = ReadUnixTime(user, "auth_time")
+            ?? ReadUnixTime(user, ClaimTypes.AuthenticationInstant);
         var methods = user.Claims
-            .Where(claim => claim.Type == "amr")
+            .Where(claim => claim.Type == "amr" || claim.Type == ClaimTypes.AuthenticationMethod)
             .Select(claim => claim.Value)
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .Distinct(StringComparer.OrdinalIgnoreCase)

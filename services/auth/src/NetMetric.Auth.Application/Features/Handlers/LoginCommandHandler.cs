@@ -297,7 +297,9 @@ public sealed class LoginCommandHandler(
             membership.GetRoles(),
             membership.GetPermissions(),
             tenant.Id,
-            session.Id);
+            session.Id,
+            new DateTimeOffset(utcNow, TimeSpan.Zero),
+            ResolveAuthenticationMethods(user, request));
         return new AuthenticationTokenResponse(
             accessToken.Token,
             accessToken.ExpiresAtUtc,
@@ -410,4 +412,14 @@ public sealed class LoginCommandHandler(
             "Multi-factor authentication challenge is required for this account.",
             (int)HttpStatusCode.Unauthorized,
             errorCode: "mfa_required");
+
+    private static IReadOnlyCollection<string> ResolveAuthenticationMethods(User user, LoginCommand request)
+    {
+        if (user.MfaEnabled && (!string.IsNullOrWhiteSpace(request.MfaCode) || !string.IsNullOrWhiteSpace(request.RecoveryCode)))
+        {
+            return ["pwd", "mfa"];
+        }
+
+        return ["pwd"];
+    }
 }

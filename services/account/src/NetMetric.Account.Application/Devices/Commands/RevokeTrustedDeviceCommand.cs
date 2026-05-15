@@ -38,6 +38,18 @@ public sealed class RevokeTrustedDeviceCommandHandler(
             return reauth;
         }
 
+        var allDevices = await identityAccountClient.GetTrustedDevicesAsync(currentUser.TenantId, currentUser.UserId, cancellationToken);
+        var targetDevice = allDevices.Items.FirstOrDefault(x => x.Id == command.DeviceId);
+        if (targetDevice is null)
+        {
+            return Result.Failure(Error.NotFound("Trusted device"));
+        }
+
+        if (targetDevice.IsCurrent)
+        {
+            return Result.Failure(Error.Validation("Current trusted device cannot be revoked from this endpoint."));
+        }
+
         var revoked = await identityAccountClient.RevokeTrustedDeviceAsync(
             currentUser.TenantId,
             currentUser.UserId,

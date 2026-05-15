@@ -123,3 +123,30 @@ export async function revokeTrustedDeviceAction(
     return mapSessionMutationError(error, "/security/sessions");
   }
 }
+
+export async function revokeOtherTrustedDevicesAction(
+  _previous: MutationState,
+  formData: FormData,
+): Promise<MutationState> {
+  await assertSameOriginRequest();
+  const confirm = readRequiredString(formData, "confirm");
+  if (confirm !== "revoke-other-devices") {
+    return {
+      status: "error",
+      message: "Please confirm before revoking other trusted devices.",
+    };
+  }
+
+  try {
+    const requestOptions = await getAccountApiRequestOptions();
+    await accountApiClient.revokeOtherTrustedDevices(requestOptions);
+    revalidatePath("/security");
+    revalidatePath("/security/sessions");
+    return {
+      status: "success",
+      message: "Other trusted devices were revoked successfully.",
+    };
+  } catch (error) {
+    return mapSessionMutationError(error, "/security/sessions");
+  }
+}

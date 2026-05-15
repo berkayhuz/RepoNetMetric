@@ -172,7 +172,9 @@ public sealed class LoginCommandHandlerTests
                 It.IsAny<IReadOnlyCollection<string>>(),
                 It.IsAny<IReadOnlyCollection<string>>(),
                 tenantId,
-                It.IsAny<Guid>()))
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<IReadOnlyCollection<string>?>()))
             .Returns(accessDescriptor);
 
         var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
@@ -261,7 +263,9 @@ public sealed class LoginCommandHandlerTests
                 It.IsAny<IReadOnlyCollection<string>>(),
                 It.IsAny<IReadOnlyCollection<string>>(),
                 tenantId,
-                It.IsAny<Guid>()))
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<IReadOnlyCollection<string>?>()))
             .Returns(accessDescriptor);
 
         var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);
@@ -305,7 +309,9 @@ public sealed class LoginCommandHandlerTests
                 It.IsAny<IReadOnlyCollection<string>>(),
                 It.IsAny<IReadOnlyCollection<string>>(),
                 tenantId,
-                It.IsAny<Guid>()))
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<IReadOnlyCollection<string>?>()))
             .Returns(accessDescriptor);
 
         var sut = fixture.CreateSut(requireConfirmedEmailForLogin: false);

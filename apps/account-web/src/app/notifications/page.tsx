@@ -1,4 +1,5 @@
 import { NotificationsManagementPanel } from "@/features/account/components/notifications-management-panel";
+import { getAccountDateSettingsForPage } from "@/features/account/data/account-read-data";
 import {
   getNotificationPreferencesForPage,
   getNotificationsForPage,
@@ -33,11 +34,13 @@ export default async function NotificationsPage({ searchParams }: NotificationsP
 
   let notifications;
   let preferences;
+  let dateSettings;
 
   try {
-    [notifications, preferences] = await Promise.all([
+    [notifications, preferences, dateSettings] = await Promise.all([
       getNotificationsForPage(activeFilter === "all" ? undefined : activeFilter),
       getNotificationPreferencesForPage(),
+      getAccountDateSettingsForPage(),
     ]);
   } catch (error) {
     handleAccountApiPageError(error);
@@ -48,6 +51,7 @@ export default async function NotificationsPage({ searchParams }: NotificationsP
       notifications={notifications}
       preferences={preferences}
       activeFilter={activeFilter}
+      dateSettings={dateSettings}
     />
   );
 }

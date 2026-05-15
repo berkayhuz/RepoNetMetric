@@ -9,6 +9,7 @@ export type AccountApiEndpoint = {
 
 export const accountApiEndpoints = {
   overview: { method: "GET", path: "/api/v1/account/overview" },
+  optionsGet: { method: "GET", path: "/api/v1/account/options" },
   profileGet: { method: "GET", path: "/api/v1/account/profile" },
   profileUpdate: { method: "PUT", path: "/api/v1/account/profile" },
   profileAvatarUpload: { method: "POST", path: "/api/v1/account/profile/avatar" },
@@ -26,6 +27,10 @@ export const accountApiEndpoints = {
     method: "DELETE",
     path: `/api/v1/account/devices/trusted/${encodeURIComponent(deviceId)}`,
   }),
+  trustedDevicesRevokeOthers: {
+    method: "POST",
+    path: "/api/v1/account/devices/trusted/revoke-others",
+  },
   securityPasswordChange: { method: "POST", path: "/api/v1/account/security/password/change" },
   securityEmailChangeRequest: {
     method: "POST",

@@ -28,7 +28,9 @@ public sealed class JwtAccessTokenFactory(
             user.GetRoles(),
             user.GetPermissions(),
             tenantId,
-            sessionId);
+            sessionId,
+            authenticatedAt: null,
+            authenticationMethods: null);
 
     public AccessTokenDescriptor Create(
         Guid userId,
@@ -38,11 +40,17 @@ public sealed class JwtAccessTokenFactory(
         IReadOnlyCollection<string> roles,
         IReadOnlyCollection<string> permissions,
         Guid tenantId,
-        Guid sessionId)
+        Guid sessionId,
+        DateTimeOffset? authenticatedAt = null,
+        IReadOnlyCollection<string>? authenticationMethods = null)
     {
         var utcNow = clock.UtcDateTime;
         var expiresAt = utcNow.AddMinutes(jwtOptions.Value.AccessTokenMinutes);
         var credentials = tokenSigningKeyProvider.GetCurrentSigningCredentials();
+        var authAt = authenticatedAt ?? utcNow;
+        var amr = authenticationMethods is { Count: > 0 }
+            ? authenticationMethods
+            : ["pwd"];
 
         var claims = new List<Claim>
         {
@@ -52,11 +60,13 @@ public sealed class JwtAccessTokenFactory(
             new("tenant_id", tenantId.ToString()),
             new(JwtRegisteredClaimNames.Sid, sessionId.ToString()),
             new("token_version", tokenVersion.ToString()),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N"))
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+            new(JwtRegisteredClaimNames.AuthTime, authAt.ToUnixTimeSeconds().ToString())
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         claims.AddRange(permissions.Select(permission => new Claim("permission", permission)));
+        claims.AddRange(amr.Select(method => new Claim("amr", method)));
 
         var token = new JwtSecurityToken(
             issuer: jwtOptions.Value.Issuer,

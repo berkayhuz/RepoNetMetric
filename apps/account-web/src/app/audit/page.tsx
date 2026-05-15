@@ -1,4 +1,5 @@
 import { AuditActivityPanel } from "@/features/account/components/audit-activity-panel";
+import { getAccountDateSettingsForPage } from "@/features/account/data/account-read-data";
 import { getAuditEntriesForPage } from "@/features/account/data/audit-data";
 import { handleAccountApiPageError } from "@/lib/auth/handle-account-api-page-error";
 import { requireAccountSession } from "@/lib/auth/require-account-session";
@@ -39,20 +40,29 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   const limit = normalizeLimit(readStringParam(resolvedSearchParams?.limit));
 
   let auditEntries;
+  let dateSettings;
   try {
-    auditEntries = await getAuditEntriesForPage(
-      eventType
-        ? {
-            limit,
-            eventType,
-          }
-        : { limit },
-    );
+    [auditEntries, dateSettings] = await Promise.all([
+      getAuditEntriesForPage(
+        eventType
+          ? {
+              limit,
+              eventType,
+            }
+          : { limit },
+      ),
+      getAccountDateSettingsForPage(),
+    ]);
   } catch (error) {
     handleAccountApiPageError(error);
   }
 
   return (
-    <AuditActivityPanel audit={auditEntries} activeEventType={eventType} activeLimit={limit} />
+    <AuditActivityPanel
+      audit={auditEntries}
+      activeEventType={eventType}
+      activeLimit={limit}
+      dateSettings={dateSettings}
+    />
   );
 }

@@ -19,5 +19,7 @@ public interface IAccessTokenFactory
         IReadOnlyCollection<string> roles,
         IReadOnlyCollection<string> permissions,
         Guid tenantId,
-        Guid sessionId);
+        Guid sessionId,
+        DateTimeOffset? authenticatedAt = null,
+        IReadOnlyCollection<string>? authenticationMethods = null);
 }

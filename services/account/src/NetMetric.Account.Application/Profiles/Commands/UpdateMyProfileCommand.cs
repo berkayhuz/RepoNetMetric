@@ -26,7 +26,8 @@ public sealed class UpdateMyProfileCommandValidator : AbstractValidator<UpdateMy
     {
         RuleFor(x => x.Request.FirstName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Request.LastName).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Request.PhoneNumber).MaximumLength(32);
+        RuleFor(x => x.Request.PhoneCountryIso2).MaximumLength(2);
+        RuleFor(x => x.Request.PhoneNationalNumber).MaximumLength(32);
         RuleFor(x => x.Request.AvatarUrl).MaximumLength(2048);
         RuleFor(x => x.Request.JobTitle).MaximumLength(120);
         RuleFor(x => x.Request.Department).MaximumLength(120);
@@ -72,10 +73,18 @@ public sealed class UpdateMyProfileCommandHandler(
         }
 
         var effectiveTimeZone = TimeZoneNormalizer.NormalizeOrDefault(command.Request.TimeZone);
+        var normalizedPhone = PhoneNumberNormalizer.Normalize(command.Request.PhoneCountryIso2, command.Request.PhoneNationalNumber);
+        if (!string.IsNullOrWhiteSpace(command.Request.PhoneCountryIso2) || !string.IsNullOrWhiteSpace(command.Request.PhoneNationalNumber))
+        {
+            if (normalizedPhone is null)
+            {
+                return Result<MyProfileResponse>.Failure(Error.Validation("Phone number is invalid for the selected country."));
+            }
+        }
         profile.Update(
             command.Request.FirstName,
             command.Request.LastName,
-            command.Request.PhoneNumber,
+            normalizedPhone,
             command.Request.AvatarUrl,
             command.Request.JobTitle,
             command.Request.Department,

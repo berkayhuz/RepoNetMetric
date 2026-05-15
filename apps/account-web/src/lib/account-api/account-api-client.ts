@@ -8,6 +8,7 @@ import { normalizeProblemDetails } from "./problem-details";
 import type {
   AcceptConsentRequest,
   AccountApiAuthContext,
+  AccountOptionsResponse,
   AccountApiRequestOptions,
   AccountAuditEntriesResponse,
   AccountInvitationResponse,
@@ -224,6 +225,14 @@ export const accountApiClient = {
     });
   },
 
+  getOptions(options: AccountApiRequestOptions = {}) {
+    return request<AccountOptionsResponse>({
+      method: accountApiEndpoints.optionsGet.method,
+      path: accountApiEndpoints.optionsGet.path,
+      ...options,
+    });
+  },
+
   getProfile(options: AccountApiRequestOptions = {}) {
     return request<MyProfileResponse>({
       method: accountApiEndpoints.profileGet.method,
@@ -313,6 +322,14 @@ export const accountApiClient = {
     return request<void>({
       method: endpoint.method,
       path: endpoint.path,
+      ...options,
+    });
+  },
+
+  revokeOtherTrustedDevices(options: AccountApiRequestOptions = {}) {
+    return request<void>({
+      method: accountApiEndpoints.trustedDevicesRevokeOthers.method,
+      path: accountApiEndpoints.trustedDevicesRevokeOthers.path,
       ...options,
     });
   },

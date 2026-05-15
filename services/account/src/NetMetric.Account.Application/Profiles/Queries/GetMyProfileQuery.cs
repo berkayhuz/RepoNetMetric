@@ -12,6 +12,7 @@ using NetMetric.Account.Contracts.Profiles;
 using NetMetric.Account.Domain.Common;
 using NetMetric.Account.Domain.Profiles;
 using NetMetric.Clock;
+using NetMetric.Localization;
 
 namespace NetMetric.Account.Application.Profiles.Queries;
 
@@ -60,7 +61,10 @@ public sealed class GetMyProfileQueryHandler(
 internal static class ProfileMapper
 {
     public static MyProfileResponse ToResponse(UserProfile profile)
-        => new(
+    {
+        var (iso2, callingCode, nationalNumber) = PhoneNumberNormalizer.Split(profile.PhoneNumber);
+        var culture = NetMetricCultures.NormalizeOrDefault(profile.Culture);
+        return new(
             profile.Id,
             profile.TenantId.Value,
             profile.UserId.Value,
@@ -68,10 +72,14 @@ internal static class ProfileMapper
             profile.LastName,
             profile.DisplayName,
             profile.PhoneNumber,
+            iso2,
+            callingCode,
+            nationalNumber,
             profile.AvatarUrl,
             profile.JobTitle,
             profile.Department,
             TimeZoneNormalizer.NormalizeOrDefault(profile.TimeZone),
-            profile.Culture,
+            culture,
             VersionEncoding.Encode(profile.Version));
+    }
 }

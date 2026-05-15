@@ -33,6 +33,11 @@ public sealed class RevokeSessionCommandHandler(
         }
 
         var currentUser = currentUserAccessor.GetRequired();
+        if (currentUser.SessionId == command.SessionId)
+        {
+            return Result.Failure(Error.Validation("Current active session cannot be revoked from this endpoint."));
+        }
+
         var tenantId = TenantId.From(currentUser.TenantId);
         var userId = UserId.From(currentUser.UserId);
 

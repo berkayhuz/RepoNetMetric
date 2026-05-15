@@ -7,6 +7,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Audit;
+using NetMetric.Account.Application.Abstractions.Membership;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Common;
@@ -37,6 +38,9 @@ public sealed class UpdateMyPreferencesCommandValidator : AbstractValidator<Upda
             .Must(TimeZoneNormalizer.IsValid)
             .WithMessage("Time zone must be a valid system time zone identifier.");
         RuleFor(x => x.Request.DateFormat).NotEmpty().MaximumLength(40);
+        RuleFor(x => x.Request.DateFormat)
+            .Must(value => AccountOptionsCatalog.GetDateFormats().Any(x => string.Equals(x.Value, value, StringComparison.Ordinal)))
+            .WithMessage("Date format must be one of the supported formats.");
     }
 }
 
@@ -45,6 +49,7 @@ public sealed class UpdateMyPreferencesCommandHandler(
     IClock clock,
     IRepository<IAccountDbContext, UserPreference> preferences,
     IRepository<IAccountDbContext, UserProfile> profiles,
+    IMembershipReadService membershipReadService,
     IAccountDbContext dbContext,
     IConcurrencyTokenWriter concurrencyTokenWriter,
     IAccountAuditWriter auditWriter)
@@ -76,12 +81,22 @@ public sealed class UpdateMyPreferencesCommandHandler(
         var theme = Enum.Parse<ThemePreference>(command.Request.Theme, true);
         var culture = NetMetricCultures.NormalizeOrDefault(command.Request.Language);
         var effectiveTimeZone = TimeZoneNormalizer.NormalizeOrDefault(command.Request.TimeZone);
+        var requestedDefaultOrganizationId = command.Request.DefaultOrganizationId;
+        if (requestedDefaultOrganizationId.HasValue)
+        {
+            var organizations = await membershipReadService.GetMyOrganizationsAsync(currentUser.TenantId, currentUser.UserId, cancellationToken);
+            var isAuthorized = organizations.Any(x => x.OrganizationId == requestedDefaultOrganizationId.Value);
+            if (!isAuthorized)
+            {
+                return Result<UserPreferenceResponse>.Failure(Error.Forbidden());
+            }
+        }
         preference.Update(
             theme,
             culture,
             effectiveTimeZone,
             command.Request.DateFormat,
-            command.Request.DefaultOrganizationId,
+            requestedDefaultOrganizationId,
             clock.UtcNow);
 
         var profile = await profiles.FirstOrDefaultAsync(x => x.TenantId == tenantId && x.UserId == userId, cancellationToken);

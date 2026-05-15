@@ -18,17 +18,23 @@ import {
   FieldLabel,
   FieldSet,
   Heading,
-  Input,
+  NativeSelect,
   Text,
 } from "@netmetric/ui";
 
-import type { UserPreferenceResponse } from "@/lib/account-api";
+import type {
+  AccountOptionsResponse,
+  OrganizationMembershipSummaryResponse,
+  UserPreferenceResponse,
+} from "@/lib/account-api";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { ReadOnlyValue } from "./read-only-value";
 
 type PreferencesEditFormProps = {
   preferences: UserPreferenceResponse;
+  options: AccountOptionsResponse;
+  organizations: OrganizationMembershipSummaryResponse[];
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
 };
 
@@ -42,7 +48,12 @@ function SubmitButton() {
   );
 }
 
-export function PreferencesEditForm({ preferences, action }: PreferencesEditFormProps) {
+export function PreferencesEditForm({
+  preferences,
+  options,
+  organizations,
+  action,
+}: PreferencesEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
 
   return (
@@ -78,41 +89,58 @@ export function PreferencesEditForm({ preferences, action }: PreferencesEditForm
           <form action={formAction} className="space-y-4" noValidate>
             <input type="hidden" name="version" value={preferences.version} />
             <FieldSet className="grid gap-4 sm:grid-cols-2">
-              <FormField
+              <SelectField
                 id="language"
                 name="language"
                 label="Language"
                 defaultValue={preferences.language}
                 error={state.fieldErrors?.language?.[0]}
+                options={options.languages}
               />
-              <FormField
+              <SelectField
                 id="timeZone"
                 name="timeZone"
                 label="Time zone"
                 defaultValue={preferences.timeZone}
                 error={state.fieldErrors?.timeZone?.[0]}
+                options={options.timeZones}
               />
-              <FormField
+              <SelectField
                 id="theme"
                 name="theme"
                 label="Theme"
                 defaultValue={preferences.theme}
                 error={state.fieldErrors?.theme?.[0]}
+                options={options.themes}
               />
-              <FormField
+              <SelectField
                 id="dateFormat"
                 name="dateFormat"
                 label="Date format"
                 defaultValue={preferences.dateFormat}
                 error={state.fieldErrors?.dateFormat?.[0]}
+                options={options.dateFormats}
               />
-              <FormField
-                id="defaultOrganizationId"
-                name="defaultOrganizationId"
-                label="Default organization ID"
-                defaultValue={preferences.defaultOrganizationId ?? ""}
-                error={state.fieldErrors?.defaultOrganizationId?.[0]}
-              />
+              <Field>
+                <FieldLabel htmlFor="defaultOrganizationId">Default organization</FieldLabel>
+                <FieldContent>
+                  <NativeSelect
+                    id="defaultOrganizationId"
+                    name="defaultOrganizationId"
+                    defaultValue={preferences.defaultOrganizationId ?? ""}
+                  >
+                    <option value="">No default organization</option>
+                    {organizations.map((org) => (
+                      <option key={org.organizationId} value={org.organizationId}>
+                        {org.organizationName}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <FieldError id="defaultOrganizationId-error">
+                    {state.fieldErrors?.defaultOrganizationId?.[0]}
+                  </FieldError>
+                </FieldContent>
+              </Field>
             </FieldSet>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -138,28 +166,32 @@ export function PreferencesEditForm({ preferences, action }: PreferencesEditForm
   );
 }
 
-type FormFieldProps = {
+function SelectField({
+  id,
+  name,
+  label,
+  defaultValue,
+  error,
+  options,
+}: {
   id: string;
   name: string;
   label: string;
   defaultValue: string;
   error: string | undefined;
-};
-
-function FormField({ id, name, label, defaultValue, error }: FormFieldProps) {
-  const describedBy = error ? `${id}-error` : undefined;
-
+  options: { value: string; label: string }[];
+}) {
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <FieldContent>
-        <Input
-          id={id}
-          name={name}
-          defaultValue={defaultValue}
-          aria-invalid={Boolean(error)}
-          aria-describedby={describedBy}
-        />
+        <NativeSelect id={id} name={name} defaultValue={defaultValue} aria-invalid={Boolean(error)}>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </NativeSelect>
         <FieldError id={`${id}-error`}>{error}</FieldError>
       </FieldContent>
     </Field>

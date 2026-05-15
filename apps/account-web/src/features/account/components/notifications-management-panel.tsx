@@ -18,6 +18,7 @@ import type {
   AccountNotificationsResponse,
   NotificationPreferencesResponse,
 } from "@/lib/account-api";
+import type { AccountDateSettings } from "@/lib/account-date";
 
 import { markAllNotificationsAsReadAction } from "../actions/notification-actions";
 import { initialMutationState } from "../actions/mutation-state";
@@ -29,6 +30,7 @@ type NotificationsManagementPanelProps = {
   notifications: AccountNotificationsResponse;
   preferences: NotificationPreferencesResponse;
   activeFilter: "all" | "unread" | "read";
+  dateSettings: AccountDateSettings;
 };
 
 function MarkAllButton() {
@@ -44,6 +46,7 @@ export function NotificationsManagementPanel({
   notifications,
   preferences,
   activeFilter,
+  dateSettings,
 }: NotificationsManagementPanelProps) {
   const [markAllState, markAllAction] = useActionState(
     markAllNotificationsAsReadAction,
@@ -94,7 +97,7 @@ export function NotificationsManagementPanel({
         </CardContent>
       </Card>
 
-      <NotificationList notifications={notifications} />
+      <NotificationList notifications={notifications} dateSettings={dateSettings} />
       <NotificationPreferencesPanel preferences={preferences} />
     </section>
   );

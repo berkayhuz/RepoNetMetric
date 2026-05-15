@@ -19,10 +19,11 @@ import {
   FieldSet,
   Heading,
   Input,
+  NativeSelect,
   Text,
 } from "@netmetric/ui";
 
-import type { MyProfileResponse } from "@/lib/account-api";
+import type { AccountOptionsResponse, MyProfileResponse } from "@/lib/account-api";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { AvatarManagementPanel } from "./avatar-management-panel";
@@ -30,6 +31,7 @@ import { ReadOnlyValue } from "./read-only-value";
 
 type ProfileEditFormProps = {
   profile: MyProfileResponse;
+  options: AccountOptionsResponse;
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
 };
 
@@ -43,7 +45,7 @@ function SubmitButton() {
   );
 }
 
-export function ProfileEditForm({ profile, action }: ProfileEditFormProps) {
+export function ProfileEditForm({ profile, options, action }: ProfileEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
 
   return (
@@ -105,13 +107,30 @@ export function ProfileEditForm({ profile, action }: ProfileEditFormProps) {
                 helpText={undefined}
                 readOnly={undefined}
               />
+              <Field>
+                <FieldLabel htmlFor="phoneCountryIso2">Phone country</FieldLabel>
+                <FieldContent>
+                  <NativeSelect
+                    id="phoneCountryIso2"
+                    name="phoneCountryIso2"
+                    defaultValue={profile.phoneCountryIso2 ?? ""}
+                  >
+                    <option value="">No phone</option>
+                    {options.phoneCountries.map((country) => (
+                      <option key={country.iso2} value={country.iso2}>
+                        {country.name} ({country.iso2}) {country.dialCode}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </FieldContent>
+              </Field>
               <FormField
-                id="phoneNumber"
-                name="phoneNumber"
-                label="Phone number"
-                defaultValue={profile.phoneNumber ?? ""}
-                error={state.fieldErrors?.phoneNumber?.[0]}
-                helpText={undefined}
+                id="phoneNationalNumber"
+                name="phoneNationalNumber"
+                label="Phone national number"
+                defaultValue={profile.phoneNationalNumber ?? ""}
+                error={state.fieldErrors?.phoneNationalNumber?.[0]}
+                helpText="Enter without country code."
                 readOnly={undefined}
               />
               <FormField
@@ -132,24 +151,42 @@ export function ProfileEditForm({ profile, action }: ProfileEditFormProps) {
                 helpText={undefined}
                 readOnly={undefined}
               />
-              <FormField
-                id="timeZone"
-                name="timeZone"
-                label="Time zone"
-                defaultValue={profile.timeZone}
-                error={state.fieldErrors?.timeZone?.[0]}
-                helpText={undefined}
-                readOnly={undefined}
-              />
-              <FormField
-                id="culture"
-                name="culture"
-                label="Culture"
-                defaultValue={profile.culture}
-                error={state.fieldErrors?.culture?.[0]}
-                helpText={undefined}
-                readOnly={undefined}
-              />
+              <Field>
+                <FieldLabel htmlFor="timeZone">Time zone</FieldLabel>
+                <FieldContent>
+                  <NativeSelect
+                    id="timeZone"
+                    name="timeZone"
+                    defaultValue={profile.timeZone}
+                    aria-invalid={Boolean(state.fieldErrors?.timeZone?.[0])}
+                  >
+                    {options.timeZones.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <FieldError id="timeZone-error">{state.fieldErrors?.timeZone?.[0]}</FieldError>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="culture">Language</FieldLabel>
+                <FieldContent>
+                  <NativeSelect
+                    id="culture"
+                    name="culture"
+                    defaultValue={profile.culture}
+                    aria-invalid={Boolean(state.fieldErrors?.culture?.[0])}
+                  >
+                    {options.languages.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <FieldError id="culture-error">{state.fieldErrors?.culture?.[0]}</FieldError>
+                </FieldContent>
+              </Field>
             </FieldSet>
 
             <div className="flex flex-wrap items-center gap-2">

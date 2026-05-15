@@ -1,14 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from "@netmetric/ui";
 
 import type { AccountNotificationsResponse } from "@/lib/account-api";
+import type { AccountDateSettings } from "@/lib/account-date";
 
 import { NotificationItem } from "./notification-item";
 
 type NotificationListProps = {
   notifications: AccountNotificationsResponse;
+  dateSettings: AccountDateSettings;
 };
 
-export function NotificationList({ notifications }: NotificationListProps) {
+export function NotificationList({ notifications, dateSettings }: NotificationListProps) {
   if (notifications.items.length === 0) {
     return (
       <Card>
@@ -36,7 +38,7 @@ export function NotificationList({ notifications }: NotificationListProps) {
 
       <div className="grid gap-4">
         {notifications.items.map((item) => (
-          <NotificationItem key={item.id} item={item} />
+          <NotificationItem key={item.id} item={item} dateSettings={dateSettings} />
         ))}
       </div>
     </section>

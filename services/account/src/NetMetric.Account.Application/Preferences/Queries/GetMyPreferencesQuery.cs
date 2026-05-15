@@ -12,6 +12,7 @@ using NetMetric.Account.Contracts.Preferences;
 using NetMetric.Account.Domain.Common;
 using NetMetric.Account.Domain.Preferences;
 using NetMetric.Clock;
+using NetMetric.Localization;
 
 namespace NetMetric.Account.Application.Preferences.Queries;
 
@@ -46,13 +47,22 @@ public sealed class GetMyPreferencesQueryHandler(
 
 internal static class PreferenceMapper
 {
+    private const string DefaultDateFormat = "yyyy-MM-dd";
+
     public static UserPreferenceResponse ToResponse(UserPreference preference)
-        => new(
+    {
+        var language = NetMetricCultures.NormalizeOrDefault(preference.Language);
+        var dateFormat = AccountOptionsCatalog.GetDateFormats().Any(x => string.Equals(x.Value, preference.DateFormat, StringComparison.Ordinal))
+            ? preference.DateFormat
+            : DefaultDateFormat;
+
+        return new(
             preference.Id,
             preference.Theme.ToString(),
-            preference.Language,
+            language,
             TimeZoneNormalizer.NormalizeOrDefault(preference.TimeZone),
-            preference.DateFormat,
+            dateFormat,
             preference.DefaultOrganizationId,
             VersionEncoding.Encode(preference.Version));
+    }
 }

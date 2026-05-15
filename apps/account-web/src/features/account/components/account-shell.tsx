@@ -3,9 +3,10 @@ import { AccountHeader } from "@/features/account/components/account-header";
 
 type AccountShellProps = {
   children: React.ReactNode;
+  localeName: string;
 };
 
-export function AccountShell({ children }: AccountShellProps) {
+export async function AccountShell({ children, localeName }: AccountShellProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <a
@@ -14,7 +15,7 @@ export function AccountShell({ children }: AccountShellProps) {
       >
         Skip to content
       </a>
-      <AccountHeader />
+      <AccountHeader localeName={localeName} />
       <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
         {children}
       </main>

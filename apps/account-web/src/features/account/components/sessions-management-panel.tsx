@@ -17,15 +17,22 @@ import {
 } from "@netmetric/ui";
 
 import type { TrustedDevicesResponse, UserSessionsResponse } from "@/lib/account-api";
+import type { AccountDateSettings } from "@/lib/account-date";
+import { formatAccountDateTime } from "@/lib/account-date";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 
 type SessionsManagementPanelProps = {
   sessions: UserSessionsResponse;
   trustedDevices: TrustedDevicesResponse;
+  dateSettings: AccountDateSettings;
   revokeSessionAction: (state: MutationState, formData: FormData) => Promise<MutationState>;
   revokeOtherSessionsAction: (state: MutationState, formData: FormData) => Promise<MutationState>;
   revokeTrustedDeviceAction: (state: MutationState, formData: FormData) => Promise<MutationState>;
+  revokeOtherTrustedDevicesAction: (
+    state: MutationState,
+    formData: FormData,
+  ) => Promise<MutationState>;
 };
 
 function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
@@ -65,6 +72,8 @@ export function SessionsManagementPanel({
   revokeSessionAction,
   revokeOtherSessionsAction,
   revokeTrustedDeviceAction,
+  revokeOtherTrustedDevicesAction,
+  dateSettings,
 }: SessionsManagementPanelProps) {
   const [revokeSessionState, revokeSessionFormAction] = useActionState(
     revokeSessionAction,
@@ -76,6 +85,10 @@ export function SessionsManagementPanel({
   );
   const [revokeDeviceState, revokeDeviceFormAction] = useActionState(
     revokeTrustedDeviceAction,
+    initialMutationState,
+  );
+  const [revokeOtherDevicesState, revokeOtherDevicesFormAction] = useActionState(
+    revokeOtherTrustedDevicesAction,
     initialMutationState,
   );
 
@@ -91,6 +104,7 @@ export function SessionsManagementPanel({
       <MutationStateAlert state={revokeSessionState} />
       <MutationStateAlert state={revokeOthersState} />
       <MutationStateAlert state={revokeDeviceState} />
+      <MutationStateAlert state={revokeOtherDevicesState} />
 
       <Card>
         <CardHeader>
@@ -123,7 +137,7 @@ export function SessionsManagementPanel({
                   Location: {session.approximateLocation || "Not available"}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Last seen: {session.lastSeenAt}
+                  Last seen: {formatAccountDateTime(session.lastSeenAt, dateSettings)}
                 </Text>
 
                 {session.isCurrent ? (
@@ -195,10 +209,10 @@ export function SessionsManagementPanel({
                   IP: {device.ipAddress || "Not available"}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Trusted at: {device.trustedAt}
+                  Trusted at: {formatAccountDateTime(device.trustedAt, dateSettings)}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Expires at: {device.expiresAt}
+                  Expires at: {formatAccountDateTime(device.expiresAt, dateSettings)}
                 </Text>
 
                 <details className="rounded-md border border-border p-2">
@@ -217,6 +231,23 @@ export function SessionsManagementPanel({
               </div>
             ))
           )}
+          {trustedDevices.items.some((device) => !device.isCurrent && device.isActive) ? (
+            <details className="rounded-md border border-border p-3">
+              <summary className="cursor-pointer text-sm font-medium">
+                Revoke all other trusted devices
+              </summary>
+              <form action={revokeOtherDevicesFormAction} className="mt-3 space-y-2">
+                <input type="hidden" name="confirm" value="revoke-other-devices" />
+                <Text className="text-xs text-muted-foreground">
+                  This keeps the current device trusted and removes trust from others.
+                </Text>
+                <SubmitButton
+                  label="Confirm revoke other trusted devices"
+                  pendingLabel="Revoking other devices..."
+                />
+              </form>
+            </details>
+          ) : null}
         </CardContent>
       </Card>
     </section>

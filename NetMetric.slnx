@@ -60,6 +60,12 @@
     <Project Path="services/account/src/NetMetric.Account.Persistence/NetMetric.Account.Persistence.csproj" />
   </Folder>
   <Folder Name="/services/account/tests/" />
+  <Folder Name="/services/account/tests/NetMetric.Account.Api.UnitTests/">
+    <Project Path="services/account/tests/NetMetric.Account.Api.UnitTests/NetMetric.Account.Api.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/services/account/tests/NetMetric.Account.Application.UnitTests/">
+    <Project Path="services/account/tests/NetMetric.Account.Application.UnitTests/NetMetric.Account.Application.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/services/audit/" />
   <Folder Name="/services/auth/" />
   <Folder Name="/services/auth/src/">

@@ -91,6 +91,7 @@ public static class AccountOperationalHardeningExtensions
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
                 options.Authority = jwt.Authority;
                 if (!string.IsNullOrWhiteSpace(jwt.MetadataAddress))
                 {

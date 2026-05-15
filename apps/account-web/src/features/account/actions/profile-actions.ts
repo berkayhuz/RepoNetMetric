@@ -63,7 +63,8 @@ export async function updateProfileAction(
   const payload: UpdateMyProfileRequest = {
     firstName: readRequiredString(formData, "firstName"),
     lastName: readRequiredString(formData, "lastName"),
-    phoneNumber: readOptionalString(formData, "phoneNumber"),
+    phoneCountryIso2: readOptionalString(formData, "phoneCountryIso2"),
+    phoneNationalNumber: readOptionalString(formData, "phoneNationalNumber"),
     avatarUrl: readOptionalString(formData, "avatarUrl"),
     jobTitle: readOptionalString(formData, "jobTitle"),
     department: readOptionalString(formData, "department"),

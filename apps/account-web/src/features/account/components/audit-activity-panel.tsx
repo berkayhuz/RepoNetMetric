@@ -9,6 +9,7 @@ import {
 } from "@netmetric/ui";
 
 import type { AccountAuditEntriesResponse } from "@/lib/account-api";
+import type { AccountDateSettings } from "@/lib/account-date";
 
 import { AuditActivityItem } from "./audit-activity-item";
 
@@ -16,12 +17,14 @@ type AuditActivityPanelProps = {
   audit: AccountAuditEntriesResponse;
   activeEventType: string | undefined;
   activeLimit: number;
+  dateSettings: AccountDateSettings;
 };
 
 export function AuditActivityPanel({
   audit,
   activeEventType,
   activeLimit,
+  dateSettings,
 }: AuditActivityPanelProps) {
   return (
     <section className="space-y-6">
@@ -56,7 +59,7 @@ export function AuditActivityPanel({
         <div className="space-y-4">
           <Text className="text-sm text-muted-foreground">Returned entries: {audit.count}</Text>
           {audit.items.map((item) => (
-            <AuditActivityItem key={item.id} item={item} />
+            <AuditActivityItem key={item.id} item={item} dateSettings={dateSettings} />
           ))}
         </div>
       )}

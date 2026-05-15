@@ -42,6 +42,9 @@ export type MyProfileResponse = {
   lastName: string;
   displayName: string;
   phoneNumber?: string | null;
+  phoneCountryIso2?: string | null;
+  phoneCountryCallingCode?: string | null;
+  phoneNationalNumber?: string | null;
   avatarUrl?: string | null;
   jobTitle?: string | null;
   department?: string | null;
@@ -53,7 +56,8 @@ export type MyProfileResponse = {
 export type UpdateMyProfileRequest = {
   firstName: string;
   lastName: string;
-  phoneNumber?: string | null;
+  phoneCountryIso2?: string | null;
+  phoneNationalNumber?: string | null;
   avatarUrl?: string | null;
   jobTitle?: string | null;
   department?: string | null;
@@ -70,6 +74,25 @@ export type UserPreferenceResponse = {
   dateFormat: string;
   defaultOrganizationId?: string | null;
   version: string;
+};
+
+export type AccountOptionItem = {
+  value: string;
+  label: string;
+};
+
+export type CountryCallingCodeOption = {
+  iso2: string;
+  name: string;
+  dialCode: string;
+};
+
+export type AccountOptionsResponse = {
+  languages: AccountOptionItem[];
+  timeZones: AccountOptionItem[];
+  themes: AccountOptionItem[];
+  dateFormats: AccountOptionItem[];
+  phoneCountries: CountryCallingCodeOption[];
 };
 
 export type UpdateUserPreferenceRequest = {

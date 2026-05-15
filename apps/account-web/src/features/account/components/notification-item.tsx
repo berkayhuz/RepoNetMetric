@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Text } from "@netmetric/ui";
+import type { AccountDateSettings } from "@/lib/account-date";
+import { formatAccountDateTime } from "@/lib/account-date";
 
 import type { AccountNotificationResponse } from "@/lib/account-api/account-api-types";
 
@@ -15,6 +17,7 @@ import { SecurityActionResult } from "./security-action-result";
 
 type NotificationItemProps = {
   item: AccountNotificationResponse;
+  dateSettings: AccountDateSettings;
 };
 
 function ActionButton({
@@ -34,16 +37,7 @@ function ActionButton({
   );
 }
 
-function formatOccurredAt(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "Not available";
-  }
-
-  return date.toLocaleString();
-}
-
-export function NotificationItem({ item }: NotificationItemProps) {
+export function NotificationItem({ item, dateSettings }: NotificationItemProps) {
   const [readState, readAction] = useActionState(
     markNotificationAsReadAction,
     initialMutationState,
@@ -68,7 +62,7 @@ export function NotificationItem({ item }: NotificationItemProps) {
       <CardContent className="space-y-4">
         <Text className="text-sm">{item.description}</Text>
         <Text className="text-xs text-muted-foreground">
-          Occurred: {formatOccurredAt(item.occurredAt)}
+          Occurred: {formatAccountDateTime(item.occurredAt, dateSettings)}
         </Text>
 
         {readState.status !== "idle" ? (

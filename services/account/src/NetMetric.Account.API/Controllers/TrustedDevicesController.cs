@@ -32,4 +32,11 @@ public sealed class TrustedDevicesController(IMediator mediator) : ControllerBas
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> Revoke(Guid deviceId, CancellationToken cancellationToken)
         => (await mediator.Send(new RevokeTrustedDeviceCommand(deviceId), cancellationToken)).ToActionResult();
+
+    [HttpPost("revoke-others")]
+    [Authorize(Policy = AccountPolicies.DevicesRevokeOwn)]
+    [EnableRateLimiting(AccountOperationalHardeningExtensions.CriticalRateLimitPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> RevokeOthers(CancellationToken cancellationToken)
+        => (await mediator.Send(new RevokeOtherTrustedDevicesCommand(), cancellationToken)).ToActionResult();
 }
