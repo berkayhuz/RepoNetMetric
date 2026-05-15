@@ -1,3 +1,8 @@
+// <copyright file="SubmitDocumentReviewCommandHandler.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using MediatR;
 using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;
 using NetMetric.CRM.DocumentManagement.Domain.Entities.DocumentRecords;

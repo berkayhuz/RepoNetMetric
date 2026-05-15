@@ -1,3 +1,8 @@
+// <copyright file="CreateDocumentCommandHandler.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using System.Text.Json;
 using MediatR;
 using NetMetric.CRM.DocumentManagement.Application.Abstractions.Persistence;

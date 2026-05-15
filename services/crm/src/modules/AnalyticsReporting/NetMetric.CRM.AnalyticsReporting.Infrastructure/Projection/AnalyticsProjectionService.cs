@@ -1,3 +1,8 @@
+// <copyright file="AnalyticsProjectionService.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Extensions.Logging;
 using NetMetric.CRM.AnalyticsReporting.Application.Abstractions;
 using NetMetric.CRM.AnalyticsReporting.Application.Abstractions.Persistence;

@@ -1,3 +1,8 @@
+// <copyright file="NotificationInfrastructureOptionsValidation.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;

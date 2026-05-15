@@ -1,3 +1,8 @@
+// <copyright file="TriggerOmnichannelSyncCommandHandler.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.Omnichannel.Application.Abstractions.Persistence;

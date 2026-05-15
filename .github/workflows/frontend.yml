@@ -294,29 +294,79 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec turbo run coverage --filter=${{ matrix.pkg.name }} --output-logs=errors-only
 
-  dotnet-strategy:
-    name: Dotnet Strategy
+  dotnet-gate:
+    name: Dotnet Gate
     needs: changes
     if: ${{ needs.changes.outputs.run_dotnet == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Dotnet domain note
-        run: echo "Dotnet domain changes detected. Dedicated ci:dotnet workflow steps will be expanded as services/packages are introduced."
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable corepack
+        run: corepack enable
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Dotnet restore
+        run: pnpm run dotnet:restore
+      - name: Dotnet build
+        run: pnpm run dotnet:build
+      - name: Dotnet test
+        run: pnpm run dotnet:test
 
-  native-strategy:
-    name: Native Strategy
+  native-gate:
+    name: Native Gate
     needs: changes
     if: ${{ needs.changes.outputs.run_native == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Native domain note
-        run: echo "Native domain changes detected. Dedicated ci:native workflow steps will be expanded when CMake components are introduced."
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable corepack
+        run: corepack enable
+      - name: Native checks
+        run: pnpm run native:check
 
-  deploy-strategy:
-    name: Deploy Strategy
+  deploy-gate:
+    name: Deploy Gate
     needs: changes
     if: ${{ needs.changes.outputs.run_deploy == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy domain note
-        run: echo "Deploy domain changes detected. Dedicated ci:deploy validation steps will be expanded when deploy artifacts are introduced."
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+      - name: Install helm
+        uses: azure/setup-helm@v4.3.0
+      - name: Install terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Deploy checks
+        run: pnpm run deploy:check

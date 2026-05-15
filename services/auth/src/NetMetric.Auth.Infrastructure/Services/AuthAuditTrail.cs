@@ -1,3 +1,8 @@
+// <copyright file="AuthAuditTrail.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Domain.Entities;

@@ -1,3 +1,8 @@
+// <copyright file="ProviderCredentialTests.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using FluentAssertions;
 using NetMetric.CRM.IntegrationHub.Domain.Entities;
 
@@ -12,8 +17,8 @@ public sealed class ProviderCredentialTests
             Guid.NewGuid(),
             "mock",
             "Mock Provider",
-            "access-token-123",
-            "signing-secret-123");
+            "mock_access_token_sample_123",
+            "mock_signing_secret_sample_123");
 
         credential.EndpointKey.Should().StartWith("ep_");
         credential.IsEnabled.Should().BeTrue();
@@ -27,15 +32,14 @@ public sealed class ProviderCredentialTests
             Guid.NewGuid(),
             "mock",
             "Mock Provider",
-            "access-token-123",
-            "signing-secret-123");
+            "mock_access_token_sample_123",
+            "mock_signing_secret_sample_123");
 
-        credential.Reconfigure("Updated Mock", "access-token-456", "signing-secret-456", false);
+        credential.Reconfigure("Updated Mock", "mock_access_token_sample_456", "mock_signing_secret_sample_456", false);
 
         credential.DisplayName.Should().Be("Updated Mock");
-        credential.AccessToken.Should().Be("access-token-456");
-        credential.WebhookSigningSecret.Should().Be("signing-secret-456");
+        credential.AccessToken.Should().Be("mock_access_token_sample_456");
+        credential.WebhookSigningSecret.Should().Be("mock_signing_secret_sample_456");
         credential.IsEnabled.Should().BeFalse();
     }
 }
-

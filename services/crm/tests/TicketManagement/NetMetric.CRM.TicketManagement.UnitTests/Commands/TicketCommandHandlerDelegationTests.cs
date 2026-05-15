@@ -1,3 +1,8 @@
+// <copyright file="TicketCommandHandlerDelegationTests.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Moq;
 using NetMetric.CRM.TicketManagement.Application.Abstractions.Services;
 using NetMetric.CRM.TicketManagement.Application.Commands.Tickets;

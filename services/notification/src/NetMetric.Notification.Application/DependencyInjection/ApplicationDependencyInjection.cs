@@ -1,3 +1,8 @@
+// <copyright file="ApplicationDependencyInjection.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Extensions.DependencyInjection;
 using NetMetric.Notification.Application.Abstractions;
 using NetMetric.Notification.Application.Options;

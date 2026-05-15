@@ -1,3 +1,8 @@
+// <copyright file="AccountDbContext.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Domain.Audit;

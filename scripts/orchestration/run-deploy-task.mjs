@@ -16,7 +16,10 @@ const statusError = (status, message) => {
 };
 
 const commandAvailable = (command) => {
-  const check = spawnSync(command, ["--version"], { stdio: "pipe" });
+  const check = spawnSync(command, ["--version"], {
+    stdio: "pipe",
+    encoding: "utf8",
+  });
   return check.status === 0;
 };
 
@@ -51,7 +54,56 @@ const runCommand = (command, args) => {
 
 const ensureTool = (command, label) => {
   if (!commandAvailable(command)) {
-    statusError("blocked-missing-tooling", `${label} tool is required but not available on PATH.`);
+    const isCi = ["CI", "GITHUB_ACTIONS", "TF_BUILD", "BUILD_BUILDID"].some((name) => {
+      const value = process.env[name];
+      return Boolean(value && value !== "0" && value.toLowerCase() !== "false");
+    });
+
+    const installHint =
+      command === "kubectl"
+        ? "Install kubectl and ensure it is on PATH (Windows: winget install -e --id Kubernetes.kubectl)."
+        : `Install ${label} and ensure it is on PATH.`;
+
+    statusError(
+      "blocked-missing-tooling",
+      isCi
+        ? `${label} tool is required on CI runner PATH. ${installHint}`
+        : `${label} tool is required for local deploy validation. ${installHint}`,
+    );
+    process.exit(1);
+  }
+};
+
+const ensureKubectl = () => {
+  const versionJson = spawnSync("kubectl", ["version", "--client", "-o", "json"], {
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+  const versionPlain = spawnSync("kubectl", ["version", "--client"], {
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+
+  if (versionJson.status !== 0 && versionPlain.status !== 0) {
+    const installHint =
+      "Install kubectl and ensure it is on PATH (Windows: winget install -e --id Kubernetes.kubectl).";
+    statusError(
+      "blocked-missing-tooling",
+      `kubectl tool is required for deploy validation. ${installHint}`,
+    );
+    process.exit(1);
+  }
+
+  const context = spawnSync("kubectl", ["config", "current-context"], {
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+  const currentContext = context.stdout?.trim() ?? "";
+  if (context.status !== 0 || currentContext.length === 0) {
+    statusError(
+      "blocked-missing-cluster-context",
+      "kubectl is installed but no active cluster context is configured. Run `kubectl config get-contexts` and `kubectl config use-context <name>`.",
+    );
     process.exit(1);
   }
 };
@@ -147,7 +199,7 @@ if (task === "lint") {
     if (artifacts.kubernetesManifestFiles.length === 0) {
       statusInfo("skipped-intentional", "deploy/kubernetes has no YAML artifacts yet.");
     } else {
-      ensureTool("kubectl", "kubectl");
+      ensureKubectl();
       const kubectlStatus = runCommand("kubectl", [
         "apply",
         "--dry-run=client",
@@ -189,7 +241,7 @@ if (task === "validate") {
     if (artifacts.kubernetesManifestFiles.length === 0) {
       statusInfo("skipped-intentional", "deploy/kubernetes has no YAML artifacts yet.");
     } else {
-      ensureTool("kubectl", "kubectl");
+      ensureKubectl();
       const kubectlStatus = runCommand("kubectl", [
         "apply",
         "--dry-run=client",

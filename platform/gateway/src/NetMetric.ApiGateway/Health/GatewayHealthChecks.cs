@@ -1,3 +1,8 @@
+// <copyright file="GatewayHealthChecks.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using NetMetric.AspNetCore.TrustedGateway.Options;

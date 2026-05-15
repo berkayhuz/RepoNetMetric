@@ -143,3 +143,4 @@ dotnet_diagnostic.CA1851.severity = suggestion
 dotnet_public_api_analyzer.require_api_files = true
 
 file_header_template = <copyright file="{fileName}" company="NetMetric">\nCopyright (c) 2026 NetMetric. All rights reserved.\nNetMetric is proprietary software. See the LICENSE file in the repository root.\n</copyright>
+dotnet_diagnostic.IDE0073.severity = warning

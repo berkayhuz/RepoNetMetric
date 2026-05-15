@@ -1,3 +1,8 @@
+// <copyright file="CustomFieldDefinitionCommandsValidator.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using FluentValidation;
 using NetMetric.CRM.CustomerManagement.Application.Features.CustomFields.Commands.CreateCustomFieldDefinition;
 using NetMetric.CRM.CustomerManagement.Application.Features.CustomFields.Commands.UpdateCustomFieldDefinition;

@@ -1,3 +1,8 @@
+// <copyright file="WorkflowAutomationAbstractions.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.CRM.WorkflowAutomation.Contracts.DTOs;
 using NetMetric.CRM.WorkflowAutomation.Domain.Entities.AutomationRules;
 

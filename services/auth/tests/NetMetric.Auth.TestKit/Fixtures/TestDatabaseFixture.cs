@@ -1,3 +1,8 @@
+// <copyright file="TestDatabaseFixture.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Auth.Infrastructure.Persistence;

@@ -1,3 +1,8 @@
+// <copyright file="ProviderCatalogAndValidationTests.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Providers;
@@ -23,7 +28,7 @@ public sealed class ProviderCatalogAndValidationTests
         var validator = new DefaultProviderCredentialValidator(catalog);
         var tester = new DefaultProviderConnectionTester(catalog, validator, Options.Create(new WhatsAppProviderOptions()));
 
-        var result = tester.Test(new ProviderValidationInput("mock", "Mock", "mock-access-token-123", "mock-signing-secret-1234", null));
+        var result = tester.Test(new ProviderValidationInput("mock", "Mock", "mock_access_token_sample_123", "mock_signing_secret_sample_1234", null));
 
         result.Succeeded.Should().BeTrue();
         result.Code.Should().Be("mock_connection_ok");
@@ -36,7 +41,7 @@ public sealed class ProviderCatalogAndValidationTests
         var validator = new DefaultProviderCredentialValidator(catalog);
         var tester = new DefaultProviderConnectionTester(catalog, validator, Options.Create(new WhatsAppProviderOptions()));
 
-        var result = tester.Test(new ProviderValidationInput("whatsapp", "WA", "EAAG-token-123456", "signing-secret-123456", "{\"verifyToken\":\"verify-token-123456\"}"));
+        var result = tester.Test(new ProviderValidationInput("whatsapp", "WA", "whatsapp_mock_token_sample_123456", "whatsapp_signing_secret_sample_123456", "{\"verifyToken\":\"verify_token_sample_123456\"}"));
 
         result.Succeeded.Should().BeFalse();
         result.Code.Should().Be("missing_required_fields");

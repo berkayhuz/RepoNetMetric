@@ -25,6 +25,10 @@ const options = {
   failOnWarn: args.has("--fail-on-warn") || process.env.RELEASE_GATE_FAIL_ON_WARN === "1",
   failFast: args.has("--fail-fast") || process.env.RELEASE_GATE_FAIL_FAST === "1",
 };
+const requiredSmokeTargets = [
+  "services/auth/src/NetMetric.Auth.API/NetMetric.Auth.API.csproj",
+  "services/account/src/NetMetric.Account.API/NetMetric.Account.API.csproj",
+];
 
 const repoRoot = process.cwd();
 const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -422,6 +426,29 @@ function runMigrationBundleValidation() {
   });
 }
 
+function runEfMigrationPolicyValidation() {
+  const step = "ef migration policy";
+  const startedAt = new Date();
+  const logFile = path.join(logsRoot, "ef-migration-policy.log");
+  const result = runCommand({
+    command: "node",
+    args: ["scripts/release/validate-ef-migrations.mjs"],
+    logFile,
+  });
+  recordStep({
+    step,
+    status: result.exitCode === 0 ? "PASS" : "FAIL",
+    summary:
+      result.exitCode === 0
+        ? "EF migration policy validated"
+        : `EF migration policy failed with exit code ${result.exitCode}`,
+    startedAt,
+    endedAt: new Date(),
+    logFile,
+    details: { exitCode: result.exitCode },
+  });
+}
+
 function httpGet(url, timeoutMs = 2500) {
   return new Promise((resolve) => {
     const client = url.startsWith("https:") ? https : http;
@@ -512,6 +539,11 @@ function runFullLocalSmokeValidation() {
     return;
   }
 
+  const smokeScopeInRepo = requiredSmokeTargets.every((target) =>
+    existsSync(path.join(repoRoot, target)),
+  );
+  const smokeRequired = smokeScopeInRepo;
+
   if (options.runDevSmoke) {
     const shell = resolvePowerShell();
     if (!shell) {
@@ -541,11 +573,16 @@ function runFullLocalSmokeValidation() {
     const matrixPassed = /PASS matrix=auth-account-notification/i.test(result.stdout);
     const matrixSkipped =
       result.exitCode === 0 && /SKIP flow="Gateway reachability"/i.test(result.stdout);
-    const status = result.exitCode === 0 ? (matrixSkipped ? "WARN" : "PASS") : "FAIL";
+    let status = result.exitCode === 0 ? (matrixSkipped ? "WARN" : "PASS") : "FAIL";
+    if (smokeRequired && matrixSkipped) {
+      status = "FAIL";
+    }
     const summary =
       result.exitCode === 0
         ? matrixSkipped
-          ? "Auth + Account + Notification local smoke skipped because local gateway was unreachable"
+          ? smokeRequired
+            ? "Auth + Account + Notification local smoke is required but gateway was unreachable"
+            : "Auth + Account + Notification local smoke skipped because local gateway was unreachable"
           : matrixPassed
             ? "Auth + Account + Notification local smoke matrix completed"
             : "Auth + Account + Notification local smoke completed without a PASS matrix marker"
@@ -566,15 +603,23 @@ function runFullLocalSmokeValidation() {
     return;
   }
 
-  writeFileSync(logFile, "Skipped because --run-dev-smoke was not provided.\n", "utf8");
+  writeFileSync(
+    logFile,
+    smokeRequired
+      ? "Required smoke failed because --run-dev-smoke was not provided.\n"
+      : "Skipped because --run-dev-smoke was not provided.\n",
+    "utf8",
+  );
   recordStep({
     step,
-    status: "SKIP",
-    summary: "full local smoke requires --run-dev-smoke",
+    status: smokeRequired ? "FAIL" : "SKIP",
+    summary: smokeRequired
+      ? "Auth + Account + Notification local smoke is required for this release gate run"
+      : "full local smoke requires --run-dev-smoke",
     startedAt,
     endedAt: new Date(),
     logFile,
-    details: { mode: "local-smoke" },
+    details: { mode: "local-smoke", smokeRequired },
   });
 }
 
@@ -616,7 +661,11 @@ function runSecurityScan() {
     errors.push(`gitleaks scan failed with exit code ${gitleaks.exitCode}`);
   }
   if (/Gitleaks is not installed locally/i.test(`${gitleaks.stdout}\n${gitleaks.stderr}`)) {
-    const message = "gitleaks is not installed locally; gitleaks scan did not run";
+    const installHint =
+      process.platform === "win32"
+        ? "Install with `winget install -e --id Gitleaks.Gitleaks` and ensure `gitleaks --version` works."
+        : "Install gitleaks and ensure `gitleaks --version` works.";
+    const message = `gitleaks is not installed locally; gitleaks scan did not run. ${installHint}`;
     if (isCiEnvironment()) {
       errors.push(`${message}; CI release gate requires gitleaks`);
     } else {
@@ -829,8 +878,18 @@ if (shouldStopAfterFailure()) {
   writeSummaryAndExit();
 }
 runMigrationBundleValidation();
+if (shouldStopAfterFailure()) {
+  writeSummaryAndExit();
+}
+runEfMigrationPolicyValidation();
+if (shouldStopAfterFailure()) {
+  writeSummaryAndExit();
+}
 await runHealthSmokeValidation();
 runFullLocalSmokeValidation();
+if (shouldStopAfterFailure()) {
+  writeSummaryAndExit();
+}
 runConfigValidation();
 runSecurityScan();
 runArtifactCheck();

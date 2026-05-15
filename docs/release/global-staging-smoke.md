@@ -76,6 +76,11 @@ Use:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\release\Test-LocalFrontend.ps1
 ```
 
+Release-gate enforcement note:
+
+- `scripts/release/release-gate.ps1` now treats Auth+Account smoke as required for release-scope runs.
+- If local smoke is required and not executed (`--run-dev-smoke` missing), release gate fails.
+
 ## F) Validation Command Set
 
 Frontend/workspace:

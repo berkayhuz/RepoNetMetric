@@ -4,6 +4,8 @@ dist
 build
 coverage
 pnpm-lock.yaml
+**/packages.lock.json
+.local/dev/processes.json
 
 .runlogs
 .artifacts

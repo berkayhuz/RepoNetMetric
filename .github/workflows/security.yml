@@ -23,11 +23,33 @@ jobs:
       - name: Enable corepack
         run: corepack enable
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
       - name: Install gitleaks
         run: curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin
 
       - name: Run gitleaks
         run: gitleaks git --config=.gitleaks.toml --redact --report-format sarif --report-path gitleaks.sarif
+
+      - name: NPM audit (high+)
+        run: pnpm audit --audit-level=high
+
+      - name: Dotnet vulnerable package audit (high+)
+        shell: bash
+        run: |
+          dotnet restore NetMetric.slnx --force-evaluate
+          REPORT="$(dotnet list NetMetric.slnx package --vulnerable --include-transitive)"
+          echo "$REPORT"
+          if echo "$REPORT" | grep -Ei "Severity:[[:space:]]*(Critical|High)" >/dev/null; then
+            echo "High/Critical .NET vulnerabilities detected."
+            exit 1
+          fi
 
       - name: Upload SARIF
         if: ${{ always() }}

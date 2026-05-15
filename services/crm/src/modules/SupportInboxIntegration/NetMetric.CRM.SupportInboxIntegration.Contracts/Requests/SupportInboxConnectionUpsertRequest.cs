@@ -1,3 +1,8 @@
+// <copyright file="SupportInboxConnectionUpsertRequest.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.CRM.SupportInboxIntegration.Domain.Enums;
 
 namespace NetMetric.CRM.SupportInboxIntegration.Contracts.Requests;

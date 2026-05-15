@@ -1,3 +1,8 @@
+// <copyright file="IntegrationConnectorAbstractions.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.CRM.IntegrationHub.Domain.Entities;
 
 namespace NetMetric.CRM.IntegrationHub.Application.Abstractions.Connectors;

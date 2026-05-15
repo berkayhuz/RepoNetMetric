@@ -9,6 +9,10 @@ The repository enforces these minimum checks:
 3. `pnpm run frontend:typecheck`
 4. `pnpm run repo:format:check`
 5. `pnpm run frontend:build`
+6. `pnpm run dotnet:restore`
+7. `pnpm run dotnet:build`
+8. `pnpm run dotnet:test`
+9. `pnpm run deploy:check`
 
 `pnpm run repo:check` executes the primary non-build gates in one command.
 
@@ -37,8 +41,8 @@ GitHub Actions pipeline:
 2. Workspace validation
 3. App scaffold validation matrix (for changed app scopes)
 4. Package quality matrix (`lint`, `typecheck`, `build`, `test`, `coverage`) for changed packages only
-5. Domain strategy signaling (`dotnet`, `native`, `deploy`) via job-level `if` gates
-6. Security pipeline with Gitleaks
+5. Executable `dotnet`, `native`, and `deploy` gates when those domains are in scope
+6. Security pipeline with Gitleaks + dependency vulnerability checks (high/critical fails)
 
 All CI installs use:
 

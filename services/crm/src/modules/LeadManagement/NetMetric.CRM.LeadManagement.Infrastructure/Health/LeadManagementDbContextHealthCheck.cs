@@ -1,3 +1,8 @@
+// <copyright file="LeadManagementDbContextHealthCheck.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NetMetric.CRM.LeadManagement.Infrastructure.Persistence;
 

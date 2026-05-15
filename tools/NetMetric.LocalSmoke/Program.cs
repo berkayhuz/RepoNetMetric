@@ -1,3 +1,8 @@
+// <copyright file="Program.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -77,6 +82,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Email confirmation", async correlationId =>
         {
+            RequireRegisteredContext(context);
             if (options.NoDbTokenSeed)
             {
                 throw new SmokeSkip("email confirmation requires DB token seeding until local email/link extraction is available");
@@ -95,6 +101,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Login", async correlationId =>
         {
+            RequireRegisteredContext(context);
             var session = await LoginAsync(context, context.Password, correlationId);
             context.SessionId = session.SessionId;
             context.AccessToken = session.AccessToken;
@@ -103,6 +110,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Account profile auto-create", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             var response = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/profile", correlationId, body: null, context.AccessToken);
             var document = await ExpectJsonAsync(response, HttpStatusCode.OK);
             RequireGuid(document, "userId", context.UserId);
@@ -110,13 +118,39 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Preferences auto-create", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             var response = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/preferences", correlationId, body: null, context.AccessToken);
             var document = await ExpectJsonAsync(response, HttpStatusCode.OK);
             RequireProperty(document, "theme");
         });
 
+        await FlowAsync("Notification seed via preferences update", async correlationId =>
+        {
+            RequireAuthenticatedContext(context);
+            var getResponse = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/preferences", correlationId, body: null, context.AccessToken);
+            var current = await ExpectJsonAsync(getResponse, HttpStatusCode.OK);
+            var theme = current.RootElement.GetProperty("theme").GetString() ?? "system";
+            var updatedTheme = string.Equals(theme, "dark", StringComparison.OrdinalIgnoreCase) ? "light" : "dark";
+
+            var updateResponse = await SendJsonAsync(HttpMethod.Put, "/api/v1/account/preferences", correlationId, new
+            {
+                theme = updatedTheme,
+                language = current.RootElement.GetProperty("language").GetString(),
+                timeZone = current.RootElement.GetProperty("timeZone").GetString(),
+                dateFormat = current.RootElement.GetProperty("dateFormat").GetString(),
+                defaultOrganizationId = current.RootElement.TryGetProperty("defaultOrganizationId", out var defaultOrganizationId) &&
+                    defaultOrganizationId.ValueKind is not JsonValueKind.Null
+                    ? defaultOrganizationId.GetGuid()
+                    : (Guid?)null,
+                version = current.RootElement.GetProperty("version").GetString()
+            }, context.AccessToken);
+
+            await ExpectJsonAsync(updateResponse, HttpStatusCode.OK);
+        });
+
         await FlowAsync("Session activity sync", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             await Task.Delay(TimeSpan.FromMilliseconds(250));
             var response = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/sessions", correlationId, body: null, context.AccessToken);
             var document = await ExpectJsonAsync(response, HttpStatusCode.OK);
@@ -129,6 +163,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("MFA challenge", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             var setup = await TrySetupMfaAsync(context, correlationId);
             if (setup is null)
             {
@@ -174,6 +209,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Refresh token rotation", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             var oldRefresh = context.RefreshToken;
             var response = await SendJsonAsync(HttpMethod.Post, "/api/auth/refresh", correlationId, new
             {
@@ -194,6 +230,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Password reset", async correlationId =>
         {
+            RequireRegisteredContext(context);
             if (options.NoDbTokenSeed)
             {
                 throw new SmokeSkip("password reset requires DB token seeding until local email/link extraction is available");
@@ -229,8 +266,28 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Notification list/count/mark-read/delete", async correlationId =>
         {
-            var list = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/notifications", correlationId, body: null, context.AccessToken);
-            var document = await ExpectJsonAsync(list, HttpStatusCode.OK);
+            RequireAuthenticatedContext(context);
+            JsonDocument? document = null;
+            for (var attempt = 1; attempt <= 10; attempt++)
+            {
+                var listAttempt = await SendJsonAsync(HttpMethod.Get, "/api/v1/account/notifications", correlationId, body: null, context.AccessToken);
+                var candidate = await ExpectJsonAsync(listAttempt, HttpStatusCode.OK);
+                if (candidate.RootElement.TryGetProperty("totalCount", out var totalCountProperty) &&
+                    totalCountProperty.GetInt32() > 0)
+                {
+                    document = candidate;
+                    break;
+                }
+
+                candidate.Dispose();
+                await Task.Delay(TimeSpan.FromMilliseconds(250));
+            }
+
+            if (document is null)
+            {
+                throw new SmokeFailure("notification list did not include any items after deterministic account audit trigger");
+            }
+
             var items = document.RootElement.GetProperty("items").EnumerateArray().ToArray();
             if (items.Length == 0 || document.RootElement.GetProperty("totalCount").GetInt32() == 0)
             {
@@ -250,6 +307,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
         await FlowAsync("Logout", async correlationId =>
         {
+            RequireAuthenticatedContext(context);
             var response = await SendJsonAsync(HttpMethod.Post, "/api/auth/logout", correlationId, new
             {
                 tenantId = context.TenantId,
@@ -336,6 +394,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
         using var request = new HttpRequestMessage(method, path);
         request.Headers.TryAddWithoutValidation("X-Correlation-Id", correlationId);
         request.Headers.UserAgent.ParseAdd("NetMetric.LocalSmoke/1.0");
+        request.Headers.TryAddWithoutValidation("Origin", options.FrontendOrigin);
         if (!string.IsNullOrWhiteSpace(bearer))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
@@ -346,7 +405,17 @@ internal sealed class SmokeRunner(SmokeOptions options)
         }
         if (body is not null)
         {
-            request.Content = new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
+            var payload = JsonSerializer.Serialize(body, _json);
+            request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+            using var payloadDocument = JsonDocument.Parse(payload);
+            if (payloadDocument.RootElement.ValueKind == JsonValueKind.Object &&
+                payloadDocument.RootElement.TryGetProperty("tenantId", out var tenantIdProperty) &&
+                tenantIdProperty.ValueKind == JsonValueKind.String &&
+                Guid.TryParse(tenantIdProperty.GetString(), out var tenantId))
+            {
+                request.Headers.TryAddWithoutValidation("X-Tenant-Id", tenantId.ToString("D"));
+            }
         }
 
         return await _http.SendAsync(request);
@@ -446,6 +515,25 @@ internal sealed class SmokeRunner(SmokeOptions options)
         if (string.IsNullOrWhiteSpace(context.MfaSharedKey))
         {
             throw new SmokeSkip("MFA login flows skipped because MFA setup is not available through the current public/dev API contract");
+        }
+    }
+
+    private static void RequireRegisteredContext(SmokeContext context)
+    {
+        if (context.TenantId == Guid.Empty || context.UserId == Guid.Empty)
+        {
+            throw new SmokeSkip("register flow did not complete; dependent flow skipped");
+        }
+    }
+
+    private static void RequireAuthenticatedContext(SmokeContext context)
+    {
+        RequireRegisteredContext(context);
+        if (context.SessionId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(context.AccessToken) ||
+            string.IsNullOrWhiteSpace(context.RefreshToken))
+        {
+            throw new SmokeSkip("login flow did not complete; authenticated flow skipped");
         }
     }
 
@@ -585,6 +673,7 @@ internal sealed class SmokeRunner(SmokeOptions options)
 
 internal sealed record SmokeOptions(
     Uri GatewayBaseUri,
+    string FrontendOrigin,
     string? AuthDbConnectionString,
     string? AccountDbConnectionString,
     bool NoDbTokenSeed,
@@ -614,12 +703,14 @@ internal sealed record SmokeOptions(
         }
 
         var gateway = values.GetValueOrDefault("--gateway") ?? Environment.GetEnvironmentVariable("NETMETRIC_SMOKE_GATEWAY") ?? "http://localhost:5030";
+        var frontendOrigin = values.GetValueOrDefault("--frontend-origin") ?? Environment.GetEnvironmentVariable("NETMETRIC_SMOKE_FRONTEND_ORIGIN") ?? "http://localhost:7002";
         var authDb = values.GetValueOrDefault("--auth-db") ?? Environment.GetEnvironmentVariable("NETMETRIC_SMOKE_AUTH_DB");
         var accountDb = values.GetValueOrDefault("--account-db") ?? Environment.GetEnvironmentVariable("NETMETRIC_SMOKE_ACCOUNT_DB");
         var timeout = int.TryParse(values.GetValueOrDefault("--timeout-seconds"), out var parsedTimeout) ? parsedTimeout : 30;
         var noDbTokenSeed = flags.Contains("--no-db-token-seed") || string.IsNullOrWhiteSpace(authDb);
         return new SmokeOptions(
             new Uri(gateway.TrimEnd('/') + "/"),
+            frontendOrigin,
             authDb,
             accountDb,
             noDbTokenSeed,

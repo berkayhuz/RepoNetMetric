@@ -1,3 +1,8 @@
+// <copyright file="ITicketAdministrationService.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.CRM.TicketManagement.Application.Commands.Categories;
 using NetMetric.CRM.TicketManagement.Application.Commands.Tickets;
 using NetMetric.CRM.TicketManagement.Application.Features.Bulk.Commands.BulkAssignTicketsOwner;

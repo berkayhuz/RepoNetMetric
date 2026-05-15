@@ -2,25 +2,31 @@
   {
     "Name": "api-gateway",
     "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\platform\\gateway\\src\\NetMetric.ApiGateway\\NetMetric.ApiGateway.csproj",
-    "ProcessId": 24736,
-    "StartedAt": "2026-05-13T20:33:34.1804919+03:00"
+    "ProcessId": 24324,
+    "StartedAt": "2026-05-15T12:15:10.4031341+03:00"
   },
   {
     "Name": "netmetric.account.api",
     "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\account\\src\\NetMetric.Account.API\\NetMetric.Account.API.csproj",
-    "ProcessId": 23616,
-    "StartedAt": "2026-05-13T20:33:35.2421180+03:00"
+    "ProcessId": 4652,
+    "StartedAt": "2026-05-15T12:15:11.4828658+03:00"
   },
   {
     "Name": "netmetric.auth.api",
     "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\auth\\src\\NetMetric.Auth.API\\NetMetric.Auth.API.csproj",
-    "ProcessId": 24492,
-    "StartedAt": "2026-05-13T20:33:36.3187796+03:00"
+    "ProcessId": 21840,
+    "StartedAt": "2026-05-15T12:15:12.8825655+03:00"
   },
   {
     "Name": "netmetric.crm.api",
     "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\crm\\src\\NetMetric.CRM.API\\NetMetric.CRM.API.csproj",
-    "ProcessId": 8160,
-    "StartedAt": "2026-05-13T20:33:37.3684824+03:00"
+    "ProcessId": 17352,
+    "StartedAt": "2026-05-15T12:15:13.9579402+03:00"
+  },
+  {
+    "Name": "netmetric.tools.api",
+    "ProjectPath": "C:\\Users\\berkay\\Documents\\GitHub\\RepoNetMetric\\NetMetric\\services\\tools\\src\\NetMetric.Tools.API\\NetMetric.Tools.API.csproj",
+    "ProcessId": 21520,
+    "StartedAt": "2026-05-15T12:15:15.0273358+03:00"
   }
 ]

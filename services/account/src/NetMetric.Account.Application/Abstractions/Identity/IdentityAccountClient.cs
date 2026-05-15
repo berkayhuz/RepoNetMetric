@@ -1,3 +1,8 @@
+// <copyright file="IdentityAccountClient.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 namespace NetMetric.Account.Application.Abstractions.Identity;
 
 public sealed record AccountSecuritySummary(bool IsMfaEnabled, DateTimeOffset? LastSecurityEventAt);

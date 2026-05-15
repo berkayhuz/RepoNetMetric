@@ -1,8 +1,8 @@
 param(
   [string]$Email = "owner@netmetric.local",
   [string]$Password = "",
-  [string]$FullName = "NetMetric Dev Owner",
-  [string]$WorkspaceName = "NetMetric Dev Workspace"
+  [string]$UserName = "netmetric-owner",
+  [string]$TenantName = "NetMetric Dev Tenant"
 )
 
 Set-StrictMode -Version Latest
@@ -27,21 +27,32 @@ Write-Log "Checking gateway readiness."
 Wait-HttpOk -Url "$gatewayBaseUrl/health/ready" -TimeoutSeconds 120
 
 $payload = @{
-  fullName = $FullName
-  email = $Email
-  password = $seedPassword
-  workspaceName = $WorkspaceName
-} | ConvertTo-Json
+  userName   = $UserName
+  email      = $Email
+  password   = $seedPassword
+  tenantName = $TenantName
+} | ConvertTo-Json -Depth 5
 
 Write-Log "Sending auth seed register request via API gateway."
+
 try {
-  $response = Invoke-WebRequest -Uri $registerUrl -Method Post -ContentType "application/json" -Body $payload -UseBasicParsing
+  $response = Invoke-WebRequest `
+    -Uri $registerUrl `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $payload `
+    -UseBasicParsing
+
   Write-Log "Seed request completed with status $($response.StatusCode)."
-} catch {
+}
+catch {
   if ($_.Exception.Response -ne $null) {
     $reader = New-Object IO.StreamReader($_.Exception.Response.GetResponseStream())
     $body = $reader.ReadToEnd()
+    $reader.Dispose()
+
     Write-Log "Seed request failed: $body"
   }
+
   throw
 }

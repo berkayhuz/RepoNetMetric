@@ -17,6 +17,39 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
   throw "Required command not found: dotnet"
 }
 
+function Test-EndpointReady {
+  param(
+    [Parameter(Mandatory = $true)][string]$Url,
+    [int]$Timeout = 10
+  )
+
+  try {
+    $response = Invoke-WebRequest -Uri $Url -Method GET -TimeoutSec $Timeout -MaximumRedirection 0
+    return $response.StatusCode -ge 200 -and $response.StatusCode -lt 400
+  }
+  catch {
+    return $false
+  }
+}
+
+$requiredEndpoints = @(
+  "$GatewayBaseUrl/health/ready",
+  "$GatewayBaseUrl/auth/health/ready",
+  "$GatewayBaseUrl/account/health/ready"
+)
+
+$notReady = @()
+foreach ($endpoint in $requiredEndpoints) {
+  if (-not (Test-EndpointReady -Url $endpoint -Timeout $TimeoutSeconds)) {
+    $notReady += $endpoint
+  }
+}
+
+if ($notReady.Count -gt 0) {
+  $joined = $notReady -join ", "
+  throw "Local smoke prerequisites are not ready. Unreachable readiness endpoints: $joined. Start local stack via 'pnpm run dev:up' and retry."
+}
+
 $args = @(
   "run",
   "--project",

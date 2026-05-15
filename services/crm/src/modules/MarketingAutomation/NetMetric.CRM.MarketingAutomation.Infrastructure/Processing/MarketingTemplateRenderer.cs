@@ -1,3 +1,8 @@
+// <copyright file="MarketingTemplateRenderer.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using System.Text.RegularExpressions;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
 using NetMetric.CRM.MarketingAutomation.Contracts.DTOs;

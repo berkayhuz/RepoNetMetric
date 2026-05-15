@@ -1,3 +1,8 @@
+// <copyright file="PersistentSecurityEventWriter.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Infrastructure.Outbox;

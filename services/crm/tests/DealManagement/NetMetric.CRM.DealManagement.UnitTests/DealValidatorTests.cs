@@ -1,3 +1,8 @@
+// <copyright file="DealValidatorTests.cs" company="NetMetric">
+// Copyright (c) 2026 NetMetric. All rights reserved.
+// NetMetric is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using FluentAssertions;
 using NetMetric.CRM.DealManagement.Application.Commands.Deals;
 using NetMetric.CRM.DealManagement.Application.Commands.Reviews;
