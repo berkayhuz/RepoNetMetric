@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 
 import { fail, ok, type ApiResult } from "@/lib/api/api-result";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
-import { getSafeRedirectPath } from "@/lib/security/safe-redirect";
 import { toFieldErrors } from "@/lib/validation/zod-error-map";
 
 import { authApi } from "../api/auth-api";
@@ -115,8 +114,7 @@ export async function registerAction(
     };
 
     const result = await authApi.register(registerInput);
-    const redirectUrl =
-      result.redirectUrl ?? getSafeRedirectPath(returnUrl) ?? authRoutes.confirmEmail;
+    const redirectUrl = result.redirectUrl ?? getRedirectAfterAuth(returnUrl);
 
     if (result.emailConfirmationRequired) {
       redirect(authRoutes.confirmEmail);

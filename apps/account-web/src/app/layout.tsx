@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter } from "next/font/google";
+import { getThemeInitScript } from "@netmetric/ui";
 import { ThemeProvider } from "@netmetric/ui/client";
 
 import { AccountShell } from "@/features/account/components/account-shell";
@@ -43,6 +45,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <Script
+          id="netmetric-theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           <AccountShell>{children}</AccountShell>

@@ -35,8 +35,6 @@ function applyThemeToDocument(theme: Theme): ResolvedTheme {
   return resolved;
 }
 
-const themeInitScript = `(function(){try{var key='${THEME_STORAGE_KEY}';var stored=localStorage.getItem(key);var theme=stored==='light'||stored==='dark'||stored==='system'?stored:'system';var dark=theme==='dark'||(theme==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var root=document.documentElement;root.classList.toggle('dark',dark);root.style.colorScheme=dark?'dark':'light';}catch(e){}})();`;
-
 type ThemeProviderProps = {
   children: React.ReactNode;
   defaultTheme?: Theme;
@@ -84,12 +82,7 @@ export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProvid
     [theme, resolvedTheme, setTheme],
   );
 
-  return (
-    <ThemeContext.Provider value={value}>
-      <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextValue {

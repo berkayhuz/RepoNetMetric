@@ -52,6 +52,29 @@ NEXT_PUBLIC_APP_ORIGIN=http://localhost:7002
   Write-Log "Created apps/auth-web/.env.local for gateway-based local development."
 }
 
+function Ensure-FrontendEnvLocal {
+  param(
+    [Parameter(Mandatory = $true)][string]$AppName
+  )
+
+  $repoRoot = Get-RepoRoot
+  $appRoot = Join-Path $repoRoot ("apps\" + $AppName)
+  $targetPath = Join-Path $appRoot ".env.local"
+  if (Test-Path $targetPath) {
+    Write-Log "$AppName .env.local already exists, keeping current values."
+    return
+  }
+
+  $examplePath = Join-Path $appRoot ".env.example"
+  if (-not (Test-Path $examplePath)) {
+    Write-Log "No .env.example found for $AppName, skipping .env.local bootstrap."
+    return
+  }
+
+  Copy-Item -Path $examplePath -Destination $targetPath
+  Write-Log "Created apps/$AppName/.env.local from .env.example."
+}
+
 function Reset-AuthDatabase {
   Write-Log "Resetting auth database (CRM.AuthDb) for deterministic local startup."
   $sql = @"
@@ -103,6 +126,10 @@ if (-not $SkipAuthDbReset) {
 }
 
 Ensure-AuthWebEnvLocal
+Ensure-FrontendEnvLocal -AppName "account-web"
+Ensure-FrontendEnvLocal -AppName "crm-web"
+Ensure-FrontendEnvLocal -AppName "tools-web"
+Ensure-FrontendEnvLocal -AppName "public-web"
 
 if (-not $SkipBuild) {
   Write-Log "Restoring and building solution."

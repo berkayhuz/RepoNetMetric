@@ -11,6 +11,7 @@ export type {
 } from "./components/data-display/data-grid/data-grid-types";
 export { Separator } from "./components/layout/separator";
 export { Spinner } from "./components/primitives/spinner";
+export { ThemeInitScript, getThemeInitScript } from "./components/theme/theme-init-script";
 export { Textarea } from "./components/primitives/textarea";
 export { Kbd, KbdGroup } from "./components/data-display/kbd";
 export { ButtonGroup } from "./components/primitives/button-group";

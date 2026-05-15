@@ -6,6 +6,9 @@ import { LoginForm } from "@/features/auth/components/login-form";
 import { authRoutes } from "@/features/auth/config/auth-routes";
 import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.server";
 import { createAuthMetadata } from "@/features/auth/i18n/auth-metadata";
+import { getCurrentAuthSession } from "@/features/auth/server/auth-session";
+import { getRedirectAfterAuth } from "@/features/auth/utils/redirect-after-auth";
+import { redirect } from "next/navigation";
 
 type LoginPageProps = {
   searchParams: Promise<{ returnUrl?: string }>;
@@ -17,6 +20,11 @@ export async function generateMetadata() {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const session = await getCurrentAuthSession();
+  if (session.authenticated) {
+    redirect(getRedirectAfterAuth(params.returnUrl));
+  }
+
   const locale = await getRequestLocale();
   const t = getTranslator(locale);
 

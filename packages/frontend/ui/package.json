@@ -11,9 +11,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./styles/globals.css": "./src/styles/globals.css",
-    "./styles/theme.css": "./src/styles/theme.css",
-    "./styles/tokens.css": "./src/styles/tokens.css"
+    "./styles/globals.css": "./styles/globals.css",
+    "./styles/theme.css": "./styles/theme.css",
+    "./styles/tokens.css": "./styles/tokens.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

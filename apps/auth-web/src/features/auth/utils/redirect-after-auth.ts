@@ -1,19 +1,20 @@
-﻿import { authRoutes } from "@/features/auth/config/auth-routes";
+import { authRoutes } from "@/features/auth/config/auth-routes";
 
-import { getSafeRedirectPath } from "@/lib/security/safe-redirect";
+import { getSafePostLoginRedirectUrl } from "./post-login-url";
 
-const defaultAuthenticatedPath = authRoutes.home;
+const defaultAuthenticatedUrl = getSafePostLoginRedirectUrl();
 
 export function getRedirectAfterAuth(returnUrl?: string | null): string {
-  const safePath = getSafeRedirectPath(returnUrl);
+  const safeUrl = getSafePostLoginRedirectUrl(returnUrl);
+  const safePathname = new URL(safeUrl).pathname;
 
   if (
-    safePath === authRoutes.login ||
-    safePath === authRoutes.register ||
-    safePath === authRoutes.forgotPassword
+    safePathname === authRoutes.login ||
+    safePathname === authRoutes.register ||
+    safePathname === authRoutes.forgotPassword
   ) {
-    return defaultAuthenticatedPath;
+    return defaultAuthenticatedUrl;
   }
 
-  return safePath;
+  return safeUrl;
 }

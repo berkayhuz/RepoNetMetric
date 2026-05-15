@@ -1,5 +1,7 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter } from "next/font/google";
+import { getThemeInitScript } from "@netmetric/ui";
 import { ThemeProvider, Toaster } from "@netmetric/ui/client";
 
 import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.server";
@@ -39,6 +41,13 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
+      <head>
+        <Script
+          id="netmetric-theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           {children}

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter } from "next/font/google";
+import { getThemeInitScript } from "@netmetric/ui";
 import { ThemeProvider } from "@netmetric/ui/client";
 
 import { CrmShell } from "@/components/shell/crm-shell";
@@ -39,6 +41,13 @@ export const dynamic = "force-dynamic";
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <Script
+          id="netmetric-theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           <CrmShell>{children}</CrmShell>
