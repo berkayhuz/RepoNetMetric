@@ -6,6 +6,8 @@ import { ThemeProvider } from "@netmetric/ui/client";
 
 import { CrmShell } from "@/components/shell/crm-shell";
 import { crmEnv } from "@/lib/crm-env";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 import "./globals.css";
 
@@ -15,32 +17,38 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(crmEnv.crmUrl),
-  title: {
-    default: "NetMetric CRM",
-    template: "%s | NetMetric CRM",
-  },
-  description: "NetMetric protected CRM workspace.",
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+
+  return {
+    metadataBase: new URL(crmEnv.crmUrl),
+    title: {
+      default: tCrm("crm.shell.appTitle", locale),
+      template: `%s | ${tCrm("crm.shell.appTitle", locale)}`,
+    },
+    description: tCrm("crm.shell.workspace", locale),
+    robots: {
       index: false,
       follow: false,
-      noimageindex: true,
-      noarchive: true,
-      nosnippet: true,
+      nocache: true,
+      googleBot: {
+        index: false,
+        follow: false,
+        noimageindex: true,
+        noarchive: true,
+        nosnippet: true,
+      },
     },
-  },
-};
+  };
+}
 
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getRequestLocale();
+
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         <Script
           id="netmetric-theme-init"
@@ -50,7 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <ThemeProvider>
-          <CrmShell>{children}</CrmShell>
+          <CrmShell locale={locale}>{children}</CrmShell>
         </ThemeProvider>
       </body>
     </html>

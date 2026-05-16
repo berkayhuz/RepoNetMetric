@@ -25,6 +25,7 @@ import {
   leadStatusOptions,
   priorityOptions,
 } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createLeadAction, updateLeadAction } from "../actions/lead-mutation-actions";
 import { leadFormSchema, type LeadFormInput } from "./lead-form-schema";
@@ -93,42 +94,46 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="lead-fullName">Full name</FieldLabel>
+          <FieldLabel htmlFor="lead-fullName">{tCrmClient("crm.leads.fields.fullName")}</FieldLabel>
           <FieldContent>
             <Input id="lead-fullName" {...form.register("fullName")} />
             <FieldError>{form.formState.errors.fullName?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-companyName">Company name</FieldLabel>
+          <FieldLabel htmlFor="lead-companyName">
+            {tCrmClient("crm.leads.fields.companyName")}
+          </FieldLabel>
           <FieldContent>
             <Input id="lead-companyName" {...form.register("companyName")} />
             <FieldError>{form.formState.errors.companyName?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-email">Email</FieldLabel>
+          <FieldLabel htmlFor="lead-email">{tCrmClient("crm.leads.fields.email")}</FieldLabel>
           <FieldContent>
             <Input id="lead-email" type="email" {...form.register("email")} />
             <FieldError>{form.formState.errors.email?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-phone">Phone</FieldLabel>
+          <FieldLabel htmlFor="lead-phone">{tCrmClient("crm.leads.fields.phone")}</FieldLabel>
           <FieldContent>
             <Input id="lead-phone" {...form.register("phone")} />
             <FieldError>{form.formState.errors.phone?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-jobTitle">Job title</FieldLabel>
+          <FieldLabel htmlFor="lead-jobTitle">{tCrmClient("crm.leads.fields.jobTitle")}</FieldLabel>
           <FieldContent>
             <Input id="lead-jobTitle" {...form.register("jobTitle")} />
             <FieldError>{form.formState.errors.jobTitle?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-estimatedBudget">Estimated budget</FieldLabel>
+          <FieldLabel htmlFor="lead-estimatedBudget">
+            {tCrmClient("crm.leads.fields.estimatedBudget")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="lead-estimatedBudget"
@@ -139,19 +144,21 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-nextContactDate">Next contact date</FieldLabel>
+          <FieldLabel htmlFor="lead-nextContactDate">
+            {tCrmClient("crm.leads.fields.nextContactDate")}
+          </FieldLabel>
           <FieldContent>
             <Input id="lead-nextContactDate" type="date" {...form.register("nextContactDate")} />
             <FieldError>{form.formState.errors.nextContactDate?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-source">Source</FieldLabel>
+          <FieldLabel htmlFor="lead-source">{tCrmClient("crm.leads.fields.source")}</FieldLabel>
           <FieldContent>
             <NativeSelect id="lead-source" {...form.register("source")}>
               {leadSourceOptions.map((o) => (
                 <NativeSelectOption key={`lead-source-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.leads.source.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -159,12 +166,12 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-status">Status</FieldLabel>
+          <FieldLabel htmlFor="lead-status">{tCrmClient("crm.leads.fields.status")}</FieldLabel>
           <FieldContent>
             <NativeSelect id="lead-status" {...form.register("status")}>
               {leadStatusOptions.map((o) => (
                 <NativeSelectOption key={`lead-status-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.leads.status.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -172,12 +179,12 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-priority">Priority</FieldLabel>
+          <FieldLabel htmlFor="lead-priority">{tCrmClient("crm.leads.fields.priority")}</FieldLabel>
           <FieldContent>
             <NativeSelect id="lead-priority" {...form.register("priority")}>
               {priorityOptions.map((o) => (
                 <NativeSelectOption key={`lead-priority-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.common.priority.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -185,14 +192,18 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-companyId">Company ID</FieldLabel>
+          <FieldLabel htmlFor="lead-companyId">
+            {tCrmClient("crm.leads.fields.companyId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="lead-companyId" {...form.register("companyId")} />
             <FieldError>{form.formState.errors.companyId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="lead-ownerUserId">
+            {tCrmClient("crm.leads.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="lead-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
@@ -202,14 +213,16 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="lead-description">Description</FieldLabel>
+          <FieldLabel htmlFor="lead-description">
+            {tCrmClient("crm.leads.fields.description")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="lead-description" rows={4} {...form.register("description")} />
             <FieldError>{form.formState.errors.description?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="lead-notes">Notes</FieldLabel>
+          <FieldLabel htmlFor="lead-notes">{tCrmClient("crm.leads.fields.notes")}</FieldLabel>
           <FieldContent>
             <Textarea id="lead-notes" rows={4} {...form.register("notes")} />
             <FieldError>{form.formState.errors.notes?.message}</FieldError>
@@ -221,10 +234,14 @@ export function LeadForm({ mode, leadId, initialValues }: Readonly<LeadFormProps
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create lead" : "Save lead"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.leads.actions.create")
+              : tCrmClient("crm.leads.actions.save")}
         </Button>
       </div>
     </form>

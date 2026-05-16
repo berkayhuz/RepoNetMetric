@@ -36,29 +36,29 @@ import {
   crmModuleGroups,
   crmModuleRegistry,
   getCrmModulesByGroup,
-  type CrmModuleStatus,
 } from "@/features/modules/module-registry";
+import { getCrmGroupLabel, getCrmModuleTitle, getCrmStatusLabel, tCrm } from "@/lib/i18n/crm-i18n";
 
-const statusLabelByKey: Record<CrmModuleStatus, string> = {
-  active: "Active",
-  read_only: "Read only",
-  contract_pending: "Contract pending",
-  coming_soon: "Coming soon",
-};
-
-function pageTitle(pathname: string): string {
+function pageTitle(pathname: string, locale: string): string {
   if (pathname === "/") {
-    return "Dashboard";
+    return tCrm("crm.dashboard.title", locale);
   }
 
   const matched = crmModuleRegistry.find(
     (item) => pathname === item.path || pathname.startsWith(`${item.path}/`),
   );
 
-  return matched?.title ?? "CRM";
+  if (!matched) {
+    return tCrm("crm.shell.breadcrumbRoot", locale);
+  }
+
+  return getCrmModuleTitle(matched, locale);
 }
 
-export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function CrmShell({
+  children,
+  locale,
+}: Readonly<{ children: React.ReactNode; locale: string }>) {
   const pathname = usePathname();
 
   return (
@@ -67,13 +67,13 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
         href="#main-content"
         className="sr-only left-4 top-4 z-modal rounded-md bg-background px-3 py-2 focus:not-sr-only focus:absolute"
       >
-        Skip to content
+        {tCrm("crm.shell.skipToContent", locale)}
       </a>
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <div className="px-2 py-1">
-            <p className="text-sm font-semibold">NetMetric CRM</p>
-            <p className="text-xs text-muted-foreground">Protected workspace</p>
+            <p className="text-sm font-semibold">{tCrm("crm.shell.appTitle", locale)}</p>
+            <p className="text-xs text-muted-foreground">{tCrm("crm.shell.workspace", locale)}</p>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -85,7 +85,7 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
 
             return (
               <SidebarGroup key={group}>
-                <SidebarGroupLabel>{group}</SidebarGroupLabel>
+                <SidebarGroupLabel>{getCrmGroupLabel(group, locale)}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {modules.map((moduleItem) => {
@@ -97,9 +97,9 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
                           <SidebarMenuButton asChild isActive={isActive}>
                             <Link
                               href={moduleItem.path}
-                              aria-label={`${moduleItem.title} (${statusLabelByKey[moduleItem.status]})`}
+                              aria-label={`${getCrmModuleTitle(moduleItem, locale)} (${getCrmStatusLabel(moduleItem.status, locale)})`}
                             >
-                              {moduleItem.title}
+                              {getCrmModuleTitle(moduleItem, locale)}
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -115,7 +115,7 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/settings">Account settings</Link>
+                <Link href="/settings">{tCrm("crm.shell.accountSettings", locale)}</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -131,20 +131,23 @@ export function CrmShell({ children }: Readonly<{ children: React.ReactNode }>) 
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/dashboard">CRM</Link>
+                      <Link href="/dashboard">{tCrm("crm.shell.breadcrumbRoot", locale)}</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>{pageTitle(pathname)}</BreadcrumbPage>
+                    <BreadcrumbPage>{pageTitle(pathname, locale)}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
             <div className="hidden w-full max-w-xs md:block">
-              <Input aria-label="Global search" placeholder="Search (placeholder)" />
+              <Input
+                aria-label={tCrm("crm.shell.globalSearchAria", locale)}
+                placeholder={tCrm("crm.shell.searchPlaceholder", locale)}
+              />
             </div>
-            <Button variant="outline">Quick create</Button>
+            <Button variant="outline">{tCrm("crm.actions.quickCreate", locale)}</Button>
             <ThemeToggle />
           </div>
         </header>

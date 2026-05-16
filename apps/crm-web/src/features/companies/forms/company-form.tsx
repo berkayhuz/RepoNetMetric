@@ -21,6 +21,7 @@ import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
 import { companyTypeOptions } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createCompanyAction, updateCompanyAction } from "../actions/company-mutation-actions";
 import { companyFormSchema, type CompanyFormInput } from "./company-form-schema";
@@ -79,6 +80,14 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
     });
   };
 
+  const companyTypeLabelByValue: Record<number, string> = {
+    0: tCrmClient("crm.companies.options.companyType.prospect"),
+    1: tCrmClient("crm.companies.options.companyType.customer"),
+    2: tCrmClient("crm.companies.options.companyType.partner"),
+    3: tCrmClient("crm.companies.options.companyType.vendor"),
+    4: tCrmClient("crm.companies.options.companyType.competitor"),
+  };
+
   return (
     <form className="space-y-6" noValidate onSubmit={form.handleSubmit(onSubmit)}>
       <CrmFormErrorSummary
@@ -89,19 +98,21 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="company-name">Name</FieldLabel>
+          <FieldLabel htmlFor="company-name">{tCrmClient("crm.companies.fields.name")}</FieldLabel>
           <FieldContent>
             <Input id="company-name" {...form.register("name")} />
             <FieldError>{form.formState.errors.name?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-type">Company type</FieldLabel>
+          <FieldLabel htmlFor="company-type">
+            {tCrmClient("crm.companies.fields.companyType")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id="company-type" {...form.register("companyType")}>
               {companyTypeOptions.map((o) => (
                 <NativeSelectOption key={`company-type-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {companyTypeLabelByValue[o.value] ?? o.label}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -109,56 +120,72 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-email">Email</FieldLabel>
+          <FieldLabel htmlFor="company-email">
+            {tCrmClient("crm.companies.fields.email")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-email" type="email" {...form.register("email")} />
             <FieldError>{form.formState.errors.email?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-phone">Phone</FieldLabel>
+          <FieldLabel htmlFor="company-phone">
+            {tCrmClient("crm.companies.fields.phone")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-phone" {...form.register("phone")} />
             <FieldError>{form.formState.errors.phone?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-website">Website</FieldLabel>
+          <FieldLabel htmlFor="company-website">
+            {tCrmClient("crm.companies.fields.website")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-website" type="url" {...form.register("website")} />
             <FieldError>{form.formState.errors.website?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-sector">Sector</FieldLabel>
+          <FieldLabel htmlFor="company-sector">
+            {tCrmClient("crm.companies.fields.sector")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-sector" {...form.register("sector")} />
             <FieldError>{form.formState.errors.sector?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-taxNumber">Tax number</FieldLabel>
+          <FieldLabel htmlFor="company-taxNumber">
+            {tCrmClient("crm.companies.fields.taxNumber")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-taxNumber" {...form.register("taxNumber")} />
             <FieldError>{form.formState.errors.taxNumber?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-taxOffice">Tax office</FieldLabel>
+          <FieldLabel htmlFor="company-taxOffice">
+            {tCrmClient("crm.companies.fields.taxOffice")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-taxOffice" {...form.register("taxOffice")} />
             <FieldError>{form.formState.errors.taxOffice?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-employeeCountRange">Employee count range</FieldLabel>
+          <FieldLabel htmlFor="company-employeeCountRange">
+            {tCrmClient("crm.companies.fields.employeeCountRange")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-employeeCountRange" {...form.register("employeeCountRange")} />
             <FieldError>{form.formState.errors.employeeCountRange?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-annualRevenue">Annual revenue</FieldLabel>
+          <FieldLabel htmlFor="company-annualRevenue">
+            {tCrmClient("crm.companies.fields.annualRevenue")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="company-annualRevenue"
@@ -170,14 +197,18 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="company-ownerUserId">
+            {tCrmClient("crm.companies.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-parentCompanyId">Parent company ID</FieldLabel>
+          <FieldLabel htmlFor="company-parentCompanyId">
+            {tCrmClient("crm.companies.fields.parentCompanyId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="company-parentCompanyId" {...form.register("parentCompanyId")} />
             <FieldError>{form.formState.errors.parentCompanyId?.message}</FieldError>
@@ -187,14 +218,18 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="company-description">Description</FieldLabel>
+          <FieldLabel htmlFor="company-description">
+            {tCrmClient("crm.companies.fields.description")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="company-description" rows={4} {...form.register("description")} />
             <FieldError>{form.formState.errors.description?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="company-notes">Notes</FieldLabel>
+          <FieldLabel htmlFor="company-notes">
+            {tCrmClient("crm.companies.fields.notes")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="company-notes" rows={4} {...form.register("notes")} />
             <FieldError>{form.formState.errors.notes?.message}</FieldError>
@@ -206,10 +241,14 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create company" : "Save company"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.companies.actions.create")
+              : tCrmClient("crm.companies.actions.save")}
         </Button>
       </div>
     </form>

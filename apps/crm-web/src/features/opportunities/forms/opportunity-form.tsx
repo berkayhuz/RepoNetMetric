@@ -25,6 +25,7 @@ import {
   opportunityStatusOptions,
   priorityOptions,
 } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import {
   createOpportunityAction,
@@ -100,21 +101,27 @@ export function OpportunityForm({
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="opportunity-code">Opportunity code</FieldLabel>
+          <FieldLabel htmlFor="opportunity-code">
+            {tCrmClient("crm.opportunities.fields.opportunityCode")}
+          </FieldLabel>
           <FieldContent>
             <Input id="opportunity-code" {...form.register("opportunityCode")} />
             <FieldError>{form.formState.errors.opportunityCode?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-name">Name</FieldLabel>
+          <FieldLabel htmlFor="opportunity-name">
+            {tCrmClient("crm.opportunities.fields.name")}
+          </FieldLabel>
           <FieldContent>
             <Input id="opportunity-name" {...form.register("name")} />
             <FieldError>{form.formState.errors.name?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-estimatedAmount">Estimated amount</FieldLabel>
+          <FieldLabel htmlFor="opportunity-estimatedAmount">
+            {tCrmClient("crm.opportunities.fields.estimatedAmount")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="opportunity-estimatedAmount"
@@ -125,7 +132,9 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-expectedRevenue">Expected revenue</FieldLabel>
+          <FieldLabel htmlFor="opportunity-expectedRevenue">
+            {tCrmClient("crm.opportunities.fields.expectedRevenue")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="opportunity-expectedRevenue"
@@ -136,7 +145,9 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-probability">Probability (%)</FieldLabel>
+          <FieldLabel htmlFor="opportunity-probability">
+            {tCrmClient("crm.opportunities.fields.probability")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="opportunity-probability"
@@ -149,7 +160,9 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-estimatedCloseDate">Estimated close date</FieldLabel>
+          <FieldLabel htmlFor="opportunity-estimatedCloseDate">
+            {tCrmClient("crm.opportunities.fields.estimatedCloseDate")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="opportunity-estimatedCloseDate"
@@ -160,12 +173,14 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-stage">Stage</FieldLabel>
+          <FieldLabel htmlFor="opportunity-stage">
+            {tCrmClient("crm.opportunities.fields.stage")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id="opportunity-stage" {...form.register("stage")}>
               {opportunityStageOptions.map((o) => (
                 <NativeSelectOption key={`opportunity-stage-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.opportunities.stage.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -173,12 +188,14 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-status">Status</FieldLabel>
+          <FieldLabel htmlFor="opportunity-status">
+            {tCrmClient("crm.opportunities.fields.status")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id="opportunity-status" {...form.register("status")}>
               {opportunityStatusOptions.map((o) => (
                 <NativeSelectOption key={`opportunity-status-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.opportunities.status.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -186,12 +203,14 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-priority">Priority</FieldLabel>
+          <FieldLabel htmlFor="opportunity-priority">
+            {tCrmClient("crm.opportunities.fields.priority")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id="opportunity-priority" {...form.register("priority")}>
               {priorityOptions.map((o) => (
                 <NativeSelectOption key={`opportunity-priority-${o.value}`} value={String(o.value)}>
-                  {o.label}
+                  {tCrmClient(`crm.common.priority.${o.value}`)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
@@ -199,21 +218,27 @@ export function OpportunityForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-leadId">Lead ID</FieldLabel>
+          <FieldLabel htmlFor="opportunity-leadId">
+            {tCrmClient("crm.opportunities.fields.leadId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="opportunity-leadId" {...form.register("leadId")} />
             <FieldError>{form.formState.errors.leadId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-customerId">Customer ID</FieldLabel>
+          <FieldLabel htmlFor="opportunity-customerId">
+            {tCrmClient("crm.opportunities.fields.customerId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="opportunity-customerId" {...form.register("customerId")} />
             <FieldError>{form.formState.errors.customerId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="opportunity-ownerUserId">
+            {tCrmClient("crm.opportunities.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="opportunity-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
@@ -223,14 +248,18 @@ export function OpportunityForm({
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="opportunity-description">Description</FieldLabel>
+          <FieldLabel htmlFor="opportunity-description">
+            {tCrmClient("crm.opportunities.fields.description")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="opportunity-description" rows={4} {...form.register("description")} />
             <FieldError>{form.formState.errors.description?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="opportunity-notes">Notes</FieldLabel>
+          <FieldLabel htmlFor="opportunity-notes">
+            {tCrmClient("crm.opportunities.fields.notes")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="opportunity-notes" rows={4} {...form.register("notes")} />
             <FieldError>{form.formState.errors.notes?.message}</FieldError>
@@ -242,10 +271,14 @@ export function OpportunityForm({
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create opportunity" : "Save opportunity"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.opportunities.actions.create")
+              : tCrmClient("crm.opportunities.actions.save")}
         </Button>
       </div>
     </form>

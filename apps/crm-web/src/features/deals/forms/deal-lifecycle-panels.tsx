@@ -24,6 +24,7 @@ import {
   initialCrmMutationState,
   type CrmMutationState,
 } from "@/features/shared/actions/mutation-state";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 import type { DealLostReasonDto } from "@/lib/crm-api";
 
 function SubmitButton({ label, pendingLabel }: Readonly<{ label: string; pendingLabel: string }>) {
@@ -50,14 +51,16 @@ export function DealOwnerActionPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Owner</CardTitle>
-        <CardDescription>Update deal owner using a user ID.</CardDescription>
+        <CardTitle>{tCrmClient("crm.deals.lifecycle.ownerTitle")}</CardTitle>
+        <CardDescription>{tCrmClient("crm.deals.lifecycle.ownerDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <CrmMutationResult state={state} />
         <form action={formAction} className="space-y-3">
           <Field>
-            <FieldLabel htmlFor={`deal-owner-${dealId}`}>Owner user ID</FieldLabel>
+            <FieldLabel htmlFor={`deal-owner-${dealId}`}>
+              {tCrmClient("crm.deals.fields.ownerUserId")}
+            </FieldLabel>
             <FieldContent>
               <Input
                 id={`deal-owner-${dealId}`}
@@ -67,7 +70,10 @@ export function DealOwnerActionPanel({
               <FieldError>{state.fieldErrors?.ownerUserId?.[0]}</FieldError>
             </FieldContent>
           </Field>
-          <SubmitButton label="Change owner" pendingLabel="Updating owner..." />
+          <SubmitButton
+            label={tCrmClient("crm.deals.actions.changeOwner")}
+            pendingLabel={tCrmClient("crm.deals.actions.updatingOwner")}
+          />
         </form>
       </CardContent>
     </Card>
@@ -105,7 +111,9 @@ export function DealLifecycleActionPanel({
           <input type="hidden" name="confirm" value={confirmValue} />
           <input type="hidden" name="rowVersion" value={rowVersion ?? ""} />
           <Field>
-            <FieldLabel htmlFor={`${confirmValue}-occurredAt`}>Occurred at (optional)</FieldLabel>
+            <FieldLabel htmlFor={`${confirmValue}-occurredAt`}>
+              {tCrmClient("crm.deals.lifecycle.occurredAt")}
+            </FieldLabel>
             <FieldContent>
               <Input id={`${confirmValue}-occurredAt`} name="occurredAt" type="datetime-local" />
               <FieldError>{state.fieldErrors?.occurredAt?.[0]}</FieldError>
@@ -113,14 +121,18 @@ export function DealLifecycleActionPanel({
           </Field>
           {showLostReason ? (
             <Field>
-              <FieldLabel htmlFor={`${confirmValue}-lostReasonId`}>Lost reason</FieldLabel>
+              <FieldLabel htmlFor={`${confirmValue}-lostReasonId`}>
+                {tCrmClient("crm.deals.fields.lostReasonId")}
+              </FieldLabel>
               <FieldContent>
                 <NativeSelect
                   id={`${confirmValue}-lostReasonId`}
                   name="lostReasonId"
                   defaultValue=""
                 >
-                  <NativeSelectOption value="">Select a lost reason</NativeSelectOption>
+                  <NativeSelectOption value="">
+                    {tCrmClient("crm.deals.lifecycle.selectLostReason")}
+                  </NativeSelectOption>
                   {(lostReasons ?? []).map((reason) => (
                     <NativeSelectOption key={reason.id} value={reason.id}>
                       {reason.name}
@@ -132,13 +144,15 @@ export function DealLifecycleActionPanel({
             </Field>
           ) : null}
           <Field>
-            <FieldLabel htmlFor={`${confirmValue}-note`}>Note</FieldLabel>
+            <FieldLabel htmlFor={`${confirmValue}-note`}>
+              {tCrmClient("crm.deals.fields.note")}
+            </FieldLabel>
             <FieldContent>
               <Textarea id={`${confirmValue}-note`} name="note" rows={3} />
               <FieldError>{state.fieldErrors?.note?.[0]}</FieldError>
             </FieldContent>
           </Field>
-          <SubmitButton label={title} pendingLabel="Processing..." />
+          <SubmitButton label={title} pendingLabel={tCrmClient("crm.deals.actions.processing")} />
         </form>
       </CardContent>
     </Card>

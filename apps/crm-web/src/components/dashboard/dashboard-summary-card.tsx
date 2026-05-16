@@ -14,18 +14,24 @@ export function DashboardSummaryCard({
   total,
   href,
   description,
+  summaryAriaLabel,
+  readOnlyLabel,
+  viewAllLabel,
 }: Readonly<{
   title: string;
   total: number;
   href: string;
   description: string;
+  summaryAriaLabel: string;
+  readOnlyLabel: string;
+  viewAllLabel: string;
 }>) {
   return (
-    <Card aria-label={`${title} summary`}>
+    <Card aria-label={summaryAriaLabel}>
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>{title}</CardTitle>
-          <Badge variant="secondary">Read-only</Badge>
+          <Badge variant="secondary">{readOnlyLabel}</Badge>
         </div>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
@@ -35,7 +41,7 @@ export function DashboardSummaryCard({
           className="text-sm font-medium text-primary underline-offset-4 hover:underline"
           href={href}
         >
-          View all
+          {viewAllLabel}
         </Link>
       </CardContent>
     </Card>

@@ -8,14 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@netmetric/ui";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 export function CrmDeleteZone({
   title,
   description,
+  locale,
+  dangerTitle,
+  dangerDescription,
   children,
 }: Readonly<{
   title: string;
   description: string;
+  locale?: string | null;
+  dangerTitle?: string;
+  dangerDescription?: string;
   children: React.ReactNode;
 }>) {
   return (
@@ -26,8 +33,10 @@ export function CrmDeleteZone({
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert variant="destructive">
-          <AlertTitle>Danger zone</AlertTitle>
-          <AlertDescription>This action cannot be undone.</AlertDescription>
+          <AlertTitle>{dangerTitle ?? tCrm("crm.delete.dangerTitle", locale)}</AlertTitle>
+          <AlertDescription>
+            {dangerDescription ?? tCrm("crm.delete.cannotUndo", locale)}
+          </AlertDescription>
         </Alert>
         {children}
       </CardContent>

@@ -19,6 +19,7 @@ import { AddressActionResult } from "@/components/address/address-action-result"
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
 import { addressTypeOptions, booleanOptions } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import {
   addressFormSchema,
@@ -89,56 +90,72 @@ export function AddressForm({
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-line1`}>Line 1</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-line1`}>
+            {tCrmClient("crm.address.fields.line1")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-line1`} {...form.register("line1")} />
             <FieldError>{form.formState.errors.line1?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-line2`}>Line 2</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-line2`}>
+            {tCrmClient("crm.address.fields.line2")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-line2`} {...form.register("line2")} />
             <FieldError>{form.formState.errors.line2?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-district`}>District</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-district`}>
+            {tCrmClient("crm.address.fields.district")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-district`} {...form.register("district")} />
             <FieldError>{form.formState.errors.district?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-city`}>City</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-city`}>
+            {tCrmClient("crm.address.fields.city")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-city`} {...form.register("city")} />
             <FieldError>{form.formState.errors.city?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-state`}>State / Region</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-state`}>
+            {tCrmClient("crm.address.fields.stateRegion")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-state`} {...form.register("state")} />
             <FieldError>{form.formState.errors.state?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-country`}>Country</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-country`}>
+            {tCrmClient("crm.address.fields.country")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-country`} {...form.register("country")} />
             <FieldError>{form.formState.errors.country?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-zipCode`}>Postal code</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-zipCode`}>
+            {tCrmClient("crm.address.fields.postalCode")}
+          </FieldLabel>
           <FieldContent>
             <Input id={`${mode}-address-zipCode`} {...form.register("zipCode")} />
             <FieldError>{form.formState.errors.zipCode?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-addressType`}>Address type</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-addressType`}>
+            {tCrmClient("crm.address.fields.addressType")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id={`${mode}-address-addressType`} {...form.register("addressType")}>
               {addressTypeOptions.map((option) => (
@@ -154,7 +171,9 @@ export function AddressForm({
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${mode}-address-isDefault`}>Default address</FieldLabel>
+          <FieldLabel htmlFor={`${mode}-address-isDefault`}>
+            {tCrmClient("crm.address.fields.defaultAddress")}
+          </FieldLabel>
           <FieldContent>
             <NativeSelect id={`${mode}-address-isDefault`} {...form.register("isDefault")}>
               {booleanOptions.map((option) => (
@@ -173,7 +192,11 @@ export function AddressForm({
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving address..." : mode === "create" ? "Add address" : "Update address"}
+          {isPending
+            ? tCrmClient("crm.address.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.address.actions.add")
+              : tCrmClient("crm.address.actions.update")}
         </Button>
       </div>
     </form>

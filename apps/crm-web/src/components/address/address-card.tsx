@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@netmetric/ui";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 import { AddressDeleteForm } from "@/components/address/address-delete-form";
 import { AddressForm } from "@/components/address/address-form";
@@ -11,11 +12,13 @@ export function AddressCard({
   entityId,
   address,
   onDelete,
+  locale,
 }: Readonly<{
   entityType: "customer" | "company";
   entityId: string;
   address: AddressDto;
   onDelete: (state: CrmMutationState, formData: FormData) => Promise<CrmMutationState>;
+  locale?: string | null | undefined;
 }>) {
   const lineParts = [address.line1, address.line2].filter(Boolean).join(", ");
   const locationParts = [address.district, address.city, address.state, address.country]
@@ -25,9 +28,10 @@ export function AddressCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Address</CardTitle>
+        <CardTitle className="text-base">{tCrm("crm.address.title", locale)}</CardTitle>
         <CardDescription>
-          {[lineParts, locationParts, address.zipCode].filter(Boolean).join(" - ") || "No summary"}
+          {[lineParts, locationParts, address.zipCode].filter(Boolean).join(" - ") ||
+            tCrm("crm.address.noSummary", locale)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -49,9 +53,11 @@ export function AddressCard({
           action={updateAddressAction.bind(null, entityType, entityId, address.id)}
         />
         <div className="space-y-2 border-t border-border pt-4">
-          <p className="text-sm font-medium text-destructive">Delete address</p>
+          <p className="text-sm font-medium text-destructive">
+            {tCrm("crm.address.delete.title", locale)}
+          </p>
           <p className="text-xs text-muted-foreground">
-            This removes the address from this record. This action cannot be undone.
+            {tCrm("crm.address.delete.description", locale)}
           </p>
           <AddressDeleteForm action={onDelete} />
         </div>

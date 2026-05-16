@@ -10,6 +10,8 @@ import { emptyToNull } from "@/features/shared/forms/schema-primitives";
 import { crmApiClient, type ContactUpsertRequest } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import {
@@ -41,27 +43,37 @@ function mapContactPayload(input: ContactFormValues): ContactUpsertRequest {
   };
 }
 
-function mapZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
+function localizeFieldErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  locale: string,
+): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(fieldErrors).flatMap(([key, errors]) => {
       if (!errors || errors.length === 0) {
         return [];
       }
 
-      return [[key, errors] as const];
+      const first = errors[0] ?? "";
+      const isRequired =
+        first.toLowerCase().includes("required") || first.toLowerCase().includes("small");
+      const resolved = isRequired
+        ? tCrm("crm.contacts.validation.required", locale)
+        : tCrm("crm.contacts.validation.invalid", locale);
+      return [[key, [resolved]] as const];
     }),
   );
 }
 
 export async function createContactAction(input: ContactFormInput): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const parsed = contactFormSchema.safeParse(input);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: localizeFieldErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -74,7 +86,7 @@ export async function createContactAction(input: ContactFormInput): Promise<CrmM
 
     return {
       status: "success",
-      message: "Contact created successfully.",
+      message: tCrm("crm.contacts.result.created", locale),
       redirectTo: `/contacts/${created.id}`,
     };
   } catch (error) {
@@ -87,11 +99,12 @@ export async function updateContactAction(
   input: ContactFormInput,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(contactId)) {
     return {
       status: "error",
-      message: "Invalid contact id.",
+      message: tCrm("crm.contacts.validation.invalidId", locale),
     };
   }
 
@@ -99,8 +112,8 @@ export async function updateContactAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: localizeFieldErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -114,7 +127,7 @@ export async function updateContactAction(
 
     return {
       status: "success",
-      message: "Contact updated successfully.",
+      message: tCrm("crm.contacts.result.updated", locale),
       redirectTo: `/contacts/${contactId}`,
     };
   } catch (error) {
@@ -129,21 +142,22 @@ export async function deleteContactAction(
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
   await requireCrmSession(`/contacts/${contactId}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(contactId)) {
-    return { status: "error", message: "Invalid contact id." };
+    return { status: "error", message: tCrm("crm.contacts.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "delete-contact") {
-    return { status: "error", message: "Delete confirmation is invalid." };
+    return { status: "error", message: tCrm("crm.delete.invalidConfirmation", locale) };
   }
 
   const confirmText = formData.get("confirmText");
   if (typeof confirmText !== "string" || confirmText.trim().length === 0) {
     return {
       status: "error",
-      message: "Please type the record name to confirm deletion.",
-      fieldErrors: { confirmText: ["Confirmation text is required."] },
+      message: tCrm("crm.delete.typeNameRequired", locale),
+      fieldErrors: { confirmText: [tCrm("crm.delete.confirmationRequired", locale)] },
     };
   }
 
@@ -158,7 +172,7 @@ export async function deleteContactAction(
     if (mapped.message === "The requested record no longer exists.") {
       return {
         status: "error",
-        message: "Contact is already removed or no longer available.",
+        message: tCrm("crm.contacts.result.alreadyRemoved", locale),
       };
     }
 

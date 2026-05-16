@@ -2,30 +2,40 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from "@netmetric/ui";
 
 import type { CrmModuleRegistryItem } from "@/features/modules/module-registry";
+import {
+  getCrmEndpointDiscoveryLabel,
+  getCrmModuleDescription,
+  getCrmModuleTitle,
+  tCrm,
+} from "@/lib/i18n/crm-i18n";
 
 import { CrmModuleStatusBadge } from "../shell/crm-module-status-badge";
 
-export function DashboardModuleGrid({ modules }: Readonly<{ modules: CrmModuleRegistryItem[] }>) {
+export function DashboardModuleGrid({
+  modules,
+  locale,
+}: Readonly<{ modules: CrmModuleRegistryItem[]; locale?: string | null | undefined }>) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {modules.map((moduleItem) => (
         <Card key={moduleItem.id}>
           <CardHeader>
             <div className="flex items-center justify-between gap-3">
-              <CardTitle>{moduleItem.title}</CardTitle>
-              <CrmModuleStatusBadge status={moduleItem.status} />
+              <CardTitle>{getCrmModuleTitle(moduleItem, locale)}</CardTitle>
+              <CrmModuleStatusBadge status={moduleItem.status} locale={locale ?? null} />
             </div>
-            <CardDescription>{moduleItem.description}</CardDescription>
+            <CardDescription>{getCrmModuleDescription(moduleItem, locale)}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Text className="text-sm text-muted-foreground">
-              Endpoint status: {moduleItem.endpointDiscoveryStatus.replace("_", " ")}
+              {tCrm("crm.modules.common.endpointStatus", locale)}:{" "}
+              {getCrmEndpointDiscoveryLabel(moduleItem.endpointDiscoveryStatus, locale)}
             </Text>
             <Link
               className="text-sm font-medium text-primary underline-offset-4 hover:underline"
               href={moduleItem.path}
             >
-              Open module
+              {tCrm("crm.modules.common.openModule", locale)}
             </Link>
           </CardContent>
         </Card>

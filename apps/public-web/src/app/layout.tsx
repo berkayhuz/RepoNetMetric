@@ -6,6 +6,7 @@ import { ThemeProvider } from "@netmetric/ui/client";
 
 import { PublicFooter } from "@/features/public/components/public-footer";
 import { PublicHeader } from "@/features/public/components/public-header";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { defaultSiteDescription, siteTitle } from "@/lib/metadata";
 import { publicEnv } from "@/lib/public-env";
 
@@ -41,13 +42,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getRequestLocale();
+
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         <Script
           id="netmetric-theme-init"

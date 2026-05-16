@@ -7,10 +7,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function EditDealPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/deals/${resolved.id}/edit`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -29,7 +32,10 @@ export default async function EditDealPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <CrmEntityFormShell title="Edit Deal" description="Update deal fields.">
+    <CrmEntityFormShell
+      title={tCrm("crm.deals.pages.edit.title", locale)}
+      description={tCrm("crm.deals.pages.edit.description", locale)}
+    >
       <DealForm
         mode="edit"
         dealId={resolved.id}

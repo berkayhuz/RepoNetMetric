@@ -13,10 +13,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type ContactDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/contacts/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -38,38 +41,54 @@ export default async function ContactDetailPage({ params }: { params: Promise<{ 
     <section className="space-y-6">
       <CrmPageHeader
         title={contact.fullName}
-        description="Read-only contact detail."
+        description={tCrm("crm.contacts.pages.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/contacts/${resolved.id}/edit`}>Edit contact</Link>
+            <Link href={`/contacts/${resolved.id}/edit`}>
+              {tCrm("crm.contacts.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Profile"
+        title={tCrm("crm.contacts.pages.detail.profileTitle", locale)}
         fields={[
-          { label: "First name", value: contact.firstName },
-          { label: "Last name", value: contact.lastName },
-          { label: "Email", value: contact.email },
-          { label: "Mobile", value: contact.mobilePhone },
-          { label: "Company", value: contact.companyName },
-          { label: "Customer", value: contact.customerName },
-          { label: "Primary contact", value: contact.isPrimaryContact ? "Yes" : "No" },
-          { label: "Status", value: contact.isActive ? "Active" : "Inactive" },
+          { label: tCrm("crm.contacts.fields.firstName", locale), value: contact.firstName },
+          { label: tCrm("crm.contacts.fields.lastName", locale), value: contact.lastName },
+          { label: tCrm("crm.contacts.fields.email", locale), value: contact.email },
+          {
+            label: tCrm("crm.contacts.fields.mobilePhoneShort", locale),
+            value: contact.mobilePhone,
+          },
+          { label: tCrm("crm.contacts.fields.company", locale), value: contact.companyName },
+          { label: tCrm("crm.contacts.fields.customer", locale), value: contact.customerName },
+          {
+            label: tCrm("crm.contacts.fields.primaryContact", locale),
+            value: contact.isPrimaryContact
+              ? tCrm("crm.common.yes", locale)
+              : tCrm("crm.common.no", locale),
+          },
+          {
+            label: tCrm("crm.contacts.fields.status", locale),
+            value: contact.isActive
+              ? tCrm("crm.common.active", locale)
+              : tCrm("crm.common.inactive", locale),
+          },
         ]}
       />
       <CrmDeleteZone
-        title="Delete Contact"
-        description="Deleting this contact removes it from active CRM views."
+        title={tCrm("crm.contacts.actions.delete", locale)}
+        description={tCrm("crm.contacts.pages.detail.deleteDescription", locale)}
+        locale={locale}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Contact"
+          entityLabel={tCrm("crm.contacts.entityName", locale)}
           entityName={contact.fullName}
           confirmValue="delete-contact"
           action={deleteContactAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Contact timeline and activities" />
+      <CrmContractPending module={tCrm("crm.contacts.pages.detail.pendingModule", locale)} />
     </section>
   );
 }

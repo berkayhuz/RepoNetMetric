@@ -1,17 +1,22 @@
 import { Alert, AlertDescription, AlertTitle } from "@netmetric/ui";
 
 import type { CrmModuleRegistryItem } from "@/features/modules/module-registry";
+import { getCrmStatusLabel, tCrm } from "@/lib/i18n/crm-i18n";
 
 export function CrmContractStatusPanel({
   moduleItem,
-}: Readonly<{ moduleItem: CrmModuleRegistryItem }>) {
+  locale,
+}: Readonly<{ moduleItem: CrmModuleRegistryItem; locale?: string | null | undefined }>) {
   return (
     <Alert>
-      <AlertTitle>Implementation status: {moduleItem.status.replace("_", " ")}</AlertTitle>
+      <AlertTitle>
+        {tCrm("crm.modules.common.implementationStatus", locale)}:{" "}
+        {getCrmStatusLabel(moduleItem.status, locale)}
+      </AlertTitle>
       <AlertDescription>
         {moduleItem.status === "contract_pending"
-          ? "Frontend implementation is intentionally paused until endpoint contracts are fully confirmed for this module."
-          : "This module currently exposes a shell-level experience only. Full workflows will be implemented in a later phase."}
+          ? tCrm("crm.modules.common.contractPendingDescription", locale)
+          : tCrm("crm.modules.common.shellOnlyDescription", locale)}
       </AlertDescription>
     </Alert>
   );

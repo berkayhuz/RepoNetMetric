@@ -7,8 +7,10 @@ import {
   createCustomerAddressAction,
 } from "@/features/addresses/actions/address-mutation-actions";
 import type { AddressDto } from "@/lib/crm-api";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
-export function AddressSection({
+export async function AddressSection({
   entityType,
   entityId,
   addresses,
@@ -17,24 +19,31 @@ export function AddressSection({
   entityId: string;
   addresses?: AddressDto[] | null;
 }>) {
+  const locale = await getRequestLocale();
   const list = Array.isArray(addresses) ? addresses : [];
+  const entityKey =
+    entityType === "customer" ? "crm.address.entity.customer" : "crm.address.entity.company";
 
   return (
     <section className="space-y-4" aria-labelledby={`${entityType}-address-section`}>
       <header className="space-y-1">
         <h2 id={`${entityType}-address-section`} className="text-lg font-semibold">
-          Addresses
+          {tCrm("crm.address.section.title", locale)}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Manage postal addresses for this {entityType}. Changes are applied immediately.
+          {tCrm("crm.address.section.description", locale, {
+            entity: tCrm(entityKey, locale),
+          })}
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Add address</CardTitle>
+          <CardTitle>{tCrm("crm.address.actions.add", locale)}</CardTitle>
           <CardDescription>
-            Enter the address details and submit to attach it to this {entityType}.
+            {tCrm("crm.address.section.addDescription", locale, {
+              entity: tCrm(entityKey, locale),
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -50,12 +59,14 @@ export function AddressSection({
       </Card>
 
       {list.length > 0 ? (
-        <AddressList entityType={entityType} entityId={entityId} addresses={list} />
+        <AddressList entityType={entityType} entityId={entityId} addresses={list} locale={locale} />
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>No addresses yet</CardTitle>
-            <CardDescription>Add the first address using the form above.</CardDescription>
+            <CardTitle>{tCrm("crm.address.section.emptyTitle", locale)}</CardTitle>
+            <CardDescription>
+              {tCrm("crm.address.section.emptyDescription", locale)}
+            </CardDescription>
           </CardHeader>
         </Card>
       )}

@@ -6,10 +6,12 @@ export function AddressList({
   entityType,
   entityId,
   addresses,
+  locale,
 }: Readonly<{
   entityType: "customer" | "company";
   entityId: string;
   addresses: AddressDto[];
+  locale?: string | null | undefined;
 }>) {
   return (
     <div className="grid gap-4">
@@ -20,6 +22,7 @@ export function AddressList({
           entityId={entityId}
           address={address}
           onDelete={deleteAddressAction.bind(null, entityType, entityId, address.id)}
+          locale={locale}
         />
       ))}
     </div>

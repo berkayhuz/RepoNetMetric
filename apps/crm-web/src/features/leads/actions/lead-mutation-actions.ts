@@ -10,6 +10,8 @@ import { emptyToNull } from "@/features/shared/forms/schema-primitives";
 import { crmApiClient, type LeadUpdateRequest, type LeadUpsertRequest } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import { leadFormSchema, type LeadFormInput, type LeadFormValues } from "../forms/lead-form-schema";
@@ -43,27 +45,31 @@ function mapLeadUpdatePayload(input: LeadFormValues): LeadUpdateRequest {
   };
 }
 
-function mapZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
+function mapZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  locale: string,
+): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(fieldErrors).flatMap(([key, errors]) => {
       if (!errors || errors.length === 0) {
         return [];
       }
 
-      return [[key, errors] as const];
+      return [[key, [tCrm("crm.leads.validation.invalid", locale)]] as const];
     }),
   );
 }
 
 export async function createLeadAction(input: LeadFormInput): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const parsed = leadFormSchema.safeParse(input);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -76,7 +82,7 @@ export async function createLeadAction(input: LeadFormInput): Promise<CrmMutatio
 
     return {
       status: "success",
-      message: "Lead created successfully.",
+      message: tCrm("crm.leads.result.created", locale),
       redirectTo: `/leads/${created.id}`,
     };
   } catch (error) {
@@ -89,11 +95,12 @@ export async function updateLeadAction(
   input: LeadFormInput,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(leadId)) {
     return {
       status: "error",
-      message: "Invalid lead id.",
+      message: tCrm("crm.leads.validation.invalidId", locale),
     };
   }
 
@@ -101,8 +108,8 @@ export async function updateLeadAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -116,7 +123,7 @@ export async function updateLeadAction(
 
     return {
       status: "success",
-      message: "Lead updated successfully.",
+      message: tCrm("crm.leads.result.updated", locale),
       redirectTo: `/leads/${leadId}`,
     };
   } catch (error) {
@@ -131,21 +138,22 @@ export async function deleteLeadAction(
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
   await requireCrmSession(`/leads/${leadId}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(leadId)) {
-    return { status: "error", message: "Invalid lead id." };
+    return { status: "error", message: tCrm("crm.leads.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "delete-lead") {
-    return { status: "error", message: "Delete confirmation is invalid." };
+    return { status: "error", message: tCrm("crm.delete.invalidConfirmation", locale) };
   }
 
   const confirmText = formData.get("confirmText");
   if (typeof confirmText !== "string" || confirmText.trim().length === 0) {
     return {
       status: "error",
-      message: "Please type the record name to confirm deletion.",
-      fieldErrors: { confirmText: ["Confirmation text is required."] },
+      message: tCrm("crm.delete.typeNameRequired", locale),
+      fieldErrors: { confirmText: [tCrm("crm.delete.confirmationRequired", locale)] },
     };
   }
 
@@ -160,7 +168,7 @@ export async function deleteLeadAction(
     if (mapped.message === "The requested record no longer exists.") {
       return {
         status: "error",
-        message: "Lead is already removed or no longer available.",
+        message: tCrm("crm.leads.result.alreadyRemoved", locale),
       };
     }
 

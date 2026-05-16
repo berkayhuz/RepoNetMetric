@@ -37,6 +37,36 @@ const options: AccountOptionsResponse = {
   phoneCountries: [{ iso2: "TR", name: "Turkey", dialCode: "+90" }],
 };
 
+const profileCopy = {
+  pageTitle: "Profile",
+  pageDescription: "Update profile information and manage your avatar.",
+  updatedTitle: "Profile updated",
+  updateFailedTitle: "Update failed",
+  editCardTitle: "Edit profile",
+  editCardDescription: "Changes are saved to your account profile.",
+  fields: {
+    displayName: "Display name",
+    firstName: "First name",
+    lastName: "Last name",
+    phoneCountry: "Phone country",
+    noPhone: "No phone",
+    phoneNationalNumber: "Phone national number",
+    jobTitle: "Job title",
+    department: "Department",
+    timeZone: "Time zone",
+    language: "Language",
+  },
+  help: {
+    displayNameManaged: "Display name is managed by backend profile rules.",
+    phoneNationalNumber: "Enter without country code.",
+  },
+  actions: {
+    save: "Save profile",
+    saving: "Saving...",
+    reset: "Reset",
+  },
+} as const;
+
 const profile: MyProfileResponse = {
   id: "p1",
   tenantId: "t1",
@@ -135,7 +165,9 @@ describe("Account forms and panels", () => {
   };
 
   it("renders profile selects from options", () => {
-    render(createElement(ProfileEditForm, { profile, options, action: idleMutation }));
+    render(
+      createElement(ProfileEditForm, { profile, options, copy: profileCopy, action: idleMutation }),
+    );
     expect(screen.getByLabelText("Phone country")).toBeTruthy();
     expect(screen.getByLabelText("Time zone")).toBeTruthy();
     expect(screen.getByLabelText("Language")).toBeTruthy();

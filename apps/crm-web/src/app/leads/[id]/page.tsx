@@ -13,10 +13,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type LeadDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/leads/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -38,42 +41,63 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     <section className="space-y-6">
       <CrmPageHeader
         title={lead.fullName}
-        description="Lead detail."
+        description={tCrm("crm.leads.pages.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/leads/${resolved.id}/edit`}>Edit lead</Link>
+            <Link href={`/leads/${resolved.id}/edit`}>
+              {tCrm("crm.leads.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Lead profile"
+        title={tCrm("crm.leads.pages.detail.profileTitle", locale)}
         fields={[
-          { label: "Lead code", value: lead.leadCode },
-          { label: "Full name", value: lead.fullName },
-          { label: "Company", value: lead.companyName },
-          { label: "Email", value: lead.email },
-          { label: "Phone", value: lead.phone },
-          { label: "Status", value: String(lead.status) },
-          { label: "Source", value: String(lead.source) },
-          { label: "Priority", value: String(lead.priority) },
-          { label: "Score", value: lead.totalScore },
-          { label: "Grade", value: String(lead.grade) },
-          { label: "SLA breached", value: lead.slaBreached ? "Yes" : "No" },
-          { label: "State", value: lead.isActive ? "Active" : "Inactive" },
+          { label: tCrm("crm.leads.fields.leadCode", locale), value: lead.leadCode },
+          { label: tCrm("crm.leads.fields.fullName", locale), value: lead.fullName },
+          { label: tCrm("crm.leads.fields.company", locale), value: lead.companyName },
+          { label: tCrm("crm.leads.fields.email", locale), value: lead.email },
+          { label: tCrm("crm.leads.fields.phone", locale), value: lead.phone },
+          {
+            label: tCrm("crm.leads.fields.status", locale),
+            value: tCrm(`crm.leads.status.${lead.status}`, locale),
+          },
+          {
+            label: tCrm("crm.leads.fields.source", locale),
+            value: tCrm(`crm.leads.source.${lead.source}`, locale),
+          },
+          {
+            label: tCrm("crm.leads.fields.priority", locale),
+            value: tCrm(`crm.common.priority.${lead.priority}`, locale),
+          },
+          { label: tCrm("crm.leads.fields.score", locale), value: lead.totalScore },
+          { label: tCrm("crm.leads.fields.grade", locale), value: String(lead.grade) },
+          {
+            label: tCrm("crm.leads.fields.slaBreached", locale),
+            value: lead.slaBreached
+              ? tCrm("crm.common.yes", locale)
+              : tCrm("crm.common.no", locale),
+          },
+          {
+            label: tCrm("crm.leads.fields.state", locale),
+            value: lead.isActive
+              ? tCrm("crm.common.active", locale)
+              : tCrm("crm.common.inactive", locale),
+          },
         ]}
       />
       <CrmDeleteZone
-        title="Delete Lead"
-        description="Deleting this lead removes it from active CRM views."
+        title={tCrm("crm.leads.actions.delete", locale)}
+        description={tCrm("crm.leads.pages.detail.deleteDescription", locale)}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Lead"
+          entityLabel={tCrm("crm.leads.entityName", locale)}
           entityName={lead.fullName}
           confirmValue="delete-lead"
           action={deleteLeadAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Lead timeline, conversion, and assignment operations" />
+      <CrmContractPending module={tCrm("crm.leads.pages.detail.pendingModule", locale)} />
     </section>
   );
 }

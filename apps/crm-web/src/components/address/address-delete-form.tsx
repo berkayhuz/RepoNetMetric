@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@netmetric/ui";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { AddressActionResult } from "@/components/address/address-action-result";
 import {
@@ -15,7 +16,9 @@ function SubmitButton() {
 
   return (
     <Button type="submit" variant="destructive" disabled={pending} aria-busy={pending}>
-      {pending ? "Deleting address..." : "Delete address"}
+      {pending
+        ? tCrmClient("crm.address.actions.deleting")
+        : tCrmClient("crm.address.actions.delete")}
     </Button>
   );
 }

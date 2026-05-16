@@ -4,26 +4,8 @@ import { getLeadsData } from "@/features/leads/data/leads-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { LeadListItemDto } from "@/lib/crm-api";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-
-const columns: CrmEntityTableColumn<LeadListItemDto>[] = [
-  { key: "leadCode", header: "Code", render: (item) => item.leadCode },
-  { key: "fullName", header: "Name", render: (item) => item.fullName },
-  { key: "companyName", header: "Company", render: (item) => item.companyName || "-" },
-  { key: "email", header: "Email", render: (item) => item.email || "-" },
-  { key: "status", header: "Status", render: (item) => String(item.status) },
-  { key: "source", header: "Source", render: (item) => String(item.source) },
-  {
-    key: "nextContactDate",
-    header: "Next contact",
-    render: (item) =>
-      item.nextContactDate ? new Date(item.nextContactDate).toLocaleDateString("en-GB") : "-",
-  },
-  {
-    key: "isActive",
-    header: "State",
-    render: (item) => (item.isActive ? "Active" : "Inactive"),
-  },
-];
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function LeadsPage({
   searchParams,
@@ -31,6 +13,7 @@ export default async function LeadsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/leads");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -42,15 +25,60 @@ export default async function LeadsPage({
     if (Array.isArray(value) && value[0]) currentQuery.set(key, value[0]);
   }
 
+  const columns: CrmEntityTableColumn<LeadListItemDto>[] = [
+    {
+      key: "leadCode",
+      header: tCrm("crm.leads.fields.leadCode", locale),
+      render: (item) => item.leadCode,
+    },
+    {
+      key: "fullName",
+      header: tCrm("crm.leads.fields.fullName", locale),
+      render: (item) => item.fullName,
+    },
+    {
+      key: "companyName",
+      header: tCrm("crm.leads.fields.company", locale),
+      render: (item) => item.companyName || "-",
+    },
+    {
+      key: "email",
+      header: tCrm("crm.leads.fields.email", locale),
+      render: (item) => item.email || "-",
+    },
+    {
+      key: "status",
+      header: tCrm("crm.leads.fields.status", locale),
+      render: (item) => tCrm(`crm.leads.status.${item.status}`, locale),
+    },
+    {
+      key: "source",
+      header: tCrm("crm.leads.fields.source", locale),
+      render: (item) => tCrm(`crm.leads.source.${item.source}`, locale),
+    },
+    {
+      key: "nextContactDate",
+      header: tCrm("crm.leads.fields.nextContactDate", locale),
+      render: (item) =>
+        item.nextContactDate ? new Date(item.nextContactDate).toLocaleDateString(locale) : "-",
+    },
+    {
+      key: "isActive",
+      header: tCrm("crm.leads.fields.state", locale),
+      render: (item) =>
+        item.isActive ? tCrm("crm.common.active", locale) : tCrm("crm.common.inactive", locale),
+    },
+  ];
+
   return (
     <CrmEntityListPage
-      title="Leads"
-      description="Lead records from consolidated CRM API."
+      title={tCrm("crm.leads.pages.list.title", locale)}
+      description={tCrm("crm.leads.pages.list.description", locale)}
       actionPath="/leads"
       createPath="/leads/new"
-      createLabel="Create lead"
+      createLabel={tCrm("crm.leads.actions.create", locale)}
       {...(query.search ? { search: query.search } : {})}
-      caption="Leads"
+      caption={tCrm("crm.leads.pages.list.caption", locale)}
       columns={columns}
       paged={data}
       detailBasePath="/leads"

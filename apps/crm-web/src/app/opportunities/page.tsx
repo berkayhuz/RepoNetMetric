@@ -4,34 +4,8 @@ import { getOpportunitiesData } from "@/features/opportunities/data/opportunitie
 import { toListQuery } from "@/features/shared/data/query";
 import type { OpportunityListItemDto } from "@/lib/crm-api";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-
-const columns: CrmEntityTableColumn<OpportunityListItemDto>[] = [
-  { key: "opportunityCode", header: "Code", render: (item) => item.opportunityCode },
-  { key: "name", header: "Name", render: (item) => item.name },
-  { key: "stage", header: "Stage", render: (item) => String(item.stage) },
-  { key: "status", header: "Status", render: (item) => String(item.status) },
-  {
-    key: "estimatedAmount",
-    header: "Estimated",
-    render: (item) => (item.estimatedAmount ?? "-") as string | number,
-  },
-  {
-    key: "expectedRevenue",
-    header: "Expected revenue",
-    render: (item) => (item.expectedRevenue ?? "-") as string | number,
-  },
-  {
-    key: "estimatedCloseDate",
-    header: "Close date",
-    render: (item) =>
-      item.estimatedCloseDate ? new Date(item.estimatedCloseDate).toLocaleDateString("en-GB") : "-",
-  },
-  {
-    key: "isActive",
-    header: "State",
-    render: (item) => (item.isActive ? "Active" : "Inactive"),
-  },
-];
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function OpportunitiesPage({
   searchParams,
@@ -39,6 +13,7 @@ export default async function OpportunitiesPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/opportunities");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -50,15 +25,62 @@ export default async function OpportunitiesPage({
     if (Array.isArray(value) && value[0]) currentQuery.set(key, value[0]);
   }
 
+  const columns: CrmEntityTableColumn<OpportunityListItemDto>[] = [
+    {
+      key: "opportunityCode",
+      header: tCrm("crm.opportunities.fields.opportunityCode", locale),
+      render: (item) => item.opportunityCode,
+    },
+    {
+      key: "name",
+      header: tCrm("crm.opportunities.fields.name", locale),
+      render: (item) => item.name,
+    },
+    {
+      key: "stage",
+      header: tCrm("crm.opportunities.fields.stage", locale),
+      render: (item) => tCrm(`crm.opportunities.stage.${item.stage}`, locale),
+    },
+    {
+      key: "status",
+      header: tCrm("crm.opportunities.fields.status", locale),
+      render: (item) => tCrm(`crm.opportunities.status.${item.status}`, locale),
+    },
+    {
+      key: "estimatedAmount",
+      header: tCrm("crm.opportunities.fields.estimatedAmount", locale),
+      render: (item) => (item.estimatedAmount ?? "-") as string | number,
+    },
+    {
+      key: "expectedRevenue",
+      header: tCrm("crm.opportunities.fields.expectedRevenue", locale),
+      render: (item) => (item.expectedRevenue ?? "-") as string | number,
+    },
+    {
+      key: "estimatedCloseDate",
+      header: tCrm("crm.opportunities.fields.estimatedCloseDate", locale),
+      render: (item) =>
+        item.estimatedCloseDate
+          ? new Date(item.estimatedCloseDate).toLocaleDateString(locale)
+          : "-",
+    },
+    {
+      key: "isActive",
+      header: tCrm("crm.opportunities.fields.state", locale),
+      render: (item) =>
+        item.isActive ? tCrm("crm.common.active", locale) : tCrm("crm.common.inactive", locale),
+    },
+  ];
+
   return (
     <CrmEntityListPage
-      title="Opportunities"
-      description="Opportunity records from consolidated CRM API."
+      title={tCrm("crm.opportunities.pages.list.title", locale)}
+      description={tCrm("crm.opportunities.pages.list.description", locale)}
       actionPath="/opportunities"
       createPath="/opportunities/new"
-      createLabel="Create opportunity"
+      createLabel={tCrm("crm.opportunities.actions.create", locale)}
       {...(query.search ? { search: query.search } : {})}
-      caption="Opportunities"
+      caption={tCrm("crm.opportunities.pages.list.caption", locale)}
       columns={columns}
       paged={data}
       detailBasePath="/opportunities"

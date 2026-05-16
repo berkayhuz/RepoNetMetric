@@ -4,15 +4,8 @@ import { getCompaniesData } from "@/features/companies/data/companies-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { CompanyListItemDto } from "@/lib/crm-api";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-
-const columns: CrmEntityTableColumn<CompanyListItemDto>[] = [
-  { key: "name", header: "Name", render: (item) => item.name },
-  { key: "email", header: "Email", render: (item) => item.email || "-" },
-  { key: "phone", header: "Phone", render: (item) => item.phone || "-" },
-  { key: "sector", header: "Sector", render: (item) => item.sector || "-" },
-  { key: "contactCount", header: "Contacts", render: (item) => item.contactCount },
-  { key: "isActive", header: "Status", render: (item) => (item.isActive ? "Active" : "Inactive") },
-];
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function CompaniesPage({
   searchParams,
@@ -20,10 +13,40 @@ export default async function CompaniesPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/companies");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const query = toListQuery(params);
   const data = await getCompaniesData(query, "/companies");
+  const columns: CrmEntityTableColumn<CompanyListItemDto>[] = [
+    { key: "name", header: tCrm("crm.companies.fields.name", locale), render: (item) => item.name },
+    {
+      key: "email",
+      header: tCrm("crm.companies.fields.email", locale),
+      render: (item) => item.email || "-",
+    },
+    {
+      key: "phone",
+      header: tCrm("crm.companies.fields.phone", locale),
+      render: (item) => item.phone || "-",
+    },
+    {
+      key: "sector",
+      header: tCrm("crm.companies.fields.sector", locale),
+      render: (item) => item.sector || "-",
+    },
+    {
+      key: "contactCount",
+      header: tCrm("crm.companies.fields.contacts", locale),
+      render: (item) => item.contactCount,
+    },
+    {
+      key: "isActive",
+      header: tCrm("crm.companies.fields.status", locale),
+      render: (item) =>
+        item.isActive ? tCrm("crm.common.active", locale) : tCrm("crm.common.inactive", locale),
+    },
+  ];
 
   const currentQuery = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -33,17 +56,20 @@ export default async function CompaniesPage({
 
   return (
     <CrmEntityListPage
-      title="Companies"
-      description="Read-only company list from CRM API."
+      title={tCrm("crm.companies.pages.list.title", locale)}
+      description={tCrm("crm.companies.pages.list.description", locale)}
       actionPath="/companies"
       createPath="/companies/new"
-      createLabel="New company"
+      createLabel={tCrm("crm.companies.actions.new", locale)}
       {...(query.search ? { search: query.search } : {})}
-      caption="Companies"
+      caption={tCrm("crm.companies.pages.list.caption", locale)}
       columns={columns}
       paged={data}
       detailBasePath="/companies"
       currentQuery={currentQuery}
+      locale={locale}
+      emptyTitle={tCrm("crm.companies.states.emptyTitle", locale)}
+      emptyDescription={tCrm("crm.companies.states.emptyDescription", locale)}
     />
   );
 }

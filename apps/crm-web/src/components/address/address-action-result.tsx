@@ -1,6 +1,7 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@netmetric/ui";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import type { CrmMutationState } from "@/features/shared/actions/mutation-state";
 
@@ -12,16 +13,20 @@ export function AddressActionResult({ state }: Readonly<{ state: CrmMutationStat
   if (state.status === "success") {
     return (
       <Alert>
-        <AlertTitle>Address Updated</AlertTitle>
-        <AlertDescription>{state.message ?? "Address saved successfully."}</AlertDescription>
+        <AlertTitle>{tCrmClient("crm.address.result.savedTitle")}</AlertTitle>
+        <AlertDescription>
+          {state.message ?? tCrmClient("crm.address.result.savedDescription")}
+        </AlertDescription>
       </Alert>
     );
   }
 
   return (
     <Alert variant="destructive">
-      <AlertTitle>Address Action Failed</AlertTitle>
-      <AlertDescription>{state.message ?? "Please try again."}</AlertDescription>
+      <AlertTitle>{tCrmClient("crm.address.result.errorTitle")}</AlertTitle>
+      <AlertDescription>
+        {state.message ?? tCrmClient("crm.forms.result.tryAgain")}
+      </AlertDescription>
     </Alert>
   );
 }

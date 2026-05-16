@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { resolveLocale, translate } from "@netmetric/i18n";
 
 import { AccountApiError, accountApiClient, type UpdateMyProfileRequest } from "@/lib/account-api";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
@@ -59,6 +61,8 @@ export async function updateProfileAction(
   formData: FormData,
 ): Promise<MutationState> {
   await assertSameOriginRequest();
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get("nm_locale")?.value);
 
   const payload: UpdateMyProfileRequest = {
     firstName: readRequiredString(formData, "firstName"),
@@ -81,7 +85,7 @@ export async function updateProfileAction(
 
     return {
       status: "success",
-      message: "Profile updated successfully.",
+      message: translate("account.profile.updated.description", { locale }),
     };
   } catch (error) {
     return mapMutationErrorToState(error, "/profile");

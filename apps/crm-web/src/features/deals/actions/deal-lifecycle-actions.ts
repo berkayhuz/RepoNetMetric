@@ -8,19 +8,24 @@ import { isGuid } from "@/features/shared/data/guid";
 import { emptyToNull } from "@/features/shared/forms/schema-primitives";
 import { crmApiClient, type DealOutcomeRequest } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import { dealLifecycleActionSchema } from "../forms/deal-lifecycle-action-schema";
 import { dealOwnerFormSchema } from "../forms/deal-owner-form-schema";
 
-function mapZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
+function mapZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  locale: string,
+): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(fieldErrors).flatMap(([key, errors]) => {
       if (!errors || errors.length === 0) {
         return [];
       }
 
-      return [[key, errors] as const];
+      return [[key, [tCrm("crm.deals.validation.invalid", locale)]] as const];
     }),
   );
 }
@@ -56,9 +61,10 @@ export async function changeDealOwnerAction(
   formData: FormData,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
-    return { status: "error", message: "Invalid deal id." };
+    return { status: "error", message: tCrm("crm.deals.validation.invalidId", locale) };
   }
 
   const parsed = dealOwnerFormSchema.safeParse({
@@ -68,8 +74,8 @@ export async function changeDealOwnerAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -82,7 +88,7 @@ export async function changeDealOwnerAction(
     );
 
     revalidateDealRoutes(dealId);
-    return { status: "success", message: "Deal owner updated successfully." };
+    return { status: "success", message: tCrm("crm.deals.result.ownerUpdated", locale) };
   } catch (error) {
     return mapCrmMutationErrorToState(error, `/deals/${dealId}`);
   }
@@ -94,20 +100,24 @@ export async function markDealWonAction(
   formData: FormData,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
-    return { status: "error", message: "Invalid deal id." };
+    return { status: "error", message: tCrm("crm.deals.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "mark-deal-won") {
-    return { status: "error", message: "Action confirmation is invalid." };
+    return {
+      status: "error",
+      message: tCrm("crm.deals.validation.invalidActionConfirmation", locale),
+    };
   }
 
   const payload = mapLifecyclePayload(formData);
   if (!payload) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
     };
   }
 
@@ -115,7 +125,7 @@ export async function markDealWonAction(
     const options = await getCrmApiRequestOptions();
     await crmApiClient.markDealWon(dealId, payload, options);
     revalidateDealRoutes(dealId);
-    return { status: "success", message: "Deal marked as won." };
+    return { status: "success", message: tCrm("crm.deals.result.markedWon", locale) };
   } catch (error) {
     return mapCrmMutationErrorToState(error, `/deals/${dealId}`);
   }
@@ -127,20 +137,24 @@ export async function markDealLostAction(
   formData: FormData,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
-    return { status: "error", message: "Invalid deal id." };
+    return { status: "error", message: tCrm("crm.deals.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "mark-deal-lost") {
-    return { status: "error", message: "Action confirmation is invalid." };
+    return {
+      status: "error",
+      message: tCrm("crm.deals.validation.invalidActionConfirmation", locale),
+    };
   }
 
   const payload = mapLifecyclePayload(formData);
   if (!payload) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
     };
   }
 
@@ -148,7 +162,7 @@ export async function markDealLostAction(
     const options = await getCrmApiRequestOptions();
     await crmApiClient.markDealLost(dealId, payload, options);
     revalidateDealRoutes(dealId);
-    return { status: "success", message: "Deal marked as lost." };
+    return { status: "success", message: tCrm("crm.deals.result.markedLost", locale) };
   } catch (error) {
     return mapCrmMutationErrorToState(error, `/deals/${dealId}`);
   }
@@ -160,20 +174,24 @@ export async function reopenDealAction(
   formData: FormData,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
-    return { status: "error", message: "Invalid deal id." };
+    return { status: "error", message: tCrm("crm.deals.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "reopen-deal") {
-    return { status: "error", message: "Action confirmation is invalid." };
+    return {
+      status: "error",
+      message: tCrm("crm.deals.validation.invalidActionConfirmation", locale),
+    };
   }
 
   const payload = mapLifecyclePayload(formData);
   if (!payload) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
     };
   }
 
@@ -181,7 +199,7 @@ export async function reopenDealAction(
     const options = await getCrmApiRequestOptions();
     await crmApiClient.reopenDeal(dealId, payload, options);
     revalidateDealRoutes(dealId);
-    return { status: "success", message: "Deal reopened." };
+    return { status: "success", message: tCrm("crm.deals.result.reopened", locale) };
   } catch (error) {
     return mapCrmMutationErrorToState(error, `/deals/${dealId}`);
   }

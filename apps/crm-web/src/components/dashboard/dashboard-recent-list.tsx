@@ -21,11 +21,15 @@ export function DashboardRecentList({
   description,
   items,
   detailBasePath,
+  emptyTitle,
+  emptyDescription,
 }: Readonly<{
   title: string;
   description: string;
   items: Array<{ id: string; name: string; subtitle: string }>;
   detailBasePath: string;
+  emptyTitle: string;
+  emptyDescription: string;
 }>) {
   return (
     <Card>
@@ -37,8 +41,8 @@ export function DashboardRecentList({
         {items.length === 0 ? (
           <Empty>
             <EmptyHeader>
-              <EmptyTitle>No records</EmptyTitle>
-              <EmptyDescription>No items available yet.</EmptyDescription>
+              <EmptyTitle>{emptyTitle}</EmptyTitle>
+              <EmptyDescription>{emptyDescription}</EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (

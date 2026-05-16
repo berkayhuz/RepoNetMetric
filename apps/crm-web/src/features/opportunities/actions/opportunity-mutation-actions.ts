@@ -14,6 +14,8 @@ import {
 } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import {
@@ -54,14 +56,17 @@ function mapOpportunityUpdatePayload(input: OpportunityFormValues): OpportunityU
   };
 }
 
-function mapZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
+function mapZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  locale: string,
+): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(fieldErrors).flatMap(([key, errors]) => {
       if (!errors || errors.length === 0) {
         return [];
       }
 
-      return [[key, errors] as const];
+      return [[key, [tCrm("crm.opportunities.validation.invalid", locale)]] as const];
     }),
   );
 }
@@ -70,13 +75,14 @@ export async function createOpportunityAction(
   input: OpportunityFormInput,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const parsed = opportunityFormSchema.safeParse(input);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -93,7 +99,7 @@ export async function createOpportunityAction(
 
     return {
       status: "success",
-      message: "Opportunity created successfully.",
+      message: tCrm("crm.opportunities.result.created", locale),
       redirectTo: `/opportunities/${created.id}`,
     };
   } catch (error) {
@@ -106,11 +112,12 @@ export async function updateOpportunityAction(
   input: OpportunityFormInput,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(opportunityId)) {
     return {
       status: "error",
-      message: "Invalid opportunity id.",
+      message: tCrm("crm.opportunities.validation.invalidId", locale),
     };
   }
 
@@ -118,8 +125,8 @@ export async function updateOpportunityAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -138,7 +145,7 @@ export async function updateOpportunityAction(
 
     return {
       status: "success",
-      message: "Opportunity updated successfully.",
+      message: tCrm("crm.opportunities.result.updated", locale),
       redirectTo: `/opportunities/${opportunityId}`,
     };
   } catch (error) {
@@ -153,21 +160,22 @@ export async function deleteOpportunityAction(
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
   await requireCrmSession(`/opportunities/${opportunityId}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(opportunityId)) {
-    return { status: "error", message: "Invalid opportunity id." };
+    return { status: "error", message: tCrm("crm.opportunities.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "delete-opportunity") {
-    return { status: "error", message: "Delete confirmation is invalid." };
+    return { status: "error", message: tCrm("crm.delete.invalidConfirmation", locale) };
   }
 
   const confirmText = formData.get("confirmText");
   if (typeof confirmText !== "string" || confirmText.trim().length === 0) {
     return {
       status: "error",
-      message: "Please type the record name to confirm deletion.",
-      fieldErrors: { confirmText: ["Confirmation text is required."] },
+      message: tCrm("crm.delete.typeNameRequired", locale),
+      fieldErrors: { confirmText: [tCrm("crm.delete.confirmationRequired", locale)] },
     };
   }
 
@@ -183,7 +191,7 @@ export async function deleteOpportunityAction(
     if (mapped.message === "The requested record no longer exists.") {
       return {
         status: "error",
-        message: "Opportunity is already removed or no longer available.",
+        message: tCrm("crm.opportunities.result.alreadyRemoved", locale),
       };
     }
 

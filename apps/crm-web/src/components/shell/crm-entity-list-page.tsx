@@ -1,4 +1,5 @@
 import type { CrmPagedResult } from "@/lib/crm-api";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 import { CrmEmptyState } from "./crm-empty-state";
 import { CrmEntityTable, type CrmEntityTableColumn } from "./crm-entity-table";
@@ -19,6 +20,9 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   paged,
   detailBasePath,
   currentQuery,
+  locale,
+  emptyTitle,
+  emptyDescription,
 }: Readonly<{
   title: string;
   description: string;
@@ -32,7 +36,14 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   paged: CrmPagedResult<TItem>;
   detailBasePath: string;
   currentQuery: URLSearchParams;
+  locale?: string | null;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }>) {
+  const resolvedEmptyTitle = emptyTitle ?? tCrm("crm.lists.states.empty", locale);
+  const resolvedEmptyDescription =
+    emptyDescription ?? tCrm("crm.lists.states.emptyDescription", locale);
+
   return (
     <section className="space-y-6">
       <CrmPageHeader title={title} description={description} />
@@ -42,13 +53,11 @@ export function CrmEntityListPage<TItem extends { id: string }>({
         {...(createLabel ? { createLabel } : {})}
         {...(createDisabledMessage ? { createDisabledMessage } : {})}
         {...(search ? { search } : {})}
+        {...(locale !== undefined ? { locale } : {})}
       />
 
       {paged.items.length === 0 ? (
-        <CrmEmptyState
-          title={`No ${title.toLowerCase()} found`}
-          description="Try adjusting your search or pagination parameters."
-        />
+        <CrmEmptyState title={resolvedEmptyTitle} description={resolvedEmptyDescription} />
       ) : (
         <CrmEntityTable
           caption={caption}

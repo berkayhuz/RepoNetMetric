@@ -14,10 +14,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type CompanyDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/companies/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -39,39 +42,47 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
     <section className="space-y-6">
       <CrmPageHeader
         title={company.name}
-        description="Read-only company detail."
+        description={tCrm("crm.companies.pages.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/companies/${resolved.id}/edit`}>Edit company</Link>
+            <Link href={`/companies/${resolved.id}/edit`}>
+              {tCrm("crm.companies.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Profile"
+        title={tCrm("crm.companies.pages.detail.profileTitle", locale)}
         fields={[
-          { label: "Name", value: company.name },
-          { label: "Email", value: company.email },
-          { label: "Phone", value: company.phone },
-          { label: "Sector", value: company.sector },
-          { label: "Type", value: company.companyType },
-          { label: "Website", value: company.website },
-          { label: "Tax number", value: company.taxNumber },
-          { label: "Status", value: company.isActive ? "Active" : "Inactive" },
+          { label: tCrm("crm.companies.fields.name", locale), value: company.name },
+          { label: tCrm("crm.companies.fields.email", locale), value: company.email },
+          { label: tCrm("crm.companies.fields.phone", locale), value: company.phone },
+          { label: tCrm("crm.companies.fields.sector", locale), value: company.sector },
+          { label: tCrm("crm.companies.fields.companyType", locale), value: company.companyType },
+          { label: tCrm("crm.companies.fields.website", locale), value: company.website },
+          { label: tCrm("crm.companies.fields.taxNumber", locale), value: company.taxNumber },
+          {
+            label: tCrm("crm.companies.fields.status", locale),
+            value: company.isActive
+              ? tCrm("crm.common.active", locale)
+              : tCrm("crm.common.inactive", locale),
+          },
         ]}
       />
       <AddressSection entityType="company" entityId={resolved.id} addresses={company.addresses} />
       <CrmDeleteZone
-        title="Delete Company"
-        description="Deleting this company removes it from active CRM views."
+        title={tCrm("crm.companies.actions.delete", locale)}
+        description={tCrm("crm.companies.pages.detail.deleteDescription", locale)}
+        locale={locale}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Company"
+          entityLabel={tCrm("crm.companies.entityName", locale)}
           entityName={company.name}
           confirmValue="delete-company"
           action={deleteCompanyAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Company relationships and notes" />
+      <CrmContractPending module={tCrm("crm.companies.pages.detail.pendingModule", locale)} />
     </section>
   );
 }

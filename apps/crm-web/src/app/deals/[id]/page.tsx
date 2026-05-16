@@ -23,10 +23,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type DealDetailDto, type DealLostReasonDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/deals/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -50,15 +53,17 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     <section className="space-y-6">
       <CrmPageHeader
         title={deal.name}
-        description="Deal detail."
+        description={tCrm("crm.deals.pages.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/deals/${resolved.id}/edit`}>Edit deal</Link>
+            <Link href={`/deals/${resolved.id}/edit`}>
+              {tCrm("crm.deals.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Deal profile"
+        title={tCrm("crm.deals.pages.detail.profileTitle", locale)}
         fields={[
           { label: "Deal code", value: deal.dealCode },
           { label: "Name", value: deal.name },
@@ -81,15 +86,15 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           action={changeDealOwnerAction.bind(null, resolved.id)}
         />
         <DealLifecycleActionPanel
-          title="Mark as Won"
-          description="Mark this deal as won."
+          title={tCrm("crm.deals.actions.markWon", locale)}
+          description={tCrm("crm.deals.lifecycle.markWonDescription", locale)}
           confirmValue="mark-deal-won"
           action={markDealWonAction.bind(null, resolved.id)}
           rowVersion={deal.rowVersion}
         />
         <DealLifecycleActionPanel
-          title="Mark as Lost"
-          description="Mark this deal as lost and optionally select a reason."
+          title={tCrm("crm.deals.actions.markLost", locale)}
+          description={tCrm("crm.deals.lifecycle.markLostDescription", locale)}
           confirmValue="mark-deal-lost"
           action={markDealLostAction.bind(null, resolved.id)}
           showLostReason
@@ -97,25 +102,25 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           rowVersion={deal.rowVersion}
         />
         <DealLifecycleActionPanel
-          title="Reopen Deal"
-          description="Reopen this deal after win/loss closure."
+          title={tCrm("crm.deals.actions.reopen", locale)}
+          description={tCrm("crm.deals.lifecycle.reopenDescription", locale)}
           confirmValue="reopen-deal"
           action={reopenDealAction.bind(null, resolved.id)}
           rowVersion={deal.rowVersion}
         />
       </div>
       <CrmDeleteZone
-        title="Delete Deal"
-        description="Deleting this deal removes it from active CRM views."
+        title={tCrm("crm.deals.actions.delete", locale)}
+        description={tCrm("crm.deals.pages.detail.deleteDescription", locale)}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Deal"
+          entityLabel={tCrm("crm.deals.entityName", locale)}
           entityName={deal.name}
           confirmValue="delete-deal"
           action={deleteDealAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Deal bulk owner change and win-loss review workflows" />
+      <CrmContractPending module={tCrm("crm.deals.pages.detail.pendingModule", locale)} />
     </section>
   );
 }

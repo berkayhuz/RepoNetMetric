@@ -10,18 +10,23 @@ import { emptyToNull } from "@/features/shared/forms/schema-primitives";
 import { crmApiClient, type DealUpsertRequest } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import { dealFormSchema, type DealFormInput, type DealFormValues } from "../forms/deal-form-schema";
 
-function mapZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
+function mapZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  locale: string,
+): Record<string, string[]> {
   return Object.fromEntries(
     Object.entries(fieldErrors).flatMap(([key, errors]) => {
       if (!errors || errors.length === 0) {
         return [];
       }
 
-      return [[key, errors] as const];
+      return [[key, [tCrm("crm.deals.validation.invalid", locale)]] as const];
     }),
   );
 }
@@ -48,13 +53,14 @@ function mapDealUpdatePayload(input: DealFormValues): DealUpsertRequest {
 
 export async function createDealAction(input: DealFormInput): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const parsed = dealFormSchema.safeParse(input);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -67,7 +73,7 @@ export async function createDealAction(input: DealFormInput): Promise<CrmMutatio
 
     return {
       status: "success",
-      message: "Deal created successfully.",
+      message: tCrm("crm.deals.result.created", locale),
       redirectTo: `/deals/${created.id}`,
     };
   } catch (error) {
@@ -80,11 +86,12 @@ export async function updateDealAction(
   input: DealFormInput,
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
     return {
       status: "error",
-      message: "Invalid deal id.",
+      message: tCrm("crm.deals.validation.invalidId", locale),
     };
   }
 
@@ -92,8 +99,8 @@ export async function updateDealAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
-      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
+      message: tCrm("crm.forms.errors.reviewTitle", locale),
+      fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors, locale),
     };
   }
 
@@ -107,7 +114,7 @@ export async function updateDealAction(
 
     return {
       status: "success",
-      message: "Deal updated successfully.",
+      message: tCrm("crm.deals.result.updated", locale),
       redirectTo: `/deals/${dealId}`,
     };
   } catch (error) {
@@ -122,21 +129,22 @@ export async function deleteDealAction(
 ): Promise<CrmMutationState> {
   await assertSameOriginRequest();
   await requireCrmSession(`/deals/${dealId}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(dealId)) {
-    return { status: "error", message: "Invalid deal id." };
+    return { status: "error", message: tCrm("crm.deals.validation.invalidId", locale) };
   }
 
   if (formData.get("confirm") !== "delete-deal") {
-    return { status: "error", message: "Delete confirmation is invalid." };
+    return { status: "error", message: tCrm("crm.delete.invalidConfirmation", locale) };
   }
 
   const confirmText = formData.get("confirmText");
   if (typeof confirmText !== "string" || confirmText.trim().length === 0) {
     return {
       status: "error",
-      message: "Please type the record name to confirm deletion.",
-      fieldErrors: { confirmText: ["Confirmation text is required."] },
+      message: tCrm("crm.delete.typeNameRequired", locale),
+      fieldErrors: { confirmText: [tCrm("crm.delete.confirmationRequired", locale)] },
     };
   }
 
@@ -151,7 +159,7 @@ export async function deleteDealAction(
     if (mapped.message === "The requested record no longer exists.") {
       return {
         status: "error",
-        message: "Deal is already removed or no longer available.",
+        message: tCrm("crm.deals.result.alreadyRemoved", locale),
       };
     }
 

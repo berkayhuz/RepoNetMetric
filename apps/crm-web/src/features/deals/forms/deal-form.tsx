@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createDealAction, updateDealAction } from "../actions/deal-mutation-actions";
 import { dealFormSchema, type DealFormInput } from "./deal-form-schema";
@@ -80,49 +81,59 @@ export function DealForm({ mode, dealId, initialValues }: Readonly<DealFormProps
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="deal-code">Deal code</FieldLabel>
+          <FieldLabel htmlFor="deal-code">{tCrmClient("crm.deals.fields.dealCode")}</FieldLabel>
           <FieldContent>
             <Input id="deal-code" {...form.register("dealCode")} />
             <FieldError>{form.formState.errors.dealCode?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-name">Name</FieldLabel>
+          <FieldLabel htmlFor="deal-name">{tCrmClient("crm.deals.fields.name")}</FieldLabel>
           <FieldContent>
             <Input id="deal-name" {...form.register("name")} />
             <FieldError>{form.formState.errors.name?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-totalAmount">Total amount</FieldLabel>
+          <FieldLabel htmlFor="deal-totalAmount">
+            {tCrmClient("crm.deals.fields.totalAmount")}
+          </FieldLabel>
           <FieldContent>
             <Input id="deal-totalAmount" inputMode="decimal" {...form.register("totalAmount")} />
             <FieldError>{form.formState.errors.totalAmount?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-closedDate">Closed date</FieldLabel>
+          <FieldLabel htmlFor="deal-closedDate">
+            {tCrmClient("crm.deals.fields.closedDate")}
+          </FieldLabel>
           <FieldContent>
             <Input id="deal-closedDate" type="date" {...form.register("closedDate")} />
             <FieldError>{form.formState.errors.closedDate?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-opportunityId">Opportunity ID</FieldLabel>
+          <FieldLabel htmlFor="deal-opportunityId">
+            {tCrmClient("crm.deals.fields.opportunityId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="deal-opportunityId" {...form.register("opportunityId")} />
             <FieldError>{form.formState.errors.opportunityId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-companyId">Company ID</FieldLabel>
+          <FieldLabel htmlFor="deal-companyId">
+            {tCrmClient("crm.deals.fields.companyId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="deal-companyId" {...form.register("companyId")} />
             <FieldError>{form.formState.errors.companyId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="deal-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="deal-ownerUserId">
+            {tCrmClient("crm.deals.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="deal-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
@@ -132,7 +143,7 @@ export function DealForm({ mode, dealId, initialValues }: Readonly<DealFormProps
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="deal-notes">Notes</FieldLabel>
+          <FieldLabel htmlFor="deal-notes">{tCrmClient("crm.deals.fields.notes")}</FieldLabel>
           <FieldContent>
             <Textarea id="deal-notes" rows={4} {...form.register("notes")} />
             <FieldError>{form.formState.errors.notes?.message}</FieldError>
@@ -144,10 +155,14 @@ export function DealForm({ mode, dealId, initialValues }: Readonly<DealFormProps
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create deal" : "Save deal"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.deals.actions.create")
+              : tCrmClient("crm.deals.actions.save")}
         </Button>
       </div>
     </form>

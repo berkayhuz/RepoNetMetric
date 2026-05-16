@@ -24,6 +24,7 @@ import {
 } from "@netmetric/ui";
 
 import type { AccountOptionsResponse, MyProfileResponse } from "@/lib/account-api";
+import { resolveLanguageSelectState } from "@/lib/language-select";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { AvatarManagementPanel } from "./avatar-management-panel";
@@ -32,49 +33,79 @@ import { ReadOnlyValue } from "./read-only-value";
 type ProfileEditFormProps = {
   profile: MyProfileResponse;
   options: AccountOptionsResponse;
+  copy: ProfileEditCopy;
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
 };
 
-function SubmitButton() {
+export type ProfileEditCopy = {
+  pageTitle: string;
+  pageDescription: string;
+  updatedTitle: string;
+  updateFailedTitle: string;
+  editCardTitle: string;
+  editCardDescription: string;
+  fields: {
+    displayName: string;
+    firstName: string;
+    lastName: string;
+    phoneCountry: string;
+    noPhone: string;
+    phoneNationalNumber: string;
+    jobTitle: string;
+    department: string;
+    timeZone: string;
+    language: string;
+  };
+  help: {
+    displayNameManaged: string;
+    phoneNationalNumber: string;
+  };
+  actions: {
+    save: string;
+    saving: string;
+    reset: string;
+  };
+};
+
+function SubmitButton({ copy }: { copy: ProfileEditCopy }) {
   const { pending } = useFormStatus();
 
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : "Save profile"}
+      {pending ? copy.actions.saving : copy.actions.save}
     </Button>
   );
 }
 
-export function ProfileEditForm({ profile, options, action }: ProfileEditFormProps) {
+export function ProfileEditForm({ profile, options, copy, action }: ProfileEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
+  const languageSelect = resolveLanguageSelectState(profile.culture, options.languages);
 
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Profile</Heading>
-        <Text className="text-muted-foreground">
-          Update profile information and manage your avatar.
-        </Text>
+        <Heading level={2}>{copy.pageTitle}</Heading>
+        <Text className="text-muted-foreground">{copy.pageDescription}</Text>
       </div>
 
       {state.status === "success" ? (
         <Alert>
-          <AlertTitle>Profile updated</AlertTitle>
+          <AlertTitle>{copy.updatedTitle}</AlertTitle>
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
 
       {state.status === "error" && state.message ? (
         <Alert variant="destructive">
-          <AlertTitle>Update failed</AlertTitle>
+          <AlertTitle>{copy.updateFailedTitle}</AlertTitle>
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit profile</CardTitle>
-          <CardDescription>Changes are saved to your account profile.</CardDescription>
+          <CardTitle>{copy.editCardTitle}</CardTitle>
+          <CardDescription>{copy.editCardDescription}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-4" noValidate>
@@ -83,16 +114,16 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
               <FormField
                 id="displayName"
                 name="displayName"
-                label="Display name"
+                label={copy.fields.displayName}
                 defaultValue={profile.displayName}
                 readOnly
-                helpText="Display name is managed by backend profile rules."
+                helpText={copy.help.displayNameManaged}
                 error={undefined}
               />
               <FormField
                 id="firstName"
                 name="firstName"
-                label="First name"
+                label={copy.fields.firstName}
                 defaultValue={profile.firstName}
                 error={state.fieldErrors?.firstName?.[0]}
                 helpText={undefined}
@@ -101,21 +132,21 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
               <FormField
                 id="lastName"
                 name="lastName"
-                label="Last name"
+                label={copy.fields.lastName}
                 defaultValue={profile.lastName}
                 error={state.fieldErrors?.lastName?.[0]}
                 helpText={undefined}
                 readOnly={undefined}
               />
               <Field>
-                <FieldLabel htmlFor="phoneCountryIso2">Phone country</FieldLabel>
+                <FieldLabel htmlFor="phoneCountryIso2">{copy.fields.phoneCountry}</FieldLabel>
                 <FieldContent>
                   <NativeSelect
                     id="phoneCountryIso2"
                     name="phoneCountryIso2"
                     defaultValue={profile.phoneCountryIso2 ?? ""}
                   >
-                    <option value="">No phone</option>
+                    <option value="">{copy.fields.noPhone}</option>
                     {options.phoneCountries.map((country) => (
                       <option key={country.iso2} value={country.iso2}>
                         {country.name} ({country.iso2}) {country.dialCode}
@@ -127,16 +158,16 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
               <FormField
                 id="phoneNationalNumber"
                 name="phoneNationalNumber"
-                label="Phone national number"
+                label={copy.fields.phoneNationalNumber}
                 defaultValue={profile.phoneNationalNumber ?? ""}
                 error={state.fieldErrors?.phoneNationalNumber?.[0]}
-                helpText="Enter without country code."
+                helpText={copy.help.phoneNationalNumber}
                 readOnly={undefined}
               />
               <FormField
                 id="jobTitle"
                 name="jobTitle"
-                label="Job title"
+                label={copy.fields.jobTitle}
                 defaultValue={profile.jobTitle ?? ""}
                 error={state.fieldErrors?.jobTitle?.[0]}
                 helpText={undefined}
@@ -145,14 +176,14 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
               <FormField
                 id="department"
                 name="department"
-                label="Department"
+                label={copy.fields.department}
                 defaultValue={profile.department ?? ""}
                 error={state.fieldErrors?.department?.[0]}
                 helpText={undefined}
                 readOnly={undefined}
               />
               <Field>
-                <FieldLabel htmlFor="timeZone">Time zone</FieldLabel>
+                <FieldLabel htmlFor="timeZone">{copy.fields.timeZone}</FieldLabel>
                 <FieldContent>
                   <NativeSelect
                     id="timeZone"
@@ -170,15 +201,15 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
                 </FieldContent>
               </Field>
               <Field>
-                <FieldLabel htmlFor="culture">Language</FieldLabel>
+                <FieldLabel htmlFor="culture">{copy.fields.language}</FieldLabel>
                 <FieldContent>
                   <NativeSelect
                     id="culture"
                     name="culture"
-                    defaultValue={profile.culture}
+                    defaultValue={languageSelect.selectedValue}
                     aria-invalid={Boolean(state.fieldErrors?.culture?.[0])}
                   >
-                    {options.languages.map((item) => (
+                    {languageSelect.options.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
                       </option>
@@ -190,9 +221,9 @@ export function ProfileEditForm({ profile, options, action }: ProfileEditFormPro
             </FieldSet>
 
             <div className="flex flex-wrap items-center gap-2">
-              <SubmitButton />
+              <SubmitButton copy={copy} />
               <Button type="reset" variant="outline">
-                Reset
+                {copy.actions.reset}
               </Button>
             </div>
           </form>

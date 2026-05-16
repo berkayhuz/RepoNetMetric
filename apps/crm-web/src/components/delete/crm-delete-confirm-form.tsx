@@ -11,6 +11,7 @@ import {
   FieldLabel,
   Input,
 } from "@netmetric/ui";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import {
   initialCrmMutationState,
@@ -19,12 +20,19 @@ import {
 
 import { CrmDeleteActionResult } from "./crm-delete-action-result";
 
-function SubmitButton({ entityLabel }: Readonly<{ entityLabel: string }>) {
+function SubmitButton({
+  entityLabel,
+  deletingLabel,
+  deleteLabel,
+}: Readonly<{ entityLabel: string; deletingLabel?: string; deleteLabel?: string }>) {
   const { pending } = useFormStatus();
 
   return (
     <Button type="submit" variant="destructive" disabled={pending} aria-busy={pending}>
-      {pending ? `Deleting ${entityLabel.toLowerCase()}...` : `Delete ${entityLabel}`}
+      {pending
+        ? (deletingLabel ??
+          tCrmClient("crm.delete.deletingEntity", { entity: entityLabel.toLowerCase() }))
+        : (deleteLabel ?? tCrmClient("crm.delete.deleteEntity", { entity: entityLabel }))}
     </Button>
   );
 }
@@ -34,11 +42,19 @@ export function CrmDeleteConfirmForm({
   entityName,
   confirmValue,
   action,
+  confirmationLabel,
+  confirmationHelpText,
+  deletingLabel,
+  deleteLabel,
 }: Readonly<{
   entityLabel: string;
   entityName: string;
   confirmValue: string;
   action: (state: CrmMutationState, formData: FormData) => Promise<CrmMutationState>;
+  confirmationLabel?: string;
+  confirmationHelpText?: string;
+  deletingLabel?: string;
+  deleteLabel?: string;
 }>) {
   const [state, formAction] = useActionState(action, initialCrmMutationState);
 
@@ -47,7 +63,9 @@ export function CrmDeleteConfirmForm({
       <input type="hidden" name="confirm" value={confirmValue} />
       <CrmDeleteActionResult state={state} />
       <Field>
-        <FieldLabel htmlFor={`delete-confirm-${confirmValue}`}>Confirmation</FieldLabel>
+        <FieldLabel htmlFor={`delete-confirm-${confirmValue}`}>
+          {confirmationLabel ?? tCrmClient("crm.delete.confirmation")}
+        </FieldLabel>
         <FieldContent>
           <Input
             id={`delete-confirm-${confirmValue}`}
@@ -62,14 +80,23 @@ export function CrmDeleteConfirmForm({
             }
           />
           <FieldDescription>
-            Type <strong>{entityName}</strong> to confirm permanent removal.
+            {confirmationHelpText ?? (
+              <>
+                {tCrmClient("crm.delete.typeToConfirmPrefix")} <strong>{entityName}</strong>{" "}
+                {tCrmClient("crm.delete.typeToConfirmSuffix")}
+              </>
+            )}
           </FieldDescription>
           <FieldError id={`delete-confirm-${confirmValue}-error`}>
             {state.fieldErrors?.confirmText?.[0]}
           </FieldError>
         </FieldContent>
       </Field>
-      <SubmitButton entityLabel={entityLabel} />
+      <SubmitButton
+        entityLabel={entityLabel}
+        {...(deletingLabel ? { deletingLabel } : {})}
+        {...(deleteLabel ? { deleteLabel } : {})}
+      />
     </form>
   );
 }

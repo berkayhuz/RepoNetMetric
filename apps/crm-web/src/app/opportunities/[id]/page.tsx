@@ -13,6 +13,8 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type OpportunityDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function OpportunityDetailPage({
   params,
@@ -21,6 +23,7 @@ export default async function OpportunityDetailPage({
 }) {
   const resolved = await params;
   await requireCrmSession(`/opportunities/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -42,15 +45,17 @@ export default async function OpportunityDetailPage({
     <section className="space-y-6">
       <CrmPageHeader
         title={opportunity.name}
-        description="Opportunity detail."
+        description={tCrm("crm.opportunities.pages.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/opportunities/${resolved.id}/edit`}>Edit opportunity</Link>
+            <Link href={`/opportunities/${resolved.id}/edit`}>
+              {tCrm("crm.opportunities.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Opportunity profile"
+        title={tCrm("crm.opportunities.pages.detail.profileTitle", locale)}
         fields={[
           { label: "Code", value: opportunity.opportunityCode },
           { label: "Stage", value: String(opportunity.stage) },
@@ -67,17 +72,17 @@ export default async function OpportunityDetailPage({
         ]}
       />
       <CrmDeleteZone
-        title="Delete Opportunity"
-        description="Deleting this opportunity removes it from active CRM and pipeline views."
+        title={tCrm("crm.opportunities.actions.delete", locale)}
+        description={tCrm("crm.opportunities.pages.detail.deleteDescription", locale)}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Opportunity"
+          entityLabel={tCrm("crm.opportunities.entityName", locale)}
           entityName={opportunity.name}
           confirmValue="delete-opportunity"
           action={deleteOpportunityAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Opportunity timeline, quote, and stage transition operations" />
+      <CrmContractPending module={tCrm("crm.opportunities.pages.detail.pendingModule", locale)} />
     </section>
   );
 }
