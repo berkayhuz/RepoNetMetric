@@ -47,6 +47,25 @@ public sealed class AuthDbContextMappingTests
     }
 
     [Fact]
+    public async Task User_Unique_Index_Should_Reject_Duplicate_NormalizedEmail_Across_Tenants()
+    {
+        await using var fixture = await SqliteFixture.CreateAsync();
+        var firstTenantId = Guid.NewGuid();
+        var secondTenantId = Guid.NewGuid();
+        fixture.Context.Tenants.AddRange(
+            new Tenant { Id = firstTenantId, Name = "Tenant 1", Slug = "tenant-1", CreatedAt = Utc(0) },
+            new Tenant { Id = secondTenantId, Name = "Tenant 2", Slug = "tenant-2", CreatedAt = Utc(0) });
+
+        fixture.Context.Users.AddRange(
+            CreateUser(firstTenantId, "alice", "ALICE", "alice@example.com", "ALICE@EXAMPLE.COM"),
+            CreateUser(secondTenantId, "alice-2", "ALICE2", "alice.2@example.com", "ALICE@EXAMPLE.COM"));
+
+        var act = async () => await fixture.Context.SaveChangesAsync();
+
+        await act.Should().ThrowAsync<DbUpdateException>();
+    }
+
+    [Fact]
     public async Task Query_Filter_Should_Exclude_Soft_Deleted_UserSessions()
     {
         await using var fixture = await SqliteFixture.CreateAsync();

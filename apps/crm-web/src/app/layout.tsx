@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Inter } from "next/font/google";
 import { resolveUiPreferences, UI_LOCALE_COOKIE_NAME, UI_THEME_COOKIE_NAME } from "@netmetric/i18n";
 import { getThemeInitScript } from "@netmetric/ui";
@@ -7,6 +7,8 @@ import { ThemeProvider } from "@netmetric/ui/client";
 
 import { CrmShell } from "@/components/shell/crm-shell";
 import { crmEnv } from "@/lib/crm-env";
+import { isPublicCrmPath } from "@/lib/crm-auth/crm-session";
+import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
@@ -47,6 +49,9 @@ export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const pathname = headerStore.get("x-netmetric-pathname") ?? "/";
+  const session = isPublicCrmPath(pathname) ? null : await requireCrmSession(pathname);
   const resolved = resolveUiPreferences({
     theme: cookieStore.get(UI_THEME_COOKIE_NAME)?.value,
     locale: cookieStore.get(UI_LOCALE_COOKIE_NAME)?.value,
@@ -63,7 +68,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <ThemeProvider defaultTheme={resolved.theme}>
-          <CrmShell locale={locale}>{children}</CrmShell>
+          <CrmShell locale={locale} {...(session ? { capabilities: session.capabilities } : {})}>
+            {children}
+          </CrmShell>
         </ThemeProvider>
       </body>
     </html>

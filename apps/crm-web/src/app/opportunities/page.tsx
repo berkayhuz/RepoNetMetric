@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getOpportunitiesData } from "@/features/opportunities/data/opportunities-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { OpportunityListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,6 +16,7 @@ export default async function OpportunitiesPage({
 }) {
   await requireCrmSession("/opportunities");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -79,6 +82,8 @@ export default async function OpportunitiesPage({
       actionPath="/opportunities"
       createPath="/opportunities/new"
       createLabel={tCrm("crm.opportunities.actions.create", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "opportunities.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.opportunities.pages.list.caption", locale)}
       columns={columns}

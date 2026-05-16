@@ -7,12 +7,14 @@ using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NetMetric.AspNetCore.RequestContext;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Diagnostics;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Helpers;
+using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Application.Records;
 using NetMetric.Auth.Contracts.Responses;
 using NetMetric.Clock;
@@ -32,7 +34,8 @@ public sealed class RefreshTokenCommandHandler(
     ISecurityAlertPublisher securityAlertPublisher,
     IUserTokenStateValidator userTokenStateValidator,
     IUserSessionStateValidator userSessionStateValidator,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor,
+    IOptions<AccountLifecycleOptions> lifecycleOptions)
     : IRequestHandler<RefreshTokenCommand, AuthenticationTokenResponse>
 {
     public async Task<AuthenticationTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -78,6 +81,15 @@ public sealed class RefreshTokenCommandHandler(
         if (!user.IsActive || user.IsDeleted)
         {
             AuthMetrics.RefreshFailed.Add(1, new KeyValuePair<string, object?>("reason", "inactive_user"));
+            throw InvalidRefreshToken();
+        }
+
+        if (lifecycleOptions.Value.RequireConfirmedEmailForLogin && !user.EmailConfirmed)
+        {
+            session.Revoke(clock.UtcDateTime, "email_confirmation_required");
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            userSessionStateValidator.Evict(request.TenantId, session.Id);
+            AuthMetrics.RefreshFailed.Add(1, new KeyValuePair<string, object?>("reason", "email_confirmation_required"));
             throw InvalidRefreshToken();
         }
 

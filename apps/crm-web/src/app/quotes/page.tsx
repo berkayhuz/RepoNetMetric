@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getQuotesData } from "@/features/quotes/data/quotes-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { QuoteListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -62,6 +64,7 @@ export default async function QuotesPage({
 }) {
   await requireCrmSession("/quotes");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -80,6 +83,8 @@ export default async function QuotesPage({
       actionPath="/quotes"
       createPath="/quotes/new"
       createLabel={tCrm("crm.quotes.actions.create", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "quotes.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.quotes.caption", locale)}
       columns={getColumns(locale)}

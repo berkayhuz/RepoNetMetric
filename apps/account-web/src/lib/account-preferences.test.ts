@@ -36,7 +36,7 @@ describe("account date and ui preference mapping", () => {
 
   it("maps theme values to ui themes", () => {
     expect(mapAccountThemeToUiTheme("System")).toBe("system");
-    expect(mapAccountThemeToUiTheme("Default")).toBe("light");
+    expect(mapAccountThemeToUiTheme("Default")).toBe("system");
     expect(mapAccountThemeToUiTheme("Dark")).toBe("dark");
     expect(mapAccountThemeToUiTheme("Light")).toBe("light");
     expect(mapAccountThemeToUiTheme("Unknown")).toBe("system");
@@ -46,7 +46,8 @@ describe("account date and ui preference mapping", () => {
     const script = getThemeInitScript();
 
     expect(script).toContain("netmetric-theme");
-    expect(script).toContain("stored==='light'||stored==='dark'||stored==='system'");
+    expect(script).toContain("cookieTheme||");
+    expect(script).toContain("value==='default'");
     expect(script).toContain("matchMedia('(prefers-color-scheme: dark)'");
     expect(script).toContain("classList.toggle('dark'");
   });

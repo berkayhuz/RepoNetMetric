@@ -16,7 +16,11 @@ export function mapAccountThemeToUiTheme(
     return "dark";
   }
 
-  if (normalized === "light" || normalized === "default") {
+  if (normalized === "default") {
+    return "system";
+  }
+
+  if (normalized === "light") {
     return "light";
   }
 

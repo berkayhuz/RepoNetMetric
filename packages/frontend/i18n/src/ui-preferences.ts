@@ -24,6 +24,10 @@ export function resolveThemePreference(value: string | null | undefined): UiThem
     return normalized;
   }
 
+  if (normalized === "default") {
+    return "system";
+  }
+
   return "system";
 }
 

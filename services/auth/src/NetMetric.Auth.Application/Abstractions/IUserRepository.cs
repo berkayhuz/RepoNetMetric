@@ -24,6 +24,7 @@ public interface IUserRepository
     Task<int> CountActiveUsersInRoleAsync(Guid tenantId, string role, CancellationToken cancellationToken);
     Task<bool> ExistsByUserNameAsync(Guid tenantId, string normalizedUserName, CancellationToken cancellationToken);
     Task<bool> ExistsByEmailAsync(Guid tenantId, string normalizedEmail, CancellationToken cancellationToken);
+    Task<bool> ExistsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken);
     Task<bool> AnyActiveUserInTenantAsync(Guid tenantId, CancellationToken cancellationToken);
     Task<bool> IsFirstActiveUserInTenantAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken);
     Task RecordFailedLoginAsync(Guid tenantId, Guid userId, int maxFailedAttempts, DateTime lockoutEndAt, DateTime utcNow, CancellationToken cancellationToken);

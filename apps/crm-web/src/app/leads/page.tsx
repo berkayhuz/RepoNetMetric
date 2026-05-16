@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getLeadsData } from "@/features/leads/data/leads-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { LeadListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,6 +16,7 @@ export default async function LeadsPage({
 }) {
   await requireCrmSession("/leads");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -77,6 +80,8 @@ export default async function LeadsPage({
       actionPath="/leads"
       createPath="/leads/new"
       createLabel={tCrm("crm.leads.actions.create", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "leads.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.leads.pages.list.caption", locale)}
       columns={columns}

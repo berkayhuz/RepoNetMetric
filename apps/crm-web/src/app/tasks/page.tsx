@@ -6,6 +6,8 @@ import { CrmPagination } from "@/components/shell/crm-pagination";
 import { getTasksData } from "@/features/tasks/data/tasks-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { WorkTaskDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
@@ -45,6 +47,8 @@ export default async function TasksPage({
 }) {
   await requireCrmSession("/tasks");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
+  const canCreateTasks = crmCapabilityAllows(capabilities, "tasks.create");
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -62,16 +66,18 @@ export default async function TasksPage({
         title={tCrm("crm.tasks.page.title", locale)}
         description={tCrm("crm.tasks.page.description", locale)}
         actions={
-          <>
-            <Button asChild>
-              <Link href="/tasks/new">{tCrm("crm.tasks.actions.create", locale)}</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/tasks/meetings/new">
-                {tCrm("crm.meetings.actions.schedule", locale)}
-              </Link>
-            </Button>
-          </>
+          canCreateTasks ? (
+            <>
+              <Button asChild>
+                <Link href="/tasks/new">{tCrm("crm.tasks.actions.create", locale)}</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/tasks/meetings/new">
+                  {tCrm("crm.meetings.actions.schedule", locale)}
+                </Link>
+              </Button>
+            </>
+          ) : null
         }
       />
       <div className="rounded-lg border p-4 text-sm text-muted-foreground">

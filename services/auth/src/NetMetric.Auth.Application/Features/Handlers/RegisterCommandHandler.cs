@@ -56,6 +56,12 @@ public sealed partial class RegisterCommandHandler(
         var culture = NetMetricCultures.NormalizeOrDefault(request.Culture);
         var lifecycle = lifecycleOptions.Value;
         var shouldIssueAuthenticatedSession = !lifecycle.RequireConfirmedEmailForLogin;
+        var normalizedEmail = AuthenticationNormalization.Normalize(request.Email);
+
+        if (await userRepository.ExistsByEmailAsync(normalizedEmail, cancellationToken))
+        {
+            throw DuplicateEmailConflict();
+        }
 
         var tenant = new Tenant
         {
@@ -80,7 +86,7 @@ public sealed partial class RegisterCommandHandler(
             UserName = request.UserName.Trim(),
             NormalizedUserName = AuthenticationNormalization.Normalize(request.UserName),
             Email = request.Email.Trim(),
-            NormalizedEmail = AuthenticationNormalization.Normalize(request.Email),
+            NormalizedEmail = normalizedEmail,
             FirstName = AuthenticationNormalization.CleanOrNull(request.FirstName),
             LastName = AuthenticationNormalization.CleanOrNull(request.LastName),
             CreatedAt = utcNow,
@@ -246,6 +252,14 @@ public sealed partial class RegisterCommandHandler(
             "The registration request could not be completed with the supplied identity.",
             (int)HttpStatusCode.Conflict,
             errorCode: "registration_conflict",
+            type: "https://httpstatuses.com/409");
+
+    private static AuthApplicationException DuplicateEmailConflict() =>
+        new(
+            "Registration could not be completed",
+            "An account with this email address already exists.",
+            (int)HttpStatusCode.Conflict,
+            errorCode: "duplicate_email",
             type: "https://httpstatuses.com/409");
 
     private static string JoinDistinct(IEnumerable<string> values) =>

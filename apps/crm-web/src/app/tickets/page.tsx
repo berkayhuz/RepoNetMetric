@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getTicketsData } from "@/features/tickets/data/tickets-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { TicketListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
@@ -57,6 +59,7 @@ export default async function TicketsPage({
 }) {
   await requireCrmSession("/tickets");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -75,6 +78,8 @@ export default async function TicketsPage({
       actionPath="/tickets"
       createPath="/tickets/new"
       createLabel={tCrm("crm.tickets.actions.create", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "tickets.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.tickets.caption", locale)}
       columns={getColumns(locale)}

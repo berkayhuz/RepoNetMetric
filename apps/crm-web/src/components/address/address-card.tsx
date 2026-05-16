@@ -13,12 +13,14 @@ export function AddressCard({
   address,
   onDelete,
   locale,
+  canManage = true,
 }: Readonly<{
   entityType: "customer" | "company";
   entityId: string;
   address: AddressDto;
   onDelete: (state: CrmMutationState, formData: FormData) => Promise<CrmMutationState>;
   locale?: string | null | undefined;
+  canManage?: boolean;
 }>) {
   const lineParts = [address.line1, address.line2].filter(Boolean).join(", ");
   const locationParts = [address.district, address.city, address.state, address.country]
@@ -34,34 +36,36 @@ export function AddressCard({
             tCrm("crm.address.noSummary", locale)}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <AddressForm
-          mode="edit"
-          initialValues={{
-            id: address.id,
-            addressType: Number(address.addressType),
-            line1: address.line1,
-            line2: address.line2 ?? "",
-            district: address.district ?? "",
-            city: address.city ?? "",
-            state: address.state ?? "",
-            country: address.country ?? "",
-            zipCode: address.zipCode ?? "",
-            isDefault: address.isDefault,
-            rowVersion: address.rowVersion,
-          }}
-          action={updateAddressAction.bind(null, entityType, entityId, address.id)}
-        />
-        <div className="space-y-2 border-t border-border pt-4">
-          <p className="text-sm font-medium text-destructive">
-            {tCrm("crm.address.delete.title", locale)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {tCrm("crm.address.delete.description", locale)}
-          </p>
-          <AddressDeleteForm action={onDelete} />
-        </div>
-      </CardContent>
+      {canManage ? (
+        <CardContent className="space-y-6">
+          <AddressForm
+            mode="edit"
+            initialValues={{
+              id: address.id,
+              addressType: Number(address.addressType),
+              line1: address.line1,
+              line2: address.line2 ?? "",
+              district: address.district ?? "",
+              city: address.city ?? "",
+              state: address.state ?? "",
+              country: address.country ?? "",
+              zipCode: address.zipCode ?? "",
+              isDefault: address.isDefault,
+              rowVersion: address.rowVersion,
+            }}
+            action={updateAddressAction.bind(null, entityType, entityId, address.id)}
+          />
+          <div className="space-y-2 border-t border-border pt-4">
+            <p className="text-sm font-medium text-destructive">
+              {tCrm("crm.address.delete.title", locale)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {tCrm("crm.address.delete.description", locale)}
+            </p>
+            <AddressDeleteForm action={onDelete} />
+          </div>
+        </CardContent>
+      ) : null}
     </Card>
   );
 }

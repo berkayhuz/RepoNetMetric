@@ -33,10 +33,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
+  canNavigateCrmModule,
   crmModuleGroups,
   crmModuleRegistry,
   getCrmModulesByGroup,
+  isCrmModuleNavigable,
 } from "@/features/modules/module-registry";
+import type { CrmCapabilities } from "@/lib/crm-auth/crm-capabilities";
 import { getCrmGroupLabel, getCrmModuleTitle, getCrmStatusLabel, tCrm } from "@/lib/i18n/crm-i18n";
 
 function pageTitle(pathname: string, locale: string): string {
@@ -58,7 +61,8 @@ function pageTitle(pathname: string, locale: string): string {
 export function CrmShell({
   children,
   locale,
-}: Readonly<{ children: React.ReactNode; locale: string }>) {
+  capabilities,
+}: Readonly<{ children: React.ReactNode; locale: string; capabilities?: CrmCapabilities }>) {
   const pathname = usePathname();
 
   return (
@@ -78,7 +82,10 @@ export function CrmShell({
         </SidebarHeader>
         <SidebarContent>
           {crmModuleGroups.map((group) => {
-            const modules = getCrmModulesByGroup(group);
+            const modules = getCrmModulesByGroup(group).filter(
+              (moduleItem) =>
+                !isCrmModuleNavigable(moduleItem) || canNavigateCrmModule(moduleItem, capabilities),
+            );
             if (!modules.length) {
               return null;
             }
@@ -89,19 +96,27 @@ export function CrmShell({
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {modules.map((moduleItem) => {
+                      const isNavigable = canNavigateCrmModule(moduleItem, capabilities);
                       const isActive =
-                        pathname === moduleItem.path || pathname.startsWith(`${moduleItem.path}/`);
+                        isNavigable &&
+                        (pathname === moduleItem.path ||
+                          pathname.startsWith(`${moduleItem.path}/`));
+                      const label = getCrmModuleTitle(moduleItem, locale);
+                      const statusLabel = getCrmStatusLabel(moduleItem.status, locale);
 
                       return (
                         <SidebarMenuItem key={moduleItem.id}>
-                          <SidebarMenuButton asChild isActive={isActive}>
-                            <Link
-                              href={moduleItem.path}
-                              aria-label={`${getCrmModuleTitle(moduleItem, locale)} (${getCrmStatusLabel(moduleItem.status, locale)})`}
-                            >
-                              {getCrmModuleTitle(moduleItem, locale)}
-                            </Link>
-                          </SidebarMenuButton>
+                          {isNavigable ? (
+                            <SidebarMenuButton asChild isActive={isActive}>
+                              <Link href={moduleItem.path} aria-label={`${label} (${statusLabel})`}>
+                                {label}
+                              </Link>
+                            </SidebarMenuButton>
+                          ) : (
+                            <SidebarMenuButton aria-disabled="true" disabled title={statusLabel}>
+                              {label}
+                            </SidebarMenuButton>
+                          )}
                         </SidebarMenuItem>
                       );
                     })}
@@ -145,9 +160,19 @@ export function CrmShell({
               <Input
                 aria-label={tCrm("crm.shell.globalSearchAria", locale)}
                 placeholder={tCrm("crm.shell.searchPlaceholder", locale)}
+                aria-disabled="true"
+                disabled
+                title={tCrm("crm.shell.searchPlaceholder", locale)}
               />
             </div>
-            <Button variant="outline">{tCrm("crm.actions.quickCreate", locale)}</Button>
+            <Button
+              variant="outline"
+              disabled
+              aria-disabled="true"
+              title={tCrm("crm.actions.quickCreate", locale)}
+            >
+              {tCrm("crm.actions.quickCreate", locale)}
+            </Button>
             <ThemeToggle />
           </div>
         </header>

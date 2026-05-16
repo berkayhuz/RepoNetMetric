@@ -6,12 +6,14 @@
 using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Moq;
 using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Descriptors;
 using NetMetric.Auth.Application.Exceptions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Features.Handlers;
+using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Domain.Entities;
 using NetMetric.Auth.TestKit.Builders;
 using NetMetric.Auth.TestKit.Fakes;
@@ -25,7 +27,7 @@ public sealed class RefreshTokenCommandHandlerTests
     {
         var now = new DateTime(2026, 1, 3, 12, 0, 0, DateTimeKind.Utc);
         var tenantId = Guid.NewGuid();
-        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).WithEmailConfirmed().Build();
         user.MfaEnabled = true;
         user.MfaEnabledAt = now.AddMinutes(-5);
         var session = new UserSession
@@ -65,7 +67,7 @@ public sealed class RefreshTokenCommandHandlerTests
     {
         var now = new DateTime(2026, 1, 3, 12, 0, 0, DateTimeKind.Utc);
         var tenantId = Guid.NewGuid();
-        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).WithEmailConfirmed().Build();
         var session = new UserSession
         {
             TenantId = tenantId,
@@ -108,11 +110,60 @@ public sealed class RefreshTokenCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_Should_Revoke_Session_When_EmailConfirmation_Is_Required_And_User_Is_Unconfirmed()
+    {
+        var now = new DateTime(2026, 1, 3, 12, 0, 0, DateTimeKind.Utc);
+        var tenantId = Guid.NewGuid();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).WithEmailConfirmed().Build();
+        user.EmailConfirmed = false;
+        var session = new UserSession
+        {
+            TenantId = tenantId,
+            UserId = user.Id,
+            CreatedAt = now.AddHours(-1),
+            RefreshTokenHash = "stored-hash",
+            RefreshTokenExpiresAt = now.AddDays(14),
+            User = user
+        };
+
+        var fixture = new Fixture(new FakeClock(now));
+        fixture.TenantRepository.Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Tenant { Id = tenantId, IsActive = true });
+        fixture.UserSessionRepository.Setup(repository => repository.GetWithUserAsync(tenantId, session.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(session);
+        fixture.AuthSessionService.Setup(service => service.IsExpired(session, now)).Returns(false);
+        fixture.RefreshTokenService.Setup(service => service.Verify("refresh-token", session.RefreshTokenHash)).Returns(true);
+        fixture.UserRepository.Setup(repository => repository.GetMembershipAsync(tenantId, user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(AuthTestDataBuilder.Membership(tenantId, user.Id));
+
+        var sut = fixture.CreateSut();
+
+        var action = async () => await sut.Handle(new RefreshTokenCommand(tenantId, session.Id, "refresh-token", null, null), CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.ErrorCode.Should().Be("invalid_refresh_token");
+        session.IsRevoked.Should().BeTrue();
+        session.RevokedReason.Should().Be("email_confirmation_required");
+        fixture.UserSessionStateValidator.Verify(validator => validator.Evict(tenantId, session.Id), Times.Once);
+        fixture.AccessTokenFactory.Verify(factory => factory.Create(
+            It.IsAny<Guid>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<int>(),
+            It.IsAny<IReadOnlyCollection<string>>(),
+            It.IsAny<IReadOnlyCollection<string>>(),
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<DateTimeOffset?>(),
+            It.IsAny<IReadOnlyCollection<string>?>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_Should_Rotate_Token_On_Successful_Refresh()
     {
         var now = new DateTime(2026, 1, 3, 12, 0, 0, DateTimeKind.Utc);
         var tenantId = Guid.NewGuid();
-        var user = AuthTestDataBuilder.User().WithTenant(tenantId).Build();
+        var user = AuthTestDataBuilder.User().WithTenant(tenantId).WithEmailConfirmed().Build();
         var membership = AuthTestDataBuilder.Membership(tenantId, user.Id);
         var session = new UserSession
         {
@@ -193,7 +244,8 @@ public sealed class RefreshTokenCommandHandlerTests
                 SecurityAlertPublisher.Object,
                 UserTokenStateValidator.Object,
                 UserSessionStateValidator.Object,
-                HttpContextAccessor.Object);
+                HttpContextAccessor.Object,
+                Microsoft.Extensions.Options.Options.Create(new AccountLifecycleOptions { RequireConfirmedEmailForLogin = true }));
         }
     }
 }

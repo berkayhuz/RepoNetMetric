@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getDealsData } from "@/features/deals/data/deals-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { DealListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,6 +16,7 @@ export default async function DealsPage({
 }) {
   await requireCrmSession("/deals");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -67,6 +70,8 @@ export default async function DealsPage({
       actionPath="/deals"
       createPath="/deals/new"
       createLabel={tCrm("crm.deals.actions.create", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "deals.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.deals.pages.list.caption", locale)}
       columns={columns}

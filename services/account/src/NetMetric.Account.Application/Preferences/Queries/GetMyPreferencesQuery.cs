@@ -56,9 +56,13 @@ internal static class PreferenceMapper
             ? preference.DateFormat
             : DefaultDateFormat;
 
+        var theme = preference.Theme == ThemePreference.Default
+            ? ThemePreference.System
+            : preference.Theme;
+
         return new(
             preference.Id,
-            preference.Theme.ToString(),
+            theme.ToString(),
             language,
             TimeZoneNormalizer.NormalizeOrDefault(preference.TimeZone),
             dateFormat,

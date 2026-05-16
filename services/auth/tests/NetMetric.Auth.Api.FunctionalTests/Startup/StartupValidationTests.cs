@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 using NetMetric.Auth.API.Security;
 using NetMetric.Auth.Application.Options;
 
@@ -69,6 +70,63 @@ public sealed class StartupValidationTests
 
         result.Failed.Should().BeTrue();
         result.Failures.Should().Contain(message => message.Contains("AllowedOrigins cannot contain '*'", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Startup_Should_Accept_Production_NetMetric_Cors_Origins()
+    {
+        var validator = new ApiCorsOptionsValidation(new TestHostEnvironment(Environments.Production));
+        var result = validator.Validate(
+            null,
+            new ApiCorsOptions
+            {
+                AllowedOrigins =
+                [
+                    "https://netmetric.net",
+                    "https://www.netmetric.net",
+                    "https://auth.netmetric.net",
+                    "https://account.netmetric.net",
+                    "https://crm.netmetric.net",
+                    "https://tools.netmetric.net",
+                    "https://api.netmetric.net"
+                ],
+                AllowCredentials = true
+            });
+
+        result.Failed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Startup_Should_Reject_Localhost_Cors_Origin_In_Production()
+    {
+        var validator = new ApiCorsOptionsValidation(new TestHostEnvironment(Environments.Production));
+        var result = validator.Validate(
+            null,
+            new ApiCorsOptions
+            {
+                AllowedOrigins = ["http://localhost:7002"],
+                AllowCredentials = true
+            });
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().Contain(message => message.Contains("loopback origin", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Production_Config_Should_Mark_Anonymous_Auth_Flows_Tenant_Optional()
+    {
+        using var document = JsonDocument.Parse(File.ReadAllText(FindRepoFile("services/auth/src/NetMetric.Auth.API/appsettings.Production.json")));
+        var prefixes = document.RootElement
+            .GetProperty("Security")
+            .GetProperty("TenantResolution")
+            .GetProperty("TenantOptionalPathPrefixes")
+            .EnumerateArray()
+            .Select(item => item.GetString())
+            .ToArray();
+
+        prefixes.Should().Contain("/api/auth/register");
+        prefixes.Should().Contain("/api/auth/login");
+        prefixes.Should().Contain("/api/auth/forgot-password");
     }
 
     [Fact]
@@ -202,6 +260,23 @@ public sealed class StartupValidationTests
             ;
         var validator = Activator.CreateInstance(validatorType, environment)!;
         return (ValidateOptionsResult)validatorType.GetMethod("Validate")!.Invoke(validator, [null, options])!;
+    }
+
+    private static string FindRepoFile(string relativePath)
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, relativePath);
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new FileNotFoundException($"Could not find repository file '{relativePath}'.");
     }
 
     private sealed class TestHostEnvironment(string environmentName) : IHostEnvironment

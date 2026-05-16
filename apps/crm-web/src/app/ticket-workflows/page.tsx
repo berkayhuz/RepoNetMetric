@@ -12,6 +12,8 @@ import {
 } from "@/features/ticket-workflows/actions/ticket-workflow-mutation-actions";
 import { getTicketWorkflowData } from "@/features/ticket-workflows/data/ticket-workflow-data";
 import { TicketWorkflowMutationPanels } from "@/features/ticket-workflows/forms/ticket-workflow-mutation-panels";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
@@ -46,7 +48,12 @@ export default async function TicketWorkflowsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const session = await requireCrmSession("/ticket-workflows");
   const locale = await getRequestLocale();
+  const canManageTicketWorkflows = crmCapabilityAllows(
+    session.capabilities,
+    "ticketWorkflow.manage",
+  );
   const params = await searchParams;
   const ticketIdRaw = toSingleValue(params.ticketId);
   const ticketId = ticketIdRaw && isGuid(ticketIdRaw) ? ticketIdRaw : undefined;
@@ -245,24 +252,26 @@ export default async function TicketWorkflowsPage({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{tCrm("crm.ticketWorkflows.mutations.title", locale)}</CardTitle>
-          <CardDescription>
-            {tCrm("crm.ticketWorkflows.mutations.description", locale)}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TicketWorkflowMutationPanels
-            createQueueAction={createTicketWorkflowQueueAction}
-            updateQueueAction={updateTicketWorkflowQueueAction}
-            deleteQueueAction={deleteTicketWorkflowQueueAction}
-            assignQueueAction={assignTicketWorkflowQueueAction}
-            assignOwnerAction={assignTicketWorkflowOwnerAction}
-            statusChangeAction={changeTicketWorkflowStatusAction}
-          />
-        </CardContent>
-      </Card>
+      {canManageTicketWorkflows ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{tCrm("crm.ticketWorkflows.mutations.title", locale)}</CardTitle>
+            <CardDescription>
+              {tCrm("crm.ticketWorkflows.mutations.description", locale)}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TicketWorkflowMutationPanels
+              createQueueAction={createTicketWorkflowQueueAction}
+              updateQueueAction={updateTicketWorkflowQueueAction}
+              deleteQueueAction={deleteTicketWorkflowQueueAction}
+              assignQueueAction={assignTicketWorkflowQueueAction}
+              assignOwnerAction={assignTicketWorkflowOwnerAction}
+              statusChangeAction={changeTicketWorkflowStatusAction}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <CrmContractPending module={tCrm("crm.ticketWorkflows.contractPending.batch", locale)} />
     </section>

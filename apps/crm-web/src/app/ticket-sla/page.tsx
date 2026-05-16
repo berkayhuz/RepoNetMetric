@@ -12,6 +12,8 @@ import {
 } from "@/features/ticket-sla/actions/ticket-sla-mutation-actions";
 import { TicketSlaMutationPanels } from "@/features/ticket-sla/forms/ticket-sla-mutation-panels";
 import { TicketSlaReadFiltersForm } from "@/features/ticket-sla/components/ticket-sla-read-filters-form";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
@@ -45,7 +47,9 @@ export default async function TicketSlaPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const session = await requireCrmSession("/ticket-sla");
   const locale = await getRequestLocale();
+  const canManageTicketSla = crmCapabilityAllows(session.capabilities, "ticketSla.manage");
   const params = await searchParams;
   const policyIdRaw = toSingleValue(params.policyId);
   const ticketIdRaw = toSingleValue(params.ticketId);
@@ -305,21 +309,23 @@ export default async function TicketSlaPage({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{tCrm("crm.ticketSla.mutations.title", locale)}</CardTitle>
-          <CardDescription>{tCrm("crm.ticketSla.mutations.description", locale)}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TicketSlaMutationPanels
-            createPolicyAction={createTicketSlaPolicyAction}
-            updatePolicyAction={updateTicketSlaPolicyAction}
-            deletePolicyAction={deleteTicketSlaPolicyAction}
-            createRuleAction={createTicketSlaEscalationRuleAction}
-            updateRuleAction={updateTicketSlaEscalationRuleAction}
-          />
-        </CardContent>
-      </Card>
+      {canManageTicketSla ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{tCrm("crm.ticketSla.mutations.title", locale)}</CardTitle>
+            <CardDescription>{tCrm("crm.ticketSla.mutations.description", locale)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TicketSlaMutationPanels
+              createPolicyAction={createTicketSlaPolicyAction}
+              updatePolicyAction={updateTicketSlaPolicyAction}
+              deletePolicyAction={deleteTicketSlaPolicyAction}
+              createRuleAction={createTicketSlaEscalationRuleAction}
+              updateRuleAction={updateTicketSlaEscalationRuleAction}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <CrmContractPending module={tCrm("crm.ticketSla.contractPending.deleteRule", locale)} />
     </section>

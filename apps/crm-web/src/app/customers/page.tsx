@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getCustomersData } from "@/features/customers/data/customers-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { CustomerListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,6 +16,7 @@ export default async function CustomersPage({
 }) {
   await requireCrmSession("/customers");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -66,6 +69,8 @@ export default async function CustomersPage({
       actionPath="/customers"
       createPath="/customers/new"
       createLabel={tCrm("crm.customers.actions.new", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "customers.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.customers.pages.list.caption", locale)}
       columns={columns}

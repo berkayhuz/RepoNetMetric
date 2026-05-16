@@ -1,3 +1,6 @@
+import type { CrmCapabilities, CrmCapability } from "@/lib/crm-auth/crm-capabilities";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+
 export type CrmModuleStatus = "active" | "read_only" | "contract_pending" | "coming_soon";
 export type CrmModuleGroup =
   | "core"
@@ -386,4 +389,54 @@ export function getCrmModuleById(id: string): CrmModuleRegistryItem | undefined 
 
 export function getCrmModulesByGroup(group: CrmModuleGroup): CrmModuleRegistryItem[] {
   return crmModuleRegistry.filter((moduleItem) => moduleItem.group === group);
+}
+
+export function isCrmModuleNavigable(moduleItem: CrmModuleRegistryItem): boolean {
+  return moduleItem.status === "active" || moduleItem.status === "read_only";
+}
+
+export function getCrmModuleRequiredCapability(
+  moduleItem: CrmModuleRegistryItem,
+): CrmCapability | null {
+  switch (moduleItem.id) {
+    case "customers":
+      return "customers.read";
+    case "companies":
+      return "companies.read";
+    case "contacts":
+      return "contacts.read";
+    case "lead-management":
+      return "leads.read";
+    case "deal-management":
+      return "deals.read";
+    case "opportunity-management":
+      return "opportunities.read";
+    case "quote-management":
+      return "quotes.read";
+    case "support-inbox":
+      return "supportInbox.read";
+    case "ticket-management":
+      return "tickets.read";
+    case "ticket-sla":
+      return "ticketSla.read";
+    case "ticket-workflow":
+      return "ticketWorkflow.read";
+    case "pipeline-management":
+      return "pipeline.read";
+    case "work-management":
+    case "tasks":
+      return "tasks.read";
+    default:
+      return null;
+  }
+}
+
+export function canNavigateCrmModule(
+  moduleItem: CrmModuleRegistryItem,
+  capabilities: CrmCapabilities | null | undefined,
+): boolean {
+  return (
+    isCrmModuleNavigable(moduleItem) &&
+    crmCapabilityAllows(capabilities, getCrmModuleRequiredCapability(moduleItem))
+  );
 }

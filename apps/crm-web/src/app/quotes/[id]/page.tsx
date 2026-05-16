@@ -22,6 +22,7 @@ import { getQuoteDetailData } from "@/features/quotes/data/quotes-data";
 import { QuoteLifecycleActionPanel } from "@/features/quotes/forms/quote-lifecycle-panels";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type QuoteDetailDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -29,8 +30,10 @@ import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 
 export default async function QuoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
-  await requireCrmSession(`/quotes/${resolved.id}`);
+  const session = await requireCrmSession(`/quotes/${resolved.id}`);
   const locale = await getRequestLocale();
+  const canEdit = crmCapabilityAllows(session.capabilities, "quotes.edit");
+  const canDelete = crmCapabilityAllows(session.capabilities, "quotes.delete");
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -54,11 +57,13 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
         title={quote.quoteNumber}
         description={tCrm("crm.quotes.detail.description", locale)}
         actions={
-          <Button asChild>
-            <Link href={`/quotes/${resolved.id}/edit`}>
-              {tCrm("crm.quotes.actions.edit", locale)}
-            </Link>
-          </Button>
+          canEdit ? (
+            <Button asChild>
+              <Link href={`/quotes/${resolved.id}/edit`}>
+                {tCrm("crm.quotes.actions.edit", locale)}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
       <CrmEntityDetailPanel
@@ -94,80 +99,84 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           },
         ]}
       />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.submit.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.submit.description", locale)}
-          confirmValue="submit-quote"
-          action={submitQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.approve.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.approve.description", locale)}
-          confirmValue="approve-quote"
-          action={approveQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.reject.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.reject.description", locale)}
-          confirmValue="reject-quote"
-          action={rejectQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-          showReason
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.send.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.send.description", locale)}
-          confirmValue="send-quote"
-          action={markQuoteSentAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-          showDate
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.accept.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.accept.description", locale)}
-          confirmValue="accept-quote"
-          action={acceptQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-          showDate
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.decline.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.decline.description", locale)}
-          confirmValue="decline-quote"
-          action={declineQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-          showReason
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.expire.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.expire.description", locale)}
-          confirmValue="expire-quote"
-          action={expireQuoteAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-          showDate
-        />
-        <QuoteLifecycleActionPanel
-          title={tCrm("crm.quotes.lifecycle.revise.title", locale)}
-          description={tCrm("crm.quotes.lifecycle.revise.description", locale)}
-          confirmValue="revise-quote"
-          action={createQuoteRevisionAction.bind(null, resolved.id)}
-          rowVersion={quote.rowVersion}
-        />
-      </div>
-      <CrmDeleteZone
-        title={tCrm("crm.quotes.delete.title", locale)}
-        description={tCrm("crm.quotes.delete.description", locale)}
-      >
-        <CrmDeleteConfirmForm
-          entityLabel={tCrm("crm.quotes.entityLabel", locale)}
-          entityName={quote.quoteNumber}
-          confirmValue="delete-quote"
-          action={deleteQuoteAction.bind(null, resolved.id)}
-        />
-      </CrmDeleteZone>
+      {canEdit ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.submit.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.submit.description", locale)}
+            confirmValue="submit-quote"
+            action={submitQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.approve.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.approve.description", locale)}
+            confirmValue="approve-quote"
+            action={approveQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.reject.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.reject.description", locale)}
+            confirmValue="reject-quote"
+            action={rejectQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+            showReason
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.send.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.send.description", locale)}
+            confirmValue="send-quote"
+            action={markQuoteSentAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+            showDate
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.accept.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.accept.description", locale)}
+            confirmValue="accept-quote"
+            action={acceptQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+            showDate
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.decline.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.decline.description", locale)}
+            confirmValue="decline-quote"
+            action={declineQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+            showReason
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.expire.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.expire.description", locale)}
+            confirmValue="expire-quote"
+            action={expireQuoteAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+            showDate
+          />
+          <QuoteLifecycleActionPanel
+            title={tCrm("crm.quotes.lifecycle.revise.title", locale)}
+            description={tCrm("crm.quotes.lifecycle.revise.description", locale)}
+            confirmValue="revise-quote"
+            action={createQuoteRevisionAction.bind(null, resolved.id)}
+            rowVersion={quote.rowVersion}
+          />
+        </div>
+      ) : null}
+      {canDelete ? (
+        <CrmDeleteZone
+          title={tCrm("crm.quotes.delete.title", locale)}
+          description={tCrm("crm.quotes.delete.description", locale)}
+        >
+          <CrmDeleteConfirmForm
+            entityLabel={tCrm("crm.quotes.entityLabel", locale)}
+            entityName={quote.quoteNumber}
+            confirmValue="delete-quote"
+            action={deleteQuoteAction.bind(null, resolved.id)}
+          />
+        </CrmDeleteZone>
+      ) : null}
       <CrmContractPending module={tCrm("crm.quotes.contractPending.cpqTimeline", locale)} />
     </section>
   );

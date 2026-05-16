@@ -16,6 +16,11 @@ describe("shared ui preference resolver", () => {
     expect(resolved.locale).toBe("en");
   });
 
+  it("normalizes legacy Default theme values to system", () => {
+    const resolved = resolveUiPreferences({ theme: "Default", locale: "en-US" });
+    expect(resolved.theme).toBe("system");
+  });
+
   it("normalizes payload values before writing shared cookies", () => {
     const cookieValues = resolvePreferenceCookiesFromPayload({
       theme: "Dark",

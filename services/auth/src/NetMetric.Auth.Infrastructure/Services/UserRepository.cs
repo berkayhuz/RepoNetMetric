@@ -148,6 +148,10 @@ public sealed class UserRepository(AuthDbContext dbContext) : IUserRepository
             .Where(x => x.TenantId == tenantId && !x.IsDeleted && x.IsActive)
             .AnyAsync(x => !x.User!.IsDeleted && x.User.NormalizedEmail == normalizedEmail, cancellationToken);
 
+    public Task<bool> ExistsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .AnyAsync(x => !x.IsDeleted && x.NormalizedEmail == normalizedEmail, cancellationToken);
+
     public Task<bool> AnyActiveUserInTenantAsync(Guid tenantId, CancellationToken cancellationToken) =>
         dbContext.UserTenantMemberships.AnyAsync(
             x => x.TenantId == tenantId && !x.IsDeleted && x.IsActive,

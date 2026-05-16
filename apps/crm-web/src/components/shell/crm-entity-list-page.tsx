@@ -13,6 +13,7 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   actionPath,
   createPath,
   createLabel,
+  canCreate = true,
   createDisabledMessage,
   search,
   caption,
@@ -29,6 +30,7 @@ export function CrmEntityListPage<TItem extends { id: string }>({
   actionPath: string;
   createPath?: string;
   createLabel?: string;
+  canCreate?: boolean;
   createDisabledMessage?: string;
   search?: string;
   caption: string;
@@ -49,9 +51,9 @@ export function CrmEntityListPage<TItem extends { id: string }>({
       <CrmPageHeader title={title} description={description} />
       <CrmListToolbar
         actionPath={actionPath}
-        {...(createPath ? { createPath } : {})}
+        {...(createPath && canCreate ? { createPath } : {})}
         {...(createLabel ? { createLabel } : {})}
-        {...(createDisabledMessage ? { createDisabledMessage } : {})}
+        {...(!canCreate && createDisabledMessage ? { createDisabledMessage } : {})}
         {...(search ? { search } : {})}
         {...(locale !== undefined ? { locale } : {})}
       />

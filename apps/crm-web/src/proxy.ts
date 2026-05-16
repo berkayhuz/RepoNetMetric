@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const securityHeaders = {
   "X-Frame-Options": "DENY",
@@ -11,8 +11,14 @@ const securityHeaders = {
   "X-Permitted-Cross-Domain-Policies": "none",
 } as const;
 
-export function proxy() {
-  const response = NextResponse.next();
+export function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-netmetric-pathname", request.nextUrl.pathname);
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 
   for (const [header, value] of Object.entries(securityHeaders)) {
     response.headers.set(header, value);

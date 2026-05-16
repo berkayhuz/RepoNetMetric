@@ -11,6 +11,7 @@ import { deleteLeadAction } from "@/features/leads/actions/lead-mutation-actions
 import { getLeadDetailData } from "@/features/leads/data/leads-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type LeadDetailDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
@@ -18,8 +19,10 @@ import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
-  await requireCrmSession(`/leads/${resolved.id}`);
+  const session = await requireCrmSession(`/leads/${resolved.id}`);
   const locale = await getRequestLocale();
+  const canEdit = crmCapabilityAllows(session.capabilities, "leads.edit");
+  const canDelete = crmCapabilityAllows(session.capabilities, "leads.delete");
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -43,11 +46,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         title={lead.fullName}
         description={tCrm("crm.leads.pages.detail.description", locale)}
         actions={
-          <Button asChild>
-            <Link href={`/leads/${resolved.id}/edit`}>
-              {tCrm("crm.leads.actions.edit", locale)}
-            </Link>
-          </Button>
+          canEdit ? (
+            <Button asChild>
+              <Link href={`/leads/${resolved.id}/edit`}>
+                {tCrm("crm.leads.actions.edit", locale)}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
       <CrmEntityDetailPanel
@@ -86,17 +91,19 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           },
         ]}
       />
-      <CrmDeleteZone
-        title={tCrm("crm.leads.actions.delete", locale)}
-        description={tCrm("crm.leads.pages.detail.deleteDescription", locale)}
-      >
-        <CrmDeleteConfirmForm
-          entityLabel={tCrm("crm.leads.entityName", locale)}
-          entityName={lead.fullName}
-          confirmValue="delete-lead"
-          action={deleteLeadAction.bind(null, resolved.id)}
-        />
-      </CrmDeleteZone>
+      {canDelete ? (
+        <CrmDeleteZone
+          title={tCrm("crm.leads.actions.delete", locale)}
+          description={tCrm("crm.leads.pages.detail.deleteDescription", locale)}
+        >
+          <CrmDeleteConfirmForm
+            entityLabel={tCrm("crm.leads.entityName", locale)}
+            entityName={lead.fullName}
+            confirmValue="delete-lead"
+            action={deleteLeadAction.bind(null, resolved.id)}
+          />
+        </CrmDeleteZone>
+      ) : null}
       <CrmContractPending module={tCrm("crm.leads.pages.detail.pendingModule", locale)} />
     </section>
   );

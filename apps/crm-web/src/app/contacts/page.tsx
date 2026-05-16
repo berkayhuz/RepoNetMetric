@@ -3,6 +3,8 @@ import type { CrmEntityTableColumn } from "@/components/shell/crm-entity-table";
 import { getContactsData } from "@/features/contacts/data/contacts-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { ContactListItemDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,6 +16,7 @@ export default async function ContactsPage({
 }) {
   await requireCrmSession("/contacts");
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -65,6 +68,8 @@ export default async function ContactsPage({
       actionPath="/contacts"
       createPath="/contacts/new"
       createLabel={tCrm("crm.contacts.actions.new", locale)}
+      canCreate={crmCapabilityAllows(capabilities, "contacts.create")}
+      createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.contacts.pages.list.caption", locale)}
       columns={columns}

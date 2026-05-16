@@ -83,6 +83,7 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
         builder.Property(x => x.Roles).HasMaxLength(2048).IsRequired();
         builder.Property(x => x.Permissions).HasMaxLength(8192).IsRequired();
         ConfigureRowVersion(builder.Property(x => x.RowVersion), useDatabaseGeneratedRowVersion);
+        builder.HasIndex(x => x.NormalizedEmail).IsUnique();
         builder.HasIndex(x => new { x.TenantId, x.NormalizedUserName }).IsUnique();
         builder.HasIndex(x => new { x.TenantId, x.NormalizedEmail }).IsUnique();
         builder.HasMany(x => x.TenantMemberships).WithOne(x => x.User).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);

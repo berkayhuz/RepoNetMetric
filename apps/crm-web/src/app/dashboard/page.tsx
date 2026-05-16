@@ -5,11 +5,13 @@ import { DashboardSummaryCard } from "@/components/dashboard/dashboard-summary-c
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
 import { getDashboardData } from "@/features/dashboard/data/dashboard-data";
 import { crmModuleRegistry } from "@/features/modules/module-registry";
+import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function DashboardPage() {
   const locale = await getRequestLocale();
+  const capabilities = await getCurrentCrmCapabilities();
   const data = await getDashboardData("/dashboard");
 
   return (
@@ -99,6 +101,7 @@ export default async function DashboardPage() {
         <DashboardModuleGrid
           modules={crmModuleRegistry.filter((item) => item.id !== "dashboard")}
           locale={locale}
+          capabilities={capabilities}
         />
       </DashboardSection>
     </section>

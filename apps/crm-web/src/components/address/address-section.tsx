@@ -14,10 +14,12 @@ export async function AddressSection({
   entityType,
   entityId,
   addresses,
+  canManage = true,
 }: Readonly<{
   entityType: "customer" | "company";
   entityId: string;
   addresses?: AddressDto[] | null;
+  canManage?: boolean;
 }>) {
   const locale = await getRequestLocale();
   const list = Array.isArray(addresses) ? addresses : [];
@@ -37,29 +39,37 @@ export async function AddressSection({
         </p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{tCrm("crm.address.actions.add", locale)}</CardTitle>
-          <CardDescription>
-            {tCrm("crm.address.section.addDescription", locale, {
-              entity: tCrm(entityKey, locale),
-            })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AddressForm
-            mode="create"
-            action={
-              entityType === "customer"
-                ? createCustomerAddressAction.bind(null, entityId)
-                : createCompanyAddressAction.bind(null, entityId)
-            }
-          />
-        </CardContent>
-      </Card>
+      {canManage ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{tCrm("crm.address.actions.add", locale)}</CardTitle>
+            <CardDescription>
+              {tCrm("crm.address.section.addDescription", locale, {
+                entity: tCrm(entityKey, locale),
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AddressForm
+              mode="create"
+              action={
+                entityType === "customer"
+                  ? createCustomerAddressAction.bind(null, entityId)
+                  : createCompanyAddressAction.bind(null, entityId)
+              }
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {list.length > 0 ? (
-        <AddressList entityType={entityType} entityId={entityId} addresses={list} locale={locale} />
+        <AddressList
+          entityType={entityType}
+          entityId={entityId}
+          addresses={list}
+          locale={locale}
+          canManage={canManage}
+        />
       ) : (
         <Card>
           <CardHeader>

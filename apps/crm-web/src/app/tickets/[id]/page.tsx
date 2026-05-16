@@ -11,6 +11,7 @@ import { getTicketDetailData } from "@/features/tickets/data/tickets-data";
 import { deleteTicketAction } from "@/features/tickets/actions/ticket-mutation-actions";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type TicketDetailDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -18,8 +19,10 @@ import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
-  await requireCrmSession(`/tickets/${resolved.id}`);
+  const session = await requireCrmSession(`/tickets/${resolved.id}`);
   const locale = await getRequestLocale();
+  const canEdit = crmCapabilityAllows(session.capabilities, "tickets.edit");
+  const canDelete = crmCapabilityAllows(session.capabilities, "tickets.delete");
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -43,11 +46,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         title={ticket.subject}
         description={tCrm("crm.tickets.detail.description", locale)}
         actions={
-          <Button asChild>
-            <Link href={`/tickets/${resolved.id}/edit`}>
-              {tCrm("crm.tickets.actions.edit", locale)}
-            </Link>
-          </Button>
+          canEdit ? (
+            <Button asChild>
+              <Link href={`/tickets/${resolved.id}/edit`}>
+                {tCrm("crm.tickets.actions.edit", locale)}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
       <CrmEntityDetailPanel
@@ -104,17 +109,19 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           },
         ]}
       />
-      <CrmDeleteZone
-        title={tCrm("crm.tickets.delete.title", locale)}
-        description={tCrm("crm.tickets.delete.description", locale)}
-      >
-        <CrmDeleteConfirmForm
-          entityLabel={tCrm("crm.tickets.entityLabel", locale)}
-          entityName={ticket.subject}
-          confirmValue="delete-ticket"
-          action={deleteTicketAction.bind(null, resolved.id)}
-        />
-      </CrmDeleteZone>
+      {canDelete ? (
+        <CrmDeleteZone
+          title={tCrm("crm.tickets.delete.title", locale)}
+          description={tCrm("crm.tickets.delete.description", locale)}
+        >
+          <CrmDeleteConfirmForm
+            entityLabel={tCrm("crm.tickets.entityLabel", locale)}
+            entityName={ticket.subject}
+            confirmValue="delete-ticket"
+            action={deleteTicketAction.bind(null, resolved.id)}
+          />
+        </CrmDeleteZone>
+      ) : null}
       <CrmContractPending module={tCrm("crm.tickets.contractPending.detailViews", locale)} />
     </section>
   );

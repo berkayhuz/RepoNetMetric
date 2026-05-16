@@ -12,6 +12,7 @@ import { deleteCustomerAction } from "@/features/customers/actions/customer-muta
 import { getCustomerDetailData } from "@/features/customers/data/customers-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type CustomerDetailDto } from "@/lib/crm-api";
+import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
@@ -19,8 +20,10 @@ import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
-  await requireCrmSession(`/customers/${resolved.id}`);
+  const session = await requireCrmSession(`/customers/${resolved.id}`);
   const locale = await getRequestLocale();
+  const canEdit = crmCapabilityAllows(session.capabilities, "customers.edit");
+  const canDelete = crmCapabilityAllows(session.capabilities, "customers.delete");
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -44,11 +47,13 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         title={customer.fullName}
         description={tCrm("crm.customers.pages.detail.description", locale)}
         actions={
-          <Button asChild>
-            <Link href={`/customers/${resolved.id}/edit`}>
-              {tCrm("crm.customers.actions.edit", locale)}
-            </Link>
-          </Button>
+          canEdit ? (
+            <Button asChild>
+              <Link href={`/customers/${resolved.id}/edit`}>
+                {tCrm("crm.customers.actions.edit", locale)}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
       <CrmEntityDetailPanel
@@ -78,19 +83,26 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           },
         ]}
       />
-      <AddressSection entityType="customer" entityId={resolved.id} addresses={customer.addresses} />
-      <CrmDeleteZone
-        title={tCrm("crm.customers.actions.delete", locale)}
-        description={tCrm("crm.customers.pages.detail.deleteDescription", locale)}
-        locale={locale}
-      >
-        <CrmDeleteConfirmForm
-          entityLabel={tCrm("crm.customers.entityName", locale)}
-          entityName={customer.fullName}
-          confirmValue="delete-customer"
-          action={deleteCustomerAction.bind(null, resolved.id)}
-        />
-      </CrmDeleteZone>
+      <AddressSection
+        entityType="customer"
+        entityId={resolved.id}
+        addresses={customer.addresses}
+        canManage={canEdit || canDelete}
+      />
+      {canDelete ? (
+        <CrmDeleteZone
+          title={tCrm("crm.customers.actions.delete", locale)}
+          description={tCrm("crm.customers.pages.detail.deleteDescription", locale)}
+          locale={locale}
+        >
+          <CrmDeleteConfirmForm
+            entityLabel={tCrm("crm.customers.entityName", locale)}
+            entityName={customer.fullName}
+            confirmValue="delete-customer"
+            action={deleteCustomerAction.bind(null, resolved.id)}
+          />
+        </CrmDeleteZone>
+      ) : null}
       <CrmContractPending module={tCrm("crm.customers.pages.detail.pendingModule", locale)} />
     </section>
   );

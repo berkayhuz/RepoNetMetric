@@ -1,5 +1,14 @@
 import { clientEnv } from "@/lib/env/client-env";
 
+const productionReturnOrigins = [
+  "https://netmetric.net",
+  "https://www.netmetric.net",
+  "https://auth.netmetric.net",
+  "https://account.netmetric.net",
+  "https://crm.netmetric.net",
+  "https://tools.netmetric.net",
+] as const;
+
 function normalizeOrigin(input: string): string | null {
   try {
     return new URL(input).origin.toLowerCase();
@@ -8,14 +17,16 @@ function normalizeOrigin(input: string): string | null {
   }
 }
 
+function isProductionRuntime(): boolean {
+  return process.env.NODE_ENV === "production" || process.env.APP_ENV === "production";
+}
+
 function getDefaultAccountUrl(): string {
   if (clientEnv.NEXT_PUBLIC_ACCOUNT_URL) {
     return clientEnv.NEXT_PUBLIC_ACCOUNT_URL;
   }
 
-  return process.env.NODE_ENV === "production"
-    ? "https://account.netmetric.net"
-    : "http://localhost:7004";
+  return isProductionRuntime() ? "https://account.netmetric.net" : "http://localhost:7004";
 }
 
 function getAllowedReturnOrigins(): Set<string> {
@@ -30,20 +41,24 @@ function getAllowedReturnOrigins(): Set<string> {
     }
   };
 
+  if (isProductionRuntime()) {
+    for (const origin of productionReturnOrigins) {
+      addOrigin(origin);
+    }
+
+    return origins;
+  }
+
   addOrigin(getDefaultAccountUrl());
   const rawConfigured = clientEnv.NEXT_PUBLIC_AUTH_ALLOWED_RETURN_ORIGINS;
   if (rawConfigured) {
     for (const item of rawConfigured.split(",")) {
       addOrigin(item.trim());
     }
-  } else if (process.env.NODE_ENV !== "production") {
+  } else {
     addOrigin("http://localhost:7004");
     addOrigin("http://localhost:7005");
     addOrigin("http://localhost:7006");
-  } else {
-    addOrigin("https://account.netmetric.net");
-    addOrigin("https://tools.netmetric.net");
-    addOrigin("https://crm.netmetric.net");
   }
 
   return origins;

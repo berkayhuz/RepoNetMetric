@@ -31,7 +31,6 @@ internal static class AccountOptionsCatalog
     private static readonly IReadOnlyCollection<AccountOptionItem> ThemeOptions =
     [
         new("System", "System"),
-        new("Default", "Default"),
         new("Dark", "Dark"),
         new("Light", "Light")
     ];

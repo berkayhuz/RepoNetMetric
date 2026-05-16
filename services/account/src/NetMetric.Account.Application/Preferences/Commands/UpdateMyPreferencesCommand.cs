@@ -27,7 +27,7 @@ public sealed class UpdateMyPreferencesCommandValidator : AbstractValidator<Upda
 {
     public UpdateMyPreferencesCommandValidator()
     {
-        RuleFor(x => x.Request.Theme).Must(value => Enum.TryParse<ThemePreference>(value, true, out _));
+        RuleFor(x => x.Request.Theme).Must(value => PreferenceThemeNormalizer.TryNormalize(value, out _));
         RuleFor(x => x.Request.Language)
             .NotEmpty()
             .MaximumLength(20)
@@ -78,7 +78,7 @@ public sealed class UpdateMyPreferencesCommandHandler(
             }
         }
 
-        var theme = Enum.Parse<ThemePreference>(command.Request.Theme, true);
+        var theme = PreferenceThemeNormalizer.Normalize(command.Request.Theme);
         var culture = NetMetricCultures.NormalizeOrDefault(command.Request.Language);
         var effectiveTimeZone = TimeZoneNormalizer.NormalizeOrDefault(command.Request.TimeZone);
         var requestedDefaultOrganizationId = command.Request.DefaultOrganizationId;
@@ -135,4 +135,26 @@ public sealed class UpdateMyPreferencesCommandHandler(
 
         return Result<UserPreferenceResponse>.Success(PreferenceMapper.ToResponse(preference));
     }
+}
+
+internal static class PreferenceThemeNormalizer
+{
+    public static bool TryNormalize(string? value, out ThemePreference theme)
+    {
+        if (Enum.TryParse(value, true, out theme))
+        {
+            if (theme == ThemePreference.Default)
+            {
+                theme = ThemePreference.System;
+            }
+
+            return true;
+        }
+
+        theme = ThemePreference.System;
+        return false;
+    }
+
+    public static ThemePreference Normalize(string value) =>
+        TryNormalize(value, out var theme) ? theme : ThemePreference.System;
 }

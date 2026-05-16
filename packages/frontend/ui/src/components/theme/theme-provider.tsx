@@ -28,6 +28,23 @@ function resolveTheme(theme: Theme): ResolvedTheme {
   return theme === "system" ? getSystemTheme() : theme;
 }
 
+function normalizeTheme(value: string | null | undefined): Theme | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "light" || normalized === "dark" || normalized === "system") {
+    return normalized;
+  }
+
+  if (normalized === "default") {
+    return "system";
+  }
+
+  return null;
+}
+
 function applyThemeToDocument(theme: Theme): ResolvedTheme {
   const resolved = resolveTheme(theme);
   const root = document.documentElement;
@@ -49,14 +66,17 @@ export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProvid
     const cookieThemeMatch = document.cookie.match(
       new RegExp(`(?:^|; )${THEME_COOKIE_KEY}=([^;]*)`),
     )?.[1];
-    const cookieTheme = cookieThemeMatch ? decodeURIComponent(cookieThemeMatch) : null;
+    const cookieTheme = normalizeTheme(
+      cookieThemeMatch ? decodeURIComponent(cookieThemeMatch) : null,
+    );
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    const storedTheme = normalizeTheme(stored);
     const initialTheme: Theme =
-      stored === "light" || stored === "dark" || stored === "system"
-        ? stored
-        : cookieTheme === "light" || cookieTheme === "dark" || cookieTheme === "system"
-          ? cookieTheme
-          : defaultTheme;
+      cookieTheme ?? (defaultTheme !== "system" ? defaultTheme : storedTheme) ?? defaultTheme;
+
+    if (stored !== initialTheme) {
+      window.localStorage.setItem(THEME_STORAGE_KEY, initialTheme);
+    }
 
     setThemeState(initialTheme);
     setResolvedTheme(applyThemeToDocument(initialTheme));

@@ -582,6 +582,9 @@ namespace NetMetric.Auth.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique();
+
                     b.HasIndex("TenantId", "NormalizedEmail")
                         .IsUnique();
 
