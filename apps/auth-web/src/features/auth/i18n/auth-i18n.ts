@@ -1,40 +1,17 @@
-﻿import { cookies, headers } from "next/headers";
-
+import { cookies, headers } from "next/headers";
 import {
   createTranslator,
-  defaultLocale,
+  extractLocaleFromAcceptLanguage,
   resolveLocale,
+  UI_LOCALE_COOKIE_NAME,
   type Locale,
   type MessageKey,
   type Translate,
 } from "@netmetric/i18n";
 
-const localeCookieName = "nm_locale";
-
-function extractLocaleFromAcceptLanguage(value: string | null): Locale {
-  if (!value) {
-    return defaultLocale;
-  }
-
-  const parts = value.split(",");
-  for (const part of parts) {
-    const candidate = part.split(";")[0]?.trim();
-    if (!candidate) {
-      continue;
-    }
-
-    const resolved = resolveLocale(candidate);
-    if (resolved !== defaultLocale || candidate.toLowerCase().startsWith(defaultLocale)) {
-      return resolved;
-    }
-  }
-
-  return defaultLocale;
-}
-
 export async function getRequestLocale(): Promise<Locale> {
   const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get(localeCookieName)?.value;
+  const cookieLocale = cookieStore.get(UI_LOCALE_COOKIE_NAME)?.value;
 
   if (cookieLocale) {
     return resolveLocale(cookieLocale);
@@ -46,7 +23,7 @@ export async function getRequestLocale(): Promise<Locale> {
 
 export function getClientLocale(): Locale {
   if (typeof document === "undefined") {
-    return defaultLocale;
+    return "en";
   }
 
   return resolveLocale(document.documentElement.lang);

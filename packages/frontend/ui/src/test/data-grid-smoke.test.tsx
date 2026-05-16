@@ -71,7 +71,7 @@ describe("DataGrid smoke", () => {
     }
     fireEvent.click(rowCheckbox);
 
-    expect(rowCheckbox).toHaveAttribute("data-state", "checked");
+    expect(rowCheckbox).toHaveAttribute("aria-checked", "true");
   });
 
   it("renders row actions", () => {

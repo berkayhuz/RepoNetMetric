@@ -12,6 +12,7 @@ type ThemeContextValue = {
 };
 
 const THEME_STORAGE_KEY = "netmetric-theme";
+const THEME_COOKIE_KEY = "netmetric-theme";
 
 const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined);
 
@@ -45,9 +46,17 @@ export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProvid
   const [resolvedTheme, setResolvedTheme] = React.useState<ResolvedTheme>("light");
 
   React.useEffect(() => {
+    const cookieThemeMatch = document.cookie.match(
+      new RegExp(`(?:^|; )${THEME_COOKIE_KEY}=([^;]*)`),
+    )?.[1];
+    const cookieTheme = cookieThemeMatch ? decodeURIComponent(cookieThemeMatch) : null;
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
     const initialTheme: Theme =
-      stored === "light" || stored === "dark" || stored === "system" ? stored : defaultTheme;
+      stored === "light" || stored === "dark" || stored === "system"
+        ? stored
+        : cookieTheme === "light" || cookieTheme === "dark" || cookieTheme === "system"
+          ? cookieTheme
+          : defaultTheme;
 
     setThemeState(initialTheme);
     setResolvedTheme(applyThemeToDocument(initialTheme));

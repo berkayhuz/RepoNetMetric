@@ -11,6 +11,7 @@ import {
 import type { UserPreferenceResponse } from "@/lib/account-api";
 
 import { ReadOnlyValue } from "./read-only-value";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type PreferencesReadOnlyPanelProps = {
   preferences: UserPreferenceResponse;
@@ -20,24 +21,36 @@ export function PreferencesReadOnlyPanel({ preferences }: PreferencesReadOnlyPan
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Preferences</Heading>
+        <Heading level={2}>{tAccountClient("account.preferences.title")}</Heading>
         <Text className="text-muted-foreground">
-          Read-only preference data from the account service.
+          {tAccountClient("account.preferences.readOnlyDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Preference details</CardTitle>
-          <CardDescription>Editing will be added in the next phase.</CardDescription>
+          <CardTitle>{tAccountClient("account.preferences.detailsTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.common.editingNextPhase")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
-          <Field label="Language" value={preferences.language} />
-          <Field label="Time zone" value={preferences.timeZone} />
-          <Field label="Theme" value={preferences.theme} />
-          <Field label="Date format" value={preferences.dateFormat} />
-          <Field label="Default organization" value={preferences.defaultOrganizationId} />
-          <Field label="Version" value={preferences.version} />
+          <Field
+            label={tAccountClient("account.profile.fields.language")}
+            value={preferences.language}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.timeZone")}
+            value={preferences.timeZone}
+          />
+          <Field label={tAccountClient("account.preferences.theme")} value={preferences.theme} />
+          <Field
+            label={tAccountClient("account.preferences.dateFormat")}
+            value={preferences.dateFormat}
+          />
+          <Field
+            label={tAccountClient("account.preferences.defaultOrganization")}
+            value={preferences.defaultOrganizationId}
+          />
+          <Field label={tAccountClient("account.fields.version")} value={preferences.version} />
         </CardContent>
       </Card>
     </section>

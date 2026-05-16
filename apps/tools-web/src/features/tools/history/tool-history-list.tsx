@@ -1,22 +1,22 @@
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@netmetric/ui";
 
+import { tTools } from "@/lib/i18n/tools-i18n";
 import type { ToolHistoryPageResponse } from "@/lib/tools-api";
 
 import { ToolHistoryItem } from "./tool-history-item";
 
 type ToolHistoryListProps = {
   response: ToolHistoryPageResponse;
+  locale?: string | null | undefined;
 };
 
-export function ToolHistoryList({ response }: ToolHistoryListProps) {
+export function ToolHistoryList({ response, locale }: ToolHistoryListProps) {
   if (response.items.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyTitle>No saved runs yet</EmptyTitle>
-          <EmptyDescription>
-            Run a tool, then use the Save to history action to keep it in your account.
-          </EmptyDescription>
+          <EmptyTitle>{tTools("tools.history.emptyTitle", locale)}</EmptyTitle>
+          <EmptyDescription>{tTools("tools.history.emptyDescription", locale)}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     );
@@ -25,7 +25,7 @@ export function ToolHistoryList({ response }: ToolHistoryListProps) {
   return (
     <div className="space-y-4">
       {response.items.map((item) => (
-        <ToolHistoryItem key={item.runId} item={item} />
+        <ToolHistoryItem key={item.runId} item={item} locale={locale} />
       ))}
     </div>
   );

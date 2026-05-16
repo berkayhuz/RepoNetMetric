@@ -31,6 +31,7 @@ import {
 import { initialMutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
 import { RecoveryCodesDisplay } from "./recovery-codes-display";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type MfaManagementPanelProps = {
   mfaStatus: MfaStatusResponse;
@@ -68,40 +69,38 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Multi-factor Authentication</Heading>
-        <Text className="text-muted-foreground">
-          Manage MFA setup, confirmation, disable, and recovery code regeneration from this page.
-        </Text>
+        <Heading level={2}>{tAccountClient("account.mfa.title")}</Heading>
+        <Text className="text-muted-foreground">{tAccountClient("account.mfa.description")}</Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>MFA status</CardTitle>
-          <CardDescription>Current account second-factor posture.</CardDescription>
+          <CardTitle>{tAccountClient("account.mfa.statusTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.mfa.statusDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Row
-            label="MFA enabled"
+            label={tAccountClient("account.mfa.enabledLabel")}
             value={
               mfaStatus.isEnabled ? (
-                <Badge variant="secondary">Enabled</Badge>
+                <Badge variant="secondary">{tAccountClient("account.common.enabled")}</Badge>
               ) : (
-                <Badge variant="outline">Disabled</Badge>
+                <Badge variant="outline">{tAccountClient("account.common.disabled")}</Badge>
               )
             }
           />
           <Row
-            label="Authenticator configured"
+            label={tAccountClient("account.mfa.authenticatorConfigured")}
             value={
               mfaStatus.hasAuthenticator ? (
-                <Badge variant="secondary">Configured</Badge>
+                <Badge variant="secondary">{tAccountClient("account.common.configured")}</Badge>
               ) : (
-                <Badge variant="outline">Not configured</Badge>
+                <Badge variant="outline">{tAccountClient("account.common.notConfigured")}</Badge>
               )
             }
           />
           <Row
-            label="Recovery codes remaining"
+            label={tAccountClient("account.mfa.recoveryCodesRemaining")}
             value={<Text>{String(mfaStatus.recoveryCodesRemaining)}</Text>}
           />
         </CardContent>
@@ -110,42 +109,47 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
       {!mfaStatus.isEnabled ? (
         <Card>
           <CardHeader>
-            <CardTitle>Setup MFA</CardTitle>
-            <CardDescription>
-              Start setup, then confirm with your authenticator code.
-            </CardDescription>
+            <CardTitle>{tAccountClient("account.mfa.setupTitle")}</CardTitle>
+            <CardDescription>{tAccountClient("account.mfa.setupDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <SecurityActionResult
               state={setupState}
-              successTitle="Setup started"
-              errorTitle="Setup failed"
+              successTitle={tAccountClient("account.mfa.setupStarted")}
+              errorTitle={tAccountClient("account.mfa.setupFailed")}
             />
             <form action={setupFormAction} className="space-y-3">
               <Input type="hidden" name="confirm" value="setup-mfa" />
               <Text className="text-sm text-muted-foreground">
-                Confirm to request a one-time MFA setup secret from the server.
+                {tAccountClient("account.mfa.setupConfirm")}
               </Text>
-              <PendingButton idleLabel="Start MFA setup" pendingLabel="Starting..." />
+              <PendingButton
+                idleLabel={tAccountClient("account.mfa.startSetup")}
+                pendingLabel={tAccountClient("account.mfa.starting")}
+              />
             </form>
 
             {setupData ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Setup details</CardTitle>
+                  <CardTitle>{tAccountClient("account.mfa.setupDetails")}</CardTitle>
                   <CardDescription>
-                    Use the key or URI in your authenticator app, then confirm below.
+                    {tAccountClient("account.mfa.setupDetailsDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="space-y-1">
-                    <Text className="text-sm text-muted-foreground">Manual key</Text>
+                    <Text className="text-sm text-muted-foreground">
+                      {tAccountClient("account.mfa.manualKey")}
+                    </Text>
                     <Text className="rounded-md border border-border bg-muted px-3 py-2 font-mono text-sm">
                       {setupData.sharedKey}
                     </Text>
                   </div>
                   <div className="space-y-1">
-                    <Text className="text-sm text-muted-foreground">Authenticator URI</Text>
+                    <Text className="text-sm text-muted-foreground">
+                      {tAccountClient("account.mfa.authenticatorUri")}
+                    </Text>
                     <Text className="break-all rounded-md border border-border bg-muted px-3 py-2 font-mono text-xs">
                       {setupData.authenticatorUri}
                     </Text>
@@ -160,20 +164,20 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
       {!mfaStatus.isEnabled || setupData ? (
         <Card>
           <CardHeader>
-            <CardTitle>Confirm and enable MFA</CardTitle>
-            <CardDescription>
-              Enter the verification code from your authenticator app.
-            </CardDescription>
+            <CardTitle>{tAccountClient("account.mfa.confirmTitle")}</CardTitle>
+            <CardDescription>{tAccountClient("account.mfa.confirmDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <SecurityActionResult
               state={confirmState}
-              successTitle="MFA enabled"
-              errorTitle="Confirmation failed"
+              successTitle={tAccountClient("account.mfa.enabledSuccess")}
+              errorTitle={tAccountClient("account.mfa.confirmFailed")}
             />
             <form action={confirmFormAction} className="space-y-3" noValidate>
               <Field>
-                <FieldLabel htmlFor="verificationCode">Verification code</FieldLabel>
+                <FieldLabel htmlFor="verificationCode">
+                  {tAccountClient("account.mfa.verificationCode")}
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id="verificationCode"
@@ -192,7 +196,10 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
                   </FieldError>
                 </FieldContent>
               </Field>
-              <PendingButton idleLabel="Enable MFA" pendingLabel="Enabling..." />
+              <PendingButton
+                idleLabel={tAccountClient("account.mfa.enable")}
+                pendingLabel={tAccountClient("account.mfa.enabling")}
+              />
             </form>
           </CardContent>
         </Card>
@@ -202,21 +209,21 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Disable MFA</CardTitle>
-              <CardDescription>
-                This reduces account protection. Confirm explicitly before continuing.
-              </CardDescription>
+              <CardTitle>{tAccountClient("account.mfa.disableTitle")}</CardTitle>
+              <CardDescription>{tAccountClient("account.mfa.disableDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <SecurityActionResult
                 state={disableState}
-                successTitle="MFA disabled"
-                errorTitle="Disable failed"
+                successTitle={tAccountClient("account.mfa.disabledSuccess")}
+                errorTitle={tAccountClient("account.mfa.disableFailed")}
               />
               <form action={disableFormAction} className="space-y-3" noValidate>
                 <Input type="hidden" name="confirm" value="disable-mfa" />
                 <Field>
-                  <FieldLabel htmlFor="disableVerificationCode">Verification code</FieldLabel>
+                  <FieldLabel htmlFor="disableVerificationCode">
+                    {tAccountClient("account.mfa.verificationCode")}
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       id="disableVerificationCode"
@@ -236,8 +243,8 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
                   </FieldContent>
                 </Field>
                 <PendingButton
-                  idleLabel="Disable MFA"
-                  pendingLabel="Disabling..."
+                  idleLabel={tAccountClient("account.mfa.disable")}
+                  pendingLabel={tAccountClient("account.mfa.disabling")}
                   variant="destructive"
                 />
               </form>
@@ -246,23 +253,26 @@ export function MfaManagementPanel({ mfaStatus }: MfaManagementPanelProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Regenerate recovery codes</CardTitle>
+              <CardTitle>{tAccountClient("account.mfa.regenerateRecoveryCodes")}</CardTitle>
               <CardDescription>
-                Existing recovery codes become invalid immediately after regeneration.
+                {tAccountClient("account.mfa.regenerateDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <SecurityActionResult
                 state={recoveryState}
-                successTitle="Recovery codes regenerated"
-                errorTitle="Regeneration failed"
+                successTitle={tAccountClient("account.mfa.recoveryRegenerated")}
+                errorTitle={tAccountClient("account.mfa.regenerationFailed")}
               />
               <form action={recoveryFormAction} className="space-y-3">
                 <Input type="hidden" name="confirm" value="regenerate-recovery-codes" />
                 <Text className="text-sm text-muted-foreground">
-                  Confirm to invalidate previous recovery codes and receive a new set.
+                  {tAccountClient("account.mfa.regenerateConfirm")}
                 </Text>
-                <PendingButton idleLabel="Regenerate codes" pendingLabel="Regenerating..." />
+                <PendingButton
+                  idleLabel={tAccountClient("account.mfa.regenerate")}
+                  pendingLabel={tAccountClient("account.mfa.regenerating")}
+                />
               </form>
             </CardContent>
           </Card>

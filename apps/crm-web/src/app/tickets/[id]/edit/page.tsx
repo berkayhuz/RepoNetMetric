@@ -7,6 +7,8 @@ import { TicketForm } from "@/features/tickets/forms/ticket-form";
 import { CrmApiError } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 function toDateTimeLocal(value?: string | null): string {
   if (!value) {
@@ -29,6 +31,7 @@ function toDateTimeLocal(value?: string | null): string {
 export default async function EditTicketPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/tickets/${resolved.id}/edit`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -47,7 +50,10 @@ export default async function EditTicketPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <CrmEntityFormShell title="Edit Ticket" description="Update ticket profile fields.">
+    <CrmEntityFormShell
+      title={tCrm("crm.tickets.edit.title", locale)}
+      description={tCrm("crm.tickets.edit.description", locale)}
+    >
       <TicketForm
         mode="edit"
         ticketId={resolved.id}

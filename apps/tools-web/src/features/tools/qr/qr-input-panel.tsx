@@ -1,12 +1,13 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Textarea } from "@netmetric/ui";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  NativeSelect,
-  Textarea,
-} from "@netmetric/ui";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
+
+import { tTools } from "@/lib/i18n/tools-i18n";
 
 import { QR_MAX_INPUT_LENGTH } from "./qr-validation";
 
@@ -26,6 +27,7 @@ type QrInputPanelProps = {
   onValueChange: (value: string) => void;
   onSizeChange: (value: number) => void;
   onCorrectionLevelChange: (value: QrErrorCorrection) => void;
+  locale?: string | null | undefined;
 };
 
 export function QrInputPanel({
@@ -37,21 +39,20 @@ export function QrInputPanel({
   onValueChange,
   onSizeChange,
   onCorrectionLevelChange,
+  locale,
 }: QrInputPanelProps) {
   const describedBy = errorMessage ? "qr-input-help qr-input-error" : "qr-input-help";
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Input</CardTitle>
-        <CardDescription>
-          Enter the content that should be encoded into the QR code.
-        </CardDescription>
+        <CardTitle>{tTools("tools.qr.input.title", locale)}</CardTitle>
+        <CardDescription>{tTools("tools.qr.input.description", locale)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="qr-input" className="text-sm font-medium">
-            Text or URL
+            {tTools("tools.qr.input.contentLabel", locale)}
           </label>
           <Textarea
             id="qr-input"
@@ -65,7 +66,7 @@ export function QrInputPanel({
             placeholder="https://example.com"
           />
           <p id="qr-input-help" className="text-xs text-muted-foreground">
-            Max {QR_MAX_INPUT_LENGTH} characters. Leading and trailing spaces are trimmed.
+            {tTools("tools.qr.input.help", locale, { max: QR_MAX_INPUT_LENGTH })}
           </p>
           {errorMessage ? (
             <p id="qr-input-error" className="text-sm text-destructive" role="alert">
@@ -77,35 +78,44 @@ export function QrInputPanel({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="qr-size" className="text-sm font-medium">
-              QR size
+              {tTools("tools.qr.input.sizeLabel", locale)}
             </label>
-            <NativeSelect
-              id="qr-size"
-              value={String(size)}
-              onChange={(event) => onSizeChange(Number(event.target.value))}
-            >
-              {sizeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </NativeSelect>
+            <Select value={String(size)} onValueChange={(value) => onSizeChange(Number(value))}>
+              <SelectTrigger id="qr-size">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sizeOptions.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
             <label htmlFor="qr-ecl" className="text-sm font-medium">
-              Error correction
+              {tTools("tools.qr.input.errorCorrectionLabel", locale)}
             </label>
-            <NativeSelect
-              id="qr-ecl"
+            <Select
               value={correctionLevel}
-              onChange={(event) => onCorrectionLevelChange(event.target.value as QrErrorCorrection)}
+              onValueChange={(value) => onCorrectionLevelChange(value as QrErrorCorrection)}
             >
-              <option value="L">Low</option>
-              <option value="M">Medium</option>
-              <option value="Q">Quartile</option>
-              <option value="H">High</option>
-            </NativeSelect>
+              <SelectTrigger id="qr-ecl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="L">{tTools("tools.qr.errorCorrection.low", locale)}</SelectItem>
+                <SelectItem value="M">
+                  {tTools("tools.qr.errorCorrection.medium", locale)}
+                </SelectItem>
+                <SelectItem value="Q">
+                  {tTools("tools.qr.errorCorrection.quartile", locale)}
+                </SelectItem>
+                <SelectItem value="H">{tTools("tools.qr.errorCorrection.high", locale)}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardContent>

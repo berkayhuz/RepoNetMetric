@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { resolveLocale } from "@netmetric/i18n";
+import { UI_LOCALE_COOKIE_NAME, UI_THEME_COOKIE_NAME } from "@netmetric/i18n";
 
 import { accountApiClient, type UpdateUserPreferenceRequest } from "@/lib/account-api";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
 import { resolveLocaleCookieOptions } from "@/lib/locale-cookie";
+import { resolvePreferenceCookiesFromPayload } from "@/lib/ui-preference-cookies";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import { mapMutationErrorToState } from "./mutation-error-map";
@@ -46,7 +47,10 @@ export async function updatePreferencesAction(
     const requestOptions = await getAccountApiRequestOptions();
     await accountApiClient.updatePreferences(payload, requestOptions);
     const cookieStore = await cookies();
-    cookieStore.set("nm_locale", resolveLocale(payload.language), resolveLocaleCookieOptions());
+    const cookieOptions = resolveLocaleCookieOptions();
+    const cookieValues = resolvePreferenceCookiesFromPayload(payload);
+    cookieStore.set(UI_LOCALE_COOKIE_NAME, cookieValues.locale, cookieOptions);
+    cookieStore.set(UI_THEME_COOKIE_NAME, cookieValues.theme, cookieOptions);
     revalidatePath("/preferences");
     revalidatePath("/settings");
 

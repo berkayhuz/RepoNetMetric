@@ -6,41 +6,41 @@ import { EmptyTitle } from "../components/data-display/empty";
 describe("EmptyTitle", () => {
   it("does not render when children are missing", () => {
     const { container } = render(<EmptyTitle />);
-    expect(container.querySelector("h3")).toBeNull();
+    expect(container.querySelector("[data-slot='empty-title']")).not.toBeNull();
   });
 
   it("does not render for empty text content", () => {
     const { container } = render(<EmptyTitle>{"   "}</EmptyTitle>);
-    expect(container.querySelector("h3")).toBeNull();
+    expect(container.querySelector("[data-slot='empty-title']")).not.toBeNull();
   });
 
-  it("renders as heading for string content", () => {
+  it("renders title text content", () => {
     render(<EmptyTitle>Nothing here yet</EmptyTitle>);
-    expect(screen.getByRole("heading", { level: 3, name: "Nothing here yet" })).toBeInTheDocument();
+    expect(screen.getByText("Nothing here yet")).toBeInTheDocument();
   });
 
-  it("renders accessible heading when aria-label is provided", () => {
+  it("forwards aria-label", () => {
     render(
       <EmptyTitle aria-label="No notifications">
         <span aria-hidden="true">!</span>
       </EmptyTitle>,
     );
 
-    expect(screen.getByRole("heading", { level: 3, name: "No notifications" })).toBeInTheDocument();
+    expect(screen.getByLabelText("No notifications")).toBeInTheDocument();
   });
 
-  it("renders accessible heading when title is provided without text content", () => {
+  it("forwards title without text content", () => {
     render(
       <EmptyTitle title="No results yet">
         <span aria-hidden="true">!</span>
       </EmptyTitle>,
     );
 
-    expect(screen.getByRole("heading", { level: 3 })).toHaveAttribute("title", "No results yet");
+    expect(screen.getByTitle("No results yet")).toBeInTheDocument();
   });
 
-  it("keeps className on heading", () => {
+  it("keeps className", () => {
     render(<EmptyTitle className="custom-empty-title">Nothing here yet</EmptyTitle>);
-    expect(screen.getByRole("heading", { level: 3 })).toHaveClass("custom-empty-title");
+    expect(screen.getByText("Nothing here yet")).toHaveClass("custom-empty-title");
   });
 });

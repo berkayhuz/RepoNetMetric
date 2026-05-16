@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
+import { resolveUiPreferences, UI_LOCALE_COOKIE_NAME, UI_THEME_COOKIE_NAME } from "@netmetric/i18n";
 import { getThemeInitScript } from "@netmetric/ui";
 import { ThemeProvider } from "@netmetric/ui/client";
 
@@ -45,19 +46,23 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const locale = await getRequestLocale();
+  const cookieStore = await cookies();
+  const resolved = resolveUiPreferences({
+    theme: cookieStore.get(UI_THEME_COOKIE_NAME)?.value,
+    locale: cookieStore.get(UI_LOCALE_COOKIE_NAME)?.value,
+  });
+  const locale = resolved.locale;
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
-        <Script
+        <script
           id="netmetric-theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript(resolved.theme) }}
         />
       </head>
       <body>
-        <ThemeProvider>
+        <ThemeProvider defaultTheme={resolved.theme}>
           <CrmShell locale={locale}>{children}</CrmShell>
         </ThemeProvider>
       </body>

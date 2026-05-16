@@ -11,10 +11,15 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
@@ -109,13 +114,26 @@ export function CompanyForm({ mode, companyId, initialValues }: Readonly<Company
             {tCrmClient("crm.companies.fields.companyType")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="company-type" {...form.register("companyType")}>
-              {companyTypeOptions.map((o) => (
-                <NativeSelectOption key={`company-type-${o.value}`} value={String(o.value)}>
-                  {companyTypeLabelByValue[o.value] ?? o.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("companyType"))}
+              onValueChange={(value) =>
+                form.setValue("companyType", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="company-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {companyTypeOptions.map((o) => (
+                  <SelectItem key={`company-type-${o.value}`} value={String(o.value)}>
+                    {companyTypeLabelByValue[o.value] ?? o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.companyType?.message}</FieldError>
           </FieldContent>
         </Field>

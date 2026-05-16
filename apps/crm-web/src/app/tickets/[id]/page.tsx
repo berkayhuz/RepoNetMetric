@@ -13,10 +13,13 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type TicketDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = await params;
   await requireCrmSession(`/tickets/${resolved.id}`);
+  const locale = await getRequestLocale();
 
   if (!isGuid(resolved.id)) {
     notFound();
@@ -38,43 +41,81 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
     <section className="space-y-6">
       <CrmPageHeader
         title={ticket.subject}
-        description="Ticket detail."
+        description={tCrm("crm.tickets.detail.description", locale)}
         actions={
           <Button asChild>
-            <Link href={`/tickets/${resolved.id}/edit`}>Edit ticket</Link>
+            <Link href={`/tickets/${resolved.id}/edit`}>
+              {tCrm("crm.tickets.actions.edit", locale)}
+            </Link>
           </Button>
         }
       />
       <CrmEntityDetailPanel
-        title="Ticket profile"
+        title={tCrm("crm.tickets.detail.profileTitle", locale)}
         fields={[
-          { label: "Ticket #", value: ticket.ticketNumber },
-          { label: "Subject", value: ticket.subject },
-          { label: "Description", value: ticket.description },
-          { label: "Status", value: String(ticket.status) },
-          { label: "Priority", value: String(ticket.priority) },
-          { label: "Type", value: String(ticket.ticketType) },
-          { label: "Channel", value: String(ticket.channel) },
-          { label: "Assigned user id", value: ticket.assignedUserId },
-          { label: "Customer id", value: ticket.customerId },
-          { label: "Contact id", value: ticket.contactId },
-          { label: "Opened at", value: ticket.openedAt },
-          { label: "Closed at", value: ticket.closedAt },
-          { label: "State", value: ticket.isActive ? "Active" : "Inactive" },
+          { label: tCrm("crm.tickets.fields.ticketNumber", locale), value: ticket.ticketNumber },
+          { label: tCrm("crm.tickets.fields.subject", locale), value: ticket.subject },
+          { label: tCrm("crm.tickets.fields.description", locale), value: ticket.description },
+          {
+            label: tCrm("crm.tickets.fields.status", locale),
+            value: tCrmWithFallback(
+              `crm.tickets.status.${ticket.status}`,
+              String(ticket.status),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.tickets.fields.priority", locale),
+            value: tCrmWithFallback(
+              `crm.common.priority.${ticket.priority}`,
+              String(ticket.priority),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.tickets.fields.type", locale),
+            value: tCrmWithFallback(
+              `crm.tickets.type.${ticket.ticketType}`,
+              String(ticket.ticketType),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.tickets.fields.channel", locale),
+            value: tCrmWithFallback(
+              `crm.tickets.channel.${ticket.channel}`,
+              String(ticket.channel),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.tickets.fields.assignedUserId", locale),
+            value: ticket.assignedUserId,
+          },
+          { label: tCrm("crm.tickets.fields.customerId", locale), value: ticket.customerId },
+          { label: tCrm("crm.tickets.fields.contactId", locale), value: ticket.contactId },
+          { label: tCrm("crm.tickets.fields.openedAt", locale), value: ticket.openedAt },
+          { label: tCrm("crm.tickets.fields.closedAt", locale), value: ticket.closedAt },
+          {
+            label: tCrm("crm.tickets.fields.state", locale),
+            value: ticket.isActive
+              ? tCrm("crm.states.active", locale)
+              : tCrm("crm.states.inactive", locale),
+          },
         ]}
       />
       <CrmDeleteZone
-        title="Delete Ticket"
-        description="Deleting this ticket removes it from active CRM views."
+        title={tCrm("crm.tickets.delete.title", locale)}
+        description={tCrm("crm.tickets.delete.description", locale)}
       >
         <CrmDeleteConfirmForm
-          entityLabel="Ticket"
+          entityLabel={tCrm("crm.tickets.entityLabel", locale)}
           entityName={ticket.subject}
           confirmValue="delete-ticket"
           action={deleteTicketAction.bind(null, resolved.id)}
         />
       </CrmDeleteZone>
-      <CrmContractPending module="Ticket comments, timeline, SLA, and workflow read views" />
+      <CrmContractPending module={tCrm("crm.tickets.contractPending.detailViews", locale)} />
     </section>
   );
 }

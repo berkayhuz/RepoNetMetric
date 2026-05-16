@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 
+import { tPublic } from "@/lib/i18n/public-i18n";
 import { toAbsoluteUrl } from "@/lib/public-env";
 
 const defaultTitle = "NetMetric";
-const defaultDescription =
-  "NetMetric is an enterprise platform for secure authentication, account governance, CRM operations, business tools, and API-driven workflows.";
 
 export const siteTitle = defaultTitle;
 
@@ -36,4 +35,6 @@ export function createPageMetadata(input: {
   };
 }
 
-export const defaultSiteDescription = defaultDescription;
+export function defaultSiteDescription(locale?: string | null): string {
+  return tPublic("public.meta.defaultDescription", locale);
+}

@@ -12,6 +12,8 @@ import {
   getFallbackExtension,
   normalizeArtifactFileName,
 } from "./tool-history-rules";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tTools } from "@/lib/i18n/tools-i18n";
 import {
   initialToolHistoryActionState,
   type ToolHistoryActionState,
@@ -22,46 +24,51 @@ function readTrimmedString(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function mapSaveError(error: unknown): ToolHistoryActionState {
+function mapSaveError(error: unknown, locale?: string | null | undefined): ToolHistoryActionState {
   if (error instanceof ToolsApiError) {
     if (error.kind === "unauthorized") {
       return {
         status: "error",
-        message: `Sign in required to save history. Continue at: ${buildAuthLoginRedirectUrl("/history")}`,
+        message: tTools("tools.history.errors.signInRequiredSave", locale, {
+          url: buildAuthLoginRedirectUrl("/history"),
+        }),
       };
     }
 
     if (error.kind === "forbidden") {
-      return { status: "error", message: "You are not permitted to save this tool output." };
+      return { status: "error", message: tTools("tools.history.errors.saveForbidden", locale) };
     }
 
     if (error.kind === "payload_too_large") {
-      return { status: "error", message: "Output file is too large to save. Maximum is 10 MB." };
+      return { status: "error", message: tTools("tools.history.errors.outputTooLarge", locale) };
     }
 
     if (error.kind === "unsupported_media_type") {
-      return { status: "error", message: "Output format is not supported for save." };
+      return { status: "error", message: tTools("tools.history.errors.unsupportedFormat", locale) };
     }
 
     if (error.kind === "validation") {
       return {
         status: "error",
-        message: error.problem?.detail ?? "Please verify tool output details and try again.",
+        message: error.problem?.detail ?? tTools("tools.history.errors.verifyOutput", locale),
       };
     }
 
     if (error.kind === "rate_limited") {
-      return { status: "error", message: "Too many requests. Please try again shortly." };
+      return { status: "error", message: tTools("tools.history.errors.rateLimited", locale) };
     }
 
     if (error.kind === "server_error" || error.kind === "upstream_unavailable") {
-      return { status: "error", message: "History service is temporarily unavailable." };
+      return {
+        status: "error",
+        message: tTools("tools.history.errors.serviceUnavailable", locale),
+      };
     }
 
-    return { status: "error", message: "Could not save history right now." };
+    return { status: "error", message: tTools("tools.history.errors.saveFailed", locale) };
   }
 
-  return { status: "error", message: "Unexpected error while saving history." };
+  return { status: "error", message: tTools("tools.history.errors.unexpectedSave", locale) };
 }
 
 export async function saveToHistoryAction(
@@ -69,19 +76,21 @@ export async function saveToHistoryAction(
   formData: FormData,
 ): Promise<ToolHistoryActionState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const toolSlug = readTrimmedString(formData, "toolSlug");
   const inputSummaryJson = readTrimmedString(formData, "inputSummaryJson") || "{}";
   const outputFile = formData.get("outputFile");
 
   if (!(outputFile instanceof File)) {
-    return { status: "error", message: "Generated output file is required before saving." };
+    return { status: "error", message: tTools("tools.history.errors.outputRequired", locale) };
   }
 
   const constraints = ensureSaveFileConstraints({
     toolSlug,
     mimeType: outputFile.type,
     fileSize: outputFile.size,
+    locale,
   });
 
   if (!constraints.ok) {
@@ -107,11 +116,11 @@ export async function saveToHistoryAction(
 
     return {
       status: "success",
-      message: "Saved to history.",
+      message: tTools("tools.history.savedMessage", locale),
       runId: response.runId,
     };
   } catch (error) {
-    return mapSaveError(error);
+    return mapSaveError(error, locale);
   }
 }
 

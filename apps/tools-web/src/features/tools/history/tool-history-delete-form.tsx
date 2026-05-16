@@ -7,12 +7,14 @@ import {
   deleteToolRunAction,
   initialToolHistoryActionState,
 } from "@/features/tools/actions/delete-tool-run-action";
+import { tTools } from "@/lib/i18n/tools-i18n";
 
 type ToolHistoryDeleteFormProps = {
   runId: string;
+  locale?: string | null | undefined;
 };
 
-export function ToolHistoryDeleteForm({ runId }: ToolHistoryDeleteFormProps) {
+export function ToolHistoryDeleteForm({ runId, locale }: ToolHistoryDeleteFormProps) {
   const [state, formAction, isPending] = useActionState(
     deleteToolRunAction,
     initialToolHistoryActionState,
@@ -24,18 +26,25 @@ export function ToolHistoryDeleteForm({ runId }: ToolHistoryDeleteFormProps) {
 
       <div className="space-y-2">
         <label htmlFor={`delete-confirm-${runId}`} className="text-sm font-medium">
-          Type <code>delete-tool-run</code> to confirm
+          {tTools("tools.history.deleteConfirmPrefix", locale)} <code>delete-tool-run</code>{" "}
+          {tTools("tools.history.deleteConfirmSuffix", locale)}
         </label>
         <Input id={`delete-confirm-${runId}`} name="confirm" autoComplete="off" required />
       </div>
 
       <Button type="submit" variant="destructive" disabled={isPending}>
-        {isPending ? "Deleting..." : "Delete run"}
+        {isPending
+          ? tTools("tools.actions.deleting", locale)
+          : tTools("tools.actions.deleteRun", locale)}
       </Button>
 
       {state.status !== "idle" ? (
         <Alert role="status" aria-live="polite">
-          <AlertTitle>{state.status === "success" ? "Deleted" : "Delete failed"}</AlertTitle>
+          <AlertTitle>
+            {state.status === "success"
+              ? tTools("tools.history.deletedTitle", locale)
+              : tTools("tools.history.deleteFailedTitle", locale)}
+          </AlertTitle>
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}

@@ -11,10 +11,15 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
@@ -165,13 +170,23 @@ export function ContactForm({ mode, contactId, initialValues }: Readonly<Contact
             {tCrmClient("crm.contacts.fields.gender")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="contact-gender" {...form.register("gender")}>
-              {genderOptions.map((o) => (
-                <NativeSelectOption key={`contact-gender-${o.value}`} value={String(o.value)}>
-                  {genderLabelByValue[o.value] ?? o.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("gender"))}
+              onValueChange={(value) =>
+                form.setValue("gender", Number(value), { shouldDirty: true, shouldValidate: true })
+              }
+            >
+              <SelectTrigger id="contact-gender">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {genderOptions.map((o) => (
+                  <SelectItem key={`contact-gender-${o.value}`} value={String(o.value)}>
+                    {genderLabelByValue[o.value] ?? o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.gender?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -180,10 +195,23 @@ export function ContactForm({ mode, contactId, initialValues }: Readonly<Contact
             {tCrmClient("crm.contacts.fields.primaryContact")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="contact-primary" {...form.register("isPrimaryContact")}>
-              <NativeSelectOption value="false">{tCrmClient("crm.common.no")}</NativeSelectOption>
-              <NativeSelectOption value="true">{tCrmClient("crm.common.yes")}</NativeSelectOption>
-            </NativeSelect>
+            <Select
+              value={String(form.watch("isPrimaryContact"))}
+              onValueChange={(value) =>
+                form.setValue("isPrimaryContact", value === "true", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="contact-primary">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">{tCrmClient("crm.common.no")}</SelectItem>
+                <SelectItem value="true">{tCrmClient("crm.common.yes")}</SelectItem>
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.isPrimaryContact?.message}</FieldError>
           </FieldContent>
         </Field>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from 
 
 import type { AccountNotificationsResponse } from "@/lib/account-api";
 import type { AccountDateSettings } from "@/lib/account-date";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 import { NotificationItem } from "./notification-item";
 
@@ -15,8 +16,8 @@ export function NotificationList({ notifications, dateSettings }: NotificationLi
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-          <CardDescription>No notifications available for this filter.</CardDescription>
+          <CardTitle>{tAccountClient("account.notifications.title")}</CardTitle>
+          <CardDescription>{tAccountClient("account.notifications.emptyTitle")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -26,13 +27,21 @@ export function NotificationList({ notifications, dateSettings }: NotificationLi
     <section className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Notification summary</CardTitle>
-          <CardDescription>Overview of current notification state.</CardDescription>
+          <CardTitle>{tAccountClient("account.notifications.summaryTitle")}</CardTitle>
+          <CardDescription>
+            {tAccountClient("account.notifications.summaryDescription")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-3">
-          <Text className="text-sm text-muted-foreground">Total: {notifications.totalCount}</Text>
-          <Text className="text-sm text-muted-foreground">Unread: {notifications.unreadCount}</Text>
-          <Text className="text-sm text-muted-foreground">Read: {notifications.readCount}</Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.notifications.totalLabel")}: {notifications.totalCount}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.notifications.unreadLabel")}: {notifications.unreadCount}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.notifications.readLabel")}: {notifications.readCount}
+          </Text>
         </CardContent>
       </Card>
 

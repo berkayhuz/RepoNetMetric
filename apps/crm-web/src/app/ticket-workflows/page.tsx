@@ -12,6 +12,8 @@ import {
 } from "@/features/ticket-workflows/actions/ticket-workflow-mutation-actions";
 import { getTicketWorkflowData } from "@/features/ticket-workflows/data/ticket-workflow-data";
 import { TicketWorkflowMutationPanels } from "@/features/ticket-workflows/forms/ticket-workflow-mutation-panels";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Button,
   Card,
@@ -35,11 +37,16 @@ function toSingleValue(value: string | string[] | undefined): string | undefined
   return undefined;
 }
 
+function enumLabel(namespace: string, value: string, locale: string): string {
+  return tCrmWithFallback(`${namespace}.${value}`, value, locale);
+}
+
 export default async function TicketWorkflowsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getRequestLocale();
   const params = await searchParams;
   const ticketIdRaw = toSingleValue(params.ticketId);
   const ticketId = ticketIdRaw && isGuid(ticketIdRaw) ? ticketIdRaw : undefined;
@@ -54,22 +61,22 @@ export default async function TicketWorkflowsPage({
   return (
     <section className="space-y-6">
       <CrmPageHeader
-        title="Ticket Workflows"
-        description="Queue management and ticket workflow assignment/status actions from consolidated CRM API."
+        title={tCrm("crm.ticketWorkflows.page.title", locale)}
+        description={tCrm("crm.ticketWorkflows.page.description", locale)}
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Read Filters</CardTitle>
+          <CardTitle>{tCrm("crm.ticketWorkflows.readFilters.title", locale)}</CardTitle>
           <CardDescription>
-            Enter a ticket id to load assignment and status history views.
+            {tCrm("crm.ticketWorkflows.readFilters.description", locale)}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form method="get" className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-2 sm:col-span-2">
               <label htmlFor="workflow-ticketId" className="text-sm font-medium">
-                Ticket ID (GUID)
+                {tCrm("crm.ticketWorkflows.fields.ticketIdGuid", locale)}
               </label>
               <Input
                 id="workflow-ticketId"
@@ -79,36 +86,42 @@ export default async function TicketWorkflowsPage({
             </div>
             <div className="flex items-end">
               <Button type="submit" variant="outline" className="w-full">
-                Load ticket history
+                {tCrm("crm.ticketWorkflows.readFilters.load", locale)}
               </Button>
             </div>
           </form>
           {ticketIdRaw && !ticketId ? (
-            <p className="mt-3 text-sm text-muted-foreground">Ticket ID is not a valid GUID.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {tCrm("crm.ticketWorkflows.validation.invalidTicketId", locale)}
+            </p>
           ) : null}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Queues</CardTitle>
-          <CardDescription>Current workflow queues.</CardDescription>
+          <CardTitle>{tCrm("crm.ticketWorkflows.queues.title", locale)}</CardTitle>
+          <CardDescription>
+            {tCrm("crm.ticketWorkflows.queues.description", locale)}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {queues.length === 0 ? (
             <CrmEmptyState
-              title="No queues found"
-              description="No workflow queues are configured."
+              title={tCrm("crm.ticketWorkflows.queues.emptyTitle", locale)}
+              description={tCrm("crm.ticketWorkflows.queues.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Workflow queues</TableCaption>
+              <TableCaption>{tCrm("crm.ticketWorkflows.queues.caption", locale)}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Strategy</TableHead>
-                  <TableHead>Default</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.code", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.name", locale)}</TableHead>
+                  <TableHead>
+                    {tCrm("crm.ticketWorkflows.fields.assignmentStrategy", locale)}
+                  </TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.default", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -116,8 +129,18 @@ export default async function TicketWorkflowsPage({
                   <TableRow key={q.id}>
                     <TableCell>{q.code}</TableCell>
                     <TableCell>{q.name}</TableCell>
-                    <TableCell>{q.assignmentStrategy}</TableCell>
-                    <TableCell>{q.isDefault ? "Yes" : "No"}</TableCell>
+                    <TableCell>
+                      {enumLabel(
+                        "crm.ticketWorkflows.strategy",
+                        String(q.assignmentStrategy),
+                        locale,
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {q.isDefault
+                        ? tCrm("crm.common.boolean.true", locale)
+                        : tCrm("crm.common.boolean.false", locale)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -128,34 +151,41 @@ export default async function TicketWorkflowsPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Assignment History</CardTitle>
-          <CardDescription>Read-only history for selected ticket.</CardDescription>
+          <CardTitle>{tCrm("crm.ticketWorkflows.assignmentHistory.title", locale)}</CardTitle>
+          <CardDescription>
+            {tCrm("crm.ticketWorkflows.assignmentHistory.description", locale)}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {!ticketId ? (
-            <CrmEmptyState title="Select a ticket" description="Enter a valid ticket GUID above." />
+            <CrmEmptyState
+              title={tCrm("crm.ticketWorkflows.selectTicket.title", locale)}
+              description={tCrm("crm.ticketWorkflows.selectTicket.description", locale)}
+            />
           ) : !assignments || assignments.length === 0 ? (
             <CrmEmptyState
-              title="No assignment history"
-              description="No assignment records found for this ticket."
+              title={tCrm("crm.ticketWorkflows.assignmentHistory.emptyTitle", locale)}
+              description={tCrm("crm.ticketWorkflows.assignmentHistory.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Ticket assignments</TableCaption>
+              <TableCaption>
+                {tCrm("crm.ticketWorkflows.assignmentHistory.caption", locale)}
+              </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Changed At</TableHead>
-                  <TableHead>Previous Queue</TableHead>
-                  <TableHead>New Queue</TableHead>
-                  <TableHead>Previous Owner</TableHead>
-                  <TableHead>New Owner</TableHead>
-                  <TableHead>Reason</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.changedAt", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.previousQueue", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.newQueue", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.previousOwner", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.newOwner", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.reason", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {assignments.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell>{new Date(a.changedAtUtc).toLocaleString("en-GB")}</TableCell>
+                    <TableCell>{new Date(a.changedAtUtc).toLocaleString(locale)}</TableCell>
                     <TableCell>{a.previousQueueId ?? "-"}</TableCell>
                     <TableCell>{a.newQueueId ?? "-"}</TableCell>
                     <TableCell>{a.previousOwnerUserId ?? "-"}</TableCell>
@@ -171,32 +201,39 @@ export default async function TicketWorkflowsPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Status History</CardTitle>
-          <CardDescription>Read-only status transitions for selected ticket.</CardDescription>
+          <CardTitle>{tCrm("crm.ticketWorkflows.statusHistory.title", locale)}</CardTitle>
+          <CardDescription>
+            {tCrm("crm.ticketWorkflows.statusHistory.description", locale)}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {!ticketId ? (
-            <CrmEmptyState title="Select a ticket" description="Enter a valid ticket GUID above." />
+            <CrmEmptyState
+              title={tCrm("crm.ticketWorkflows.selectTicket.title", locale)}
+              description={tCrm("crm.ticketWorkflows.selectTicket.description", locale)}
+            />
           ) : !statusHistory || statusHistory.length === 0 ? (
             <CrmEmptyState
-              title="No status history"
-              description="No status transitions found for this ticket."
+              title={tCrm("crm.ticketWorkflows.statusHistory.emptyTitle", locale)}
+              description={tCrm("crm.ticketWorkflows.statusHistory.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Ticket status transitions</TableCaption>
+              <TableCaption>
+                {tCrm("crm.ticketWorkflows.statusHistory.caption", locale)}
+              </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Changed At</TableHead>
-                  <TableHead>Previous Status</TableHead>
-                  <TableHead>New Status</TableHead>
-                  <TableHead>Note</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.changedAt", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.previousStatus", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.newStatus", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketWorkflows.fields.note", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {statusHistory.map((s) => (
                   <TableRow key={s.id}>
-                    <TableCell>{new Date(s.changedAtUtc).toLocaleString("en-GB")}</TableCell>
+                    <TableCell>{new Date(s.changedAtUtc).toLocaleString(locale)}</TableCell>
                     <TableCell>{s.previousStatus}</TableCell>
                     <TableCell>{s.newStatus}</TableCell>
                     <TableCell>{s.note ?? "-"}</TableCell>
@@ -210,9 +247,9 @@ export default async function TicketWorkflowsPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Mutation Actions</CardTitle>
+          <CardTitle>{tCrm("crm.ticketWorkflows.mutations.title", locale)}</CardTitle>
           <CardDescription>
-            Queue CRUD and ticket-specific workflow transitions from source-visible contracts.
+            {tCrm("crm.ticketWorkflows.mutations.description", locale)}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -227,7 +264,7 @@ export default async function TicketWorkflowsPage({
         </CardContent>
       </Card>
 
-      <CrmContractPending module="workflow batch/destructive operations and guided transition lookups" />
+      <CrmContractPending module={tCrm("crm.ticketWorkflows.contractPending.batch", locale)} />
     </section>
   );
 }

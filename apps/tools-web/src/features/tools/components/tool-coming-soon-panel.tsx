@@ -1,12 +1,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@netmetric/ui";
 
-export function ToolComingSoonPanel() {
+import { tTools } from "@/lib/i18n/tools-i18n";
+
+export function ToolComingSoonPanel({ locale }: { locale?: string | null | undefined }) {
   return (
     <Alert>
-      <AlertTitle>Coming soon</AlertTitle>
-      <AlertDescription>
-        This tool is listed in the catalog, but execution will be enabled in a later phase.
-      </AlertDescription>
+      <AlertTitle>{tTools("tools.status.comingSoon", locale)}</AlertTitle>
+      <AlertDescription>{tTools("tools.comingSoon.description", locale)}</AlertDescription>
     </Alert>
   );
 }

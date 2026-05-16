@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from "react";
 
 import type { MfaStatusResponse } from "@/lib/account-api";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type MfaReadOnlyPanelProps = {
   mfaStatus: MfaStatusResponse;
@@ -20,40 +21,40 @@ export function MfaReadOnlyPanel({ mfaStatus }: MfaReadOnlyPanelProps) {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Multi-factor Authentication</Heading>
+        <Heading level={2}>{tAccountClient("account.mfa.title")}</Heading>
         <Text className="text-muted-foreground">
-          Read-only MFA status. Setup/confirm/disable flows will be added in the next phase.
+          {tAccountClient("account.mfa.readOnlyDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>MFA status</CardTitle>
-          <CardDescription>Current account second-factor posture.</CardDescription>
+          <CardTitle>{tAccountClient("account.mfa.statusTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.mfa.statusDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Row
-            label="MFA enabled"
+            label={tAccountClient("account.mfa.enabledLabel")}
             value={
               mfaStatus.isEnabled ? (
-                <Badge variant="secondary">Enabled</Badge>
+                <Badge variant="secondary">{tAccountClient("account.common.enabled")}</Badge>
               ) : (
-                <Badge variant="outline">Disabled</Badge>
+                <Badge variant="outline">{tAccountClient("account.common.disabled")}</Badge>
               )
             }
           />
           <Row
-            label="Authenticator configured"
+            label={tAccountClient("account.mfa.authenticatorConfigured")}
             value={
               mfaStatus.hasAuthenticator ? (
-                <Badge variant="secondary">Configured</Badge>
+                <Badge variant="secondary">{tAccountClient("account.common.configured")}</Badge>
               ) : (
-                <Badge variant="outline">Not configured</Badge>
+                <Badge variant="outline">{tAccountClient("account.common.notConfigured")}</Badge>
               )
             }
           />
           <Row
-            label="Recovery codes remaining"
+            label={tAccountClient("account.mfa.recoveryCodesRemaining")}
             value={<Text>{String(mfaStatus.recoveryCodesRemaining)}</Text>}
           />
         </CardContent>

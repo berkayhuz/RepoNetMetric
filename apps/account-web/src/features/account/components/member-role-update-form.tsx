@@ -9,6 +9,7 @@ import type { AccountMemberResponse, AccountRoleCatalogResponse } from "@/lib/ac
 import { updateMemberRolesAction } from "../actions/member-role-actions";
 import { initialMutationState } from "../actions/mutation-state";
 import { MemberRoleActionResult } from "./member-role-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type MemberRoleUpdateFormProps = {
   member: AccountMemberResponse;
@@ -19,7 +20,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" size="sm" disabled={pending}>
-      {pending ? "Updating..." : "Update roles"}
+      {pending
+        ? tAccountClient("account.team.updatingRoles")
+        : tAccountClient("account.team.updateRoles")}
     </Button>
   );
 }
@@ -43,7 +46,7 @@ export function MemberRoleUpdateForm({ member, rolesCatalog }: MemberRoleUpdateF
       <input type="hidden" name="currentRoles" value={member.roles.join(",")} />
 
       <Field>
-        <FieldLabel>Assignable roles</FieldLabel>
+        <FieldLabel>{tAccountClient("account.team.assignableRoles")}</FieldLabel>
         <FieldContent>
           <div className="grid gap-2 sm:grid-cols-2">
             {rolesCatalog.map((role) => {
@@ -60,11 +63,11 @@ export function MemberRoleUpdateForm({ member, rolesCatalog }: MemberRoleUpdateF
                     value={role.name}
                     defaultChecked={hasRole}
                     disabled={disableProtectedRemoval}
-                    aria-label={`Role ${role.name}`}
+                    aria-label={tAccountClient("account.team.roleAriaLabel", { role: role.name })}
                   />
                   <Text className="text-sm">
                     {role.name}
-                    {role.isProtected ? " (Protected)" : ""}
+                    {role.isProtected ? ` (${tAccountClient("account.roles.protected")})` : ""}
                   </Text>
                 </label>
               );
@@ -75,7 +78,7 @@ export function MemberRoleUpdateForm({ member, rolesCatalog }: MemberRoleUpdateF
       </Field>
 
       <Text className="text-xs text-muted-foreground">
-        Backend authorization and protected-role policies remain authoritative.
+        {tAccountClient("account.team.authorizationNote")}
       </Text>
       <SubmitButton />
       <MemberRoleActionResult state={state} />

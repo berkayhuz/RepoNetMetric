@@ -27,6 +27,7 @@ const sizeOptions = [
 
 type QrGeneratorClientProps = {
   isAuthenticated: boolean;
+  locale?: string | null | undefined;
 };
 
 async function dataUrlToFile(dataUrl: string, fileName: string, mimeType: string): Promise<File> {
@@ -35,13 +36,13 @@ async function dataUrlToFile(dataUrl: string, fileName: string, mimeType: string
   return new File([blob], fileName, { type: mimeType });
 }
 
-export function QrGeneratorClient({ isAuthenticated }: QrGeneratorClientProps) {
+export function QrGeneratorClient({ isAuthenticated, locale }: QrGeneratorClientProps) {
   const [inputValue, setInputValue] = useState(DEFAULT_INPUT);
   const [qrSize, setQrSize] = useState(DEFAULT_QR_SIZE);
   const [qrCorrectionLevel, setQrCorrectionLevel] = useState<QrErrorCorrection>(DEFAULT_QR_ECL);
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
 
-  const validation = useMemo(() => validateQrInput(inputValue), [inputValue]);
+  const validation = useMemo(() => validateQrInput(inputValue, locale), [inputValue, locale]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -84,14 +85,16 @@ export function QrGeneratorClient({ isAuthenticated }: QrGeneratorClientProps) {
           onValueChange={setInputValue}
           onSizeChange={setQrSize}
           onCorrectionLevelChange={setQrCorrectionLevel}
+          locale={locale}
         />
-        <QrPreviewPanel previewDataUrl={previewDataUrl} />
+        <QrPreviewPanel previewDataUrl={previewDataUrl} locale={locale} />
       </div>
 
       <Card className="mt-6">
         <CardContent className="pt-6">
           <QrDownloadActions
             canDownload={canDownload}
+            locale={locale}
             onDownload={() => previewDataUrl && downloadQrPng(previewDataUrl)}
           />
 
@@ -99,6 +102,7 @@ export function QrGeneratorClient({ isAuthenticated }: QrGeneratorClientProps) {
             toolSlug="qr-generator"
             isAuthenticated={isAuthenticated}
             canSave={canDownload}
+            locale={locale}
             getPayload={async () => {
               if (!validation.isValid || !previewDataUrl) {
                 return null;

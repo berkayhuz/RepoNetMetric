@@ -6,6 +6,7 @@ import { Button, Text } from "@netmetric/ui";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { InvitationActionResult } from "./invitation-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type InvitationConfirmActionFormProps = {
   invitationId: string;
@@ -51,7 +52,9 @@ export function InvitationConfirmActionForm({
     <form action={formAction} className="space-y-2">
       <input type="hidden" name="invitationId" value={invitationId} />
       <input type="hidden" name="confirm" value={confirmValue} />
-      <Text className="text-xs text-muted-foreground">Confirmation required for this action.</Text>
+      <Text className="text-xs text-muted-foreground">
+        {tAccountClient("account.invitations.confirmRequired")}
+      </Text>
       <SubmitButton label={label} pendingLabel={pendingLabel} variant={variant} />
       <InvitationActionResult state={state} successTitle={successTitle} errorTitle={errorTitle} />
     </form>

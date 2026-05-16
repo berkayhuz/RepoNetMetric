@@ -13,7 +13,7 @@ import { isGuid } from "@/features/shared/data/guid";
 import { CrmApiError, type OpportunityDetailDto } from "@/lib/crm-api";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-import { tCrm } from "@/lib/i18n/crm-i18n";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function OpportunityDetailPage({
@@ -57,18 +57,65 @@ export default async function OpportunityDetailPage({
       <CrmEntityDetailPanel
         title={tCrm("crm.opportunities.pages.detail.profileTitle", locale)}
         fields={[
-          { label: "Code", value: opportunity.opportunityCode },
-          { label: "Stage", value: String(opportunity.stage) },
-          { label: "Status", value: String(opportunity.status) },
-          { label: "Priority", value: String(opportunity.priority) },
-          { label: "Estimated amount", value: opportunity.estimatedAmount },
-          { label: "Expected revenue", value: opportunity.expectedRevenue },
-          { label: "Probability", value: opportunity.probability },
-          { label: "Estimated close date", value: opportunity.estimatedCloseDate },
-          { label: "Lead id", value: opportunity.leadId },
-          { label: "Customer id", value: opportunity.customerId },
-          { label: "Owner user id", value: opportunity.ownerUserId },
-          { label: "State", value: opportunity.isActive ? "Active" : "Inactive" },
+          {
+            label: tCrm("crm.opportunities.fields.code", locale),
+            value: opportunity.opportunityCode,
+          },
+          {
+            label: tCrm("crm.opportunities.fields.stage", locale),
+            value: tCrmWithFallback(
+              `crm.opportunities.stage.${opportunity.stage}`,
+              String(opportunity.stage),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.opportunities.fields.status", locale),
+            value: tCrmWithFallback(
+              `crm.opportunities.status.${opportunity.status}`,
+              String(opportunity.status),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.opportunities.fields.priority", locale),
+            value: tCrmWithFallback(
+              `crm.common.priority.${opportunity.priority}`,
+              String(opportunity.priority),
+              locale,
+            ),
+          },
+          {
+            label: tCrm("crm.opportunities.fields.estimatedAmount", locale),
+            value: opportunity.estimatedAmount,
+          },
+          {
+            label: tCrm("crm.opportunities.fields.expectedRevenue", locale),
+            value: opportunity.expectedRevenue,
+          },
+          {
+            label: tCrm("crm.opportunities.fields.probability", locale),
+            value: opportunity.probability,
+          },
+          {
+            label: tCrm("crm.opportunities.fields.estimatedCloseDate", locale),
+            value: opportunity.estimatedCloseDate,
+          },
+          { label: tCrm("crm.opportunities.fields.leadId", locale), value: opportunity.leadId },
+          {
+            label: tCrm("crm.opportunities.fields.customerId", locale),
+            value: opportunity.customerId,
+          },
+          {
+            label: tCrm("crm.opportunities.fields.ownerUserId", locale),
+            value: opportunity.ownerUserId,
+          },
+          {
+            label: tCrm("crm.common.columns.state", locale),
+            value: opportunity.isActive
+              ? tCrm("crm.states.active", locale)
+              : tCrm("crm.states.inactive", locale),
+          },
         ]}
       />
       <CrmDeleteZone

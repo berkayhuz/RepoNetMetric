@@ -2,18 +2,26 @@ import type { Metadata } from "next";
 import { Heading, Text } from "@netmetric/ui";
 
 import { getToolsCatalog } from "@/features/tools/catalog/catalog-api";
+import { localizeToolCatalog } from "@/features/tools/catalog/catalog-i18n";
 import { CategoryCard } from "@/features/tools/components/category-card";
 import { ToolsShell } from "@/features/tools/components/tools-shell";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tTools } from "@/lib/i18n/tools-i18n";
 import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = createPageMetadata(
-  "Tool Categories",
-  "Browse NetMetric Tools categories and discover browser-first utilities.",
-  "/categories",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+
+  return createPageMetadata(
+    tTools("tools.categories.metaTitle", locale),
+    tTools("tools.categories.metaDescription", locale),
+    "/categories",
+  );
+}
 
 export default async function CategoriesPage() {
-  const catalog = await getToolsCatalog();
+  const locale = await getRequestLocale();
+  const catalog = localizeToolCatalog(await getToolsCatalog(), locale);
 
   const sortedCategories = [...catalog.categories].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -22,10 +30,10 @@ export default async function CategoriesPage() {
       <section aria-labelledby="categories-heading" className="space-y-6">
         <div className="space-y-2">
           <Heading id="categories-heading" level={1}>
-            Categories
+            {tTools("tools.categories.title", locale)}
           </Heading>
           <Text className="text-muted-foreground">
-            Explore tools by category and find the right utility faster.
+            {tTools("tools.categories.description", locale)}
           </Text>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -34,6 +42,7 @@ export default async function CategoriesPage() {
               key={category.slug}
               category={category}
               toolCount={catalog.tools.filter((tool) => tool.categorySlug === category.slug).length}
+              locale={locale}
             />
           ))}
         </div>

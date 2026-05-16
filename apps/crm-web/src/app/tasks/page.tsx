@@ -7,6 +7,8 @@ import { getTasksData } from "@/features/tasks/data/tasks-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { WorkTaskDto } from "@/lib/crm-api";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Table,
   TableBody,
@@ -19,14 +21,18 @@ import {
 } from "@netmetric/ui";
 import Link from "next/link";
 
-function renderTaskRow(task: WorkTaskDto) {
+function renderTaskRow(task: WorkTaskDto, locale: string) {
   return (
     <TableRow key={task.id}>
       <TableCell>{task.title}</TableCell>
       <TableCell>{task.description || "-"}</TableCell>
-      <TableCell>{task.status}</TableCell>
-      <TableCell>{task.priority}</TableCell>
-      <TableCell>{new Date(task.dueAtUtc).toLocaleDateString("en-GB")}</TableCell>
+      <TableCell>
+        {tCrmWithFallback(`crm.tasks.status.${task.status}`, String(task.status), locale)}
+      </TableCell>
+      <TableCell>
+        {tCrmWithFallback(`crm.common.priority.${task.priority}`, String(task.priority), locale)}
+      </TableCell>
+      <TableCell>{new Date(task.dueAtUtc).toLocaleDateString(locale)}</TableCell>
       <TableCell>{task.ownerUserId || "-"}</TableCell>
     </TableRow>
   );
@@ -38,6 +44,7 @@ export default async function TasksPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/tasks");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -52,43 +59,51 @@ export default async function TasksPage({
   return (
     <section className="space-y-6">
       <CrmPageHeader
-        title="Tasks"
-        description="Read-only WorkManagement workspace tasks from consolidated CRM API."
+        title={tCrm("crm.tasks.page.title", locale)}
+        description={tCrm("crm.tasks.page.description", locale)}
         actions={
           <>
             <Button asChild>
-              <Link href="/tasks/new">Create task</Link>
+              <Link href="/tasks/new">{tCrm("crm.tasks.actions.create", locale)}</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/tasks/meetings/new">Schedule meeting</Link>
+              <Link href="/tasks/meetings/new">
+                {tCrm("crm.meetings.actions.schedule", locale)}
+              </Link>
             </Button>
           </>
         }
       />
       <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-        <p>Open tasks: {workspaceSummary.openTaskCount}</p>
-        <p>Upcoming meetings: {workspaceSummary.upcomingMeetingCount}</p>
+        <p>
+          {tCrm("crm.tasks.summary.openTasks", locale, { count: workspaceSummary.openTaskCount })}
+        </p>
+        <p>
+          {tCrm("crm.tasks.summary.upcomingMeetings", locale, {
+            count: workspaceSummary.upcomingMeetingCount,
+          })}
+        </p>
       </div>
       <CrmListToolbar actionPath="/tasks" {...(query.search ? { search: query.search } : {})} />
       {paged.items.length === 0 ? (
         <CrmEmptyState
-          title="No tasks found"
-          description="Try adjusting your search query. Task detail and activity feeds are pending dedicated endpoint contracts."
+          title={tCrm("crm.tasks.empty.title", locale)}
+          description={tCrm("crm.tasks.empty.description", locale)}
         />
       ) : (
         <Table>
-          <TableCaption>Work management tasks</TableCaption>
+          <TableCaption>{tCrm("crm.tasks.table.caption", locale)}</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Due date</TableHead>
-              <TableHead>Owner</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.title", locale)}</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.description", locale)}</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.status", locale)}</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.priority", locale)}</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.dueDate", locale)}</TableHead>
+              <TableHead>{tCrm("crm.tasks.fields.owner", locale)}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>{paged.items.map((task) => renderTaskRow(task))}</TableBody>
+          <TableBody>{paged.items.map((task) => renderTaskRow(task, locale))}</TableBody>
         </Table>
       )}
       <CrmPagination
@@ -97,7 +112,7 @@ export default async function TasksPage({
         basePath="/tasks"
         currentQuery={currentQuery}
       />
-      <CrmContractPending module="Task detail endpoint and activity timeline endpoint" />
+      <CrmContractPending module={tCrm("crm.tasks.contractPending.detailTimeline", locale)} />
     </section>
   );
 }

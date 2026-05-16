@@ -1,11 +1,13 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@netmetric/ui";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  NativeSelect,
-} from "@netmetric/ui";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
+
+import { tTools } from "@/lib/i18n/tools-i18n";
 
 import type { ImageConverterMode } from "./image-validation";
 
@@ -17,6 +19,7 @@ type ImageUploadPanelProps = {
   onFileChange: (file: File | null) => void;
   jpgQuality: number;
   onJpgQualityChange: (quality: number) => void;
+  locale?: string | null | undefined;
 };
 
 export function ImageUploadPanel({
@@ -27,23 +30,24 @@ export function ImageUploadPanel({
   onFileChange,
   jpgQuality,
   onJpgQualityChange,
+  locale,
 }: ImageUploadPanelProps) {
   const describedBy = errorMessage ? "image-file-help image-file-error" : "image-file-help";
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload file</CardTitle>
+        <CardTitle>{tTools("tools.image.upload.title", locale)}</CardTitle>
         <CardDescription>
           {mode === "png-to-jpg"
-            ? "Upload a PNG file up to 5 MB."
-            : "Upload a JPG/JPEG file up to 5 MB."}
+            ? tTools("tools.image.upload.pngDescription", locale)
+            : tTools("tools.image.upload.jpgDescription", locale)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="converter-file" className="text-sm font-medium">
-            Source image
+            {tTools("tools.image.upload.sourceLabel", locale)}
           </label>
           <input
             id="converter-file"
@@ -56,7 +60,7 @@ export function ImageUploadPanel({
             className="block w-full text-sm file:mr-4 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-2 file:text-sm file:font-medium"
           />
           <p id="image-file-help" className="text-xs text-muted-foreground">
-            SVG and unsupported formats are rejected.
+            {tTools("tools.image.upload.help", locale)}
           </p>
           {errorMessage ? (
             <p id="image-file-error" role="alert" className="text-sm text-destructive">
@@ -68,18 +72,21 @@ export function ImageUploadPanel({
         {mode === "png-to-jpg" ? (
           <div className="space-y-2">
             <label htmlFor="jpg-quality" className="text-sm font-medium">
-              JPG quality
+              {tTools("tools.image.upload.qualityLabel", locale)}
             </label>
-            <NativeSelect
-              id="jpg-quality"
+            <Select
               value={String(jpgQuality)}
-              onChange={(event) => onJpgQualityChange(Number(event.target.value))}
-              disabled={isPending}
+              onValueChange={(value) => onJpgQualityChange(Number(value))}
             >
-              <option value="60">60% (smaller file)</option>
-              <option value="75">75% (balanced)</option>
-              <option value="90">90% (higher quality)</option>
-            </NativeSelect>
+              <SelectTrigger id="jpg-quality" disabled={isPending}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="60">{tTools("tools.image.quality.60", locale)}</SelectItem>
+                <SelectItem value="75">{tTools("tools.image.quality.75", locale)}</SelectItem>
+                <SelectItem value="90">{tTools("tools.image.quality.90", locale)}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         ) : null}
       </CardContent>

@@ -1,14 +1,28 @@
 import type { Metadata } from "next";
+
 import { StandardPage } from "@/features/public/components/standard-page";
-import { getPageContent } from "@/features/public/content/pages";
+import { getPageContent, type PublicPageKey } from "@/features/public/content/pages";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tPublic } from "@/lib/i18n/public-i18n";
 import { createPageMetadata } from "@/lib/metadata";
 
-const content = getPageContent("developers");
-export const metadata: Metadata = createPageMetadata({
-  title: "Developers",
-  description: content.description,
-  path: "/developers",
-});
-export default function DevelopersPage() {
-  return <StandardPage content={content} />;
+const pageKey: PublicPageKey = "developers";
+const pagePath = "/developers";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const content = getPageContent(pageKey, locale);
+
+  return createPageMetadata({
+    title: tPublic(`public.pages.${pageKey}.metaTitle`, locale),
+    description: content.description,
+    path: pagePath,
+  });
+}
+
+export default async function DevelopersPage() {
+  const locale = await getRequestLocale();
+  const content = getPageContent(pageKey, locale);
+
+  return <StandardPage content={content} locale={locale} />;
 }

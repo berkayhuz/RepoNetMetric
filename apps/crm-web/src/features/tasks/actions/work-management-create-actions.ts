@@ -11,6 +11,7 @@ import {
   type ScheduleMeetingRequest,
 } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import {
@@ -82,7 +83,7 @@ export async function createWorkTaskAction(input: TaskFormInput): Promise<CrmMut
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
+      message: tCrm("crm.forms.errors.reviewTitle"),
       fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
     };
   }
@@ -91,8 +92,8 @@ export async function createWorkTaskAction(input: TaskFormInput): Promise<CrmMut
   if (!payload) {
     return {
       status: "error",
-      message: "Due date is invalid.",
-      fieldErrors: { dueAtUtc: ["Provide a valid date-time value."] },
+      message: tCrm("crm.tasks.validation.invalidDueDate"),
+      fieldErrors: { dueAtUtc: [tCrm("crm.tasks.validation.validDateTime")] },
     };
   }
 
@@ -105,7 +106,7 @@ export async function createWorkTaskAction(input: TaskFormInput): Promise<CrmMut
 
     return {
       status: "success",
-      message: "Task created successfully.",
+      message: tCrm("crm.tasks.result.created"),
       redirectTo: "/tasks",
     };
   } catch (error) {
@@ -122,7 +123,7 @@ export async function scheduleWorkMeetingAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please review the highlighted fields.",
+      message: tCrm("crm.forms.errors.reviewTitle"),
       fieldErrors: mapZodErrors(parsed.error.flatten().fieldErrors),
     };
   }
@@ -131,10 +132,10 @@ export async function scheduleWorkMeetingAction(
   if (!payload) {
     return {
       status: "error",
-      message: "Meeting start/end values are invalid.",
+      message: tCrm("crm.meetings.validation.invalidTimeRange"),
       fieldErrors: {
-        startsAtUtc: ["Provide a valid date-time value."],
-        endsAtUtc: ["Provide a valid date-time value."],
+        startsAtUtc: [tCrm("crm.tasks.validation.validDateTime")],
+        endsAtUtc: [tCrm("crm.tasks.validation.validDateTime")],
       },
     };
   }
@@ -148,7 +149,7 @@ export async function scheduleWorkMeetingAction(
 
     return {
       status: "success",
-      message: "Meeting scheduled successfully.",
+      message: tCrm("crm.meetings.result.scheduled"),
       redirectTo: "/tasks",
     };
   } catch (error) {

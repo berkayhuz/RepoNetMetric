@@ -9,18 +9,19 @@ import {
 } from "@netmetric/ui";
 
 import type { AccountInvitationSummaryResponse } from "@/lib/account-api";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type InvitationsReadOnlyPanelProps = {
   invitations: AccountInvitationSummaryResponse[];
 };
 
-function formatDate(value: string | null | undefined): string {
+function formatDate(value: string | null | undefined, emptyLabel: string): string {
   if (!value) {
-    return "Not available";
+    return emptyLabel;
   }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return emptyLabel;
   }
   return date.toLocaleString();
 }
@@ -29,12 +30,14 @@ export function InvitationsReadOnlyPanel({ invitations }: InvitationsReadOnlyPan
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invitations</CardTitle>
-        <CardDescription>Read-only invitation timeline and status.</CardDescription>
+        <CardTitle>{tAccountClient("account.invitations.title")}</CardTitle>
+        <CardDescription>{tAccountClient("account.invitations.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {invitations.length === 0 ? (
-          <Text className="text-sm text-muted-foreground">No invitations available.</Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.invitations.emptyTitle")}
+          </Text>
         ) : (
           invitations.map((invitation) => (
             <div
@@ -46,10 +49,12 @@ export function InvitationsReadOnlyPanel({ invitations }: InvitationsReadOnlyPan
                 <Badge variant="outline">{invitation.status}</Badge>
               </div>
               <Text className="text-xs text-muted-foreground">
-                Created: {formatDate(invitation.createdAtUtc)}
+                {tAccountClient("account.invitations.createdLabel")}:{" "}
+                {formatDate(invitation.createdAtUtc, tAccountClient("account.common.notAvailable"))}
               </Text>
               <Text className="text-xs text-muted-foreground">
-                Expires: {formatDate(invitation.expiresAtUtc)}
+                {tAccountClient("account.invitations.expiresLabel")}:{" "}
+                {formatDate(invitation.expiresAtUtc, tAccountClient("account.common.notAvailable"))}
               </Text>
             </div>
           ))

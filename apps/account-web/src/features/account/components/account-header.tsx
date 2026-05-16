@@ -4,6 +4,7 @@ import { Badge, Heading, Text } from "@netmetric/ui";
 import { accountRoutes } from "@/features/account/config/account-routes";
 import { getCurrentAccountSession } from "@/lib/auth/account-session";
 import { UserAvatar } from "./user-avatar";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type AccountHeaderProps = {
   localeName: string;
@@ -20,18 +21,18 @@ export async function AccountHeader({ localeName }: AccountHeaderProps) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <Heading level={1} className="text-xl">
-              NetMetric Account
+              {tAccountClient("account.header.title")}
             </Heading>
             <Text className="text-sm text-muted-foreground">
-              Account portal scaffold · {localeName}
+              {tAccountClient("account.header.description", { locale: localeName })}
             </Text>
           </div>
           <div className="flex items-center gap-3">
             <UserAvatar displayName={displayName} avatarUrl={avatarUrl ?? null} />
-            <Badge variant="secondary">Phase 1</Badge>
+            <Badge variant="secondary">{tAccountClient("account.header.phaseOne")}</Badge>
           </div>
         </div>
-        <nav aria-label="Account navigation">
+        <nav aria-label={tAccountClient("account.a11y.accountNavigation")}>
           <ul className="flex flex-wrap gap-2">
             {accountRoutes.map((route) => (
               <li key={route.href}>

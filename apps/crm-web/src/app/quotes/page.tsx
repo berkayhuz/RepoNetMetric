@@ -4,30 +4,56 @@ import { getQuotesData } from "@/features/quotes/data/quotes-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { QuoteListItemDto } from "@/lib/crm-api";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
-const columns: CrmEntityTableColumn<QuoteListItemDto>[] = [
-  { key: "quoteNumber", header: "Quote number", render: (item) => item.quoteNumber },
-  { key: "proposalTitle", header: "Proposal title", render: (item) => item.proposalTitle || "-" },
-  { key: "status", header: "Status", render: (item) => String(item.status) },
-  {
-    key: "quoteDate",
-    header: "Quote date",
-    render: (item) => new Date(item.quoteDate).toLocaleDateString("en-GB"),
-  },
-  {
-    key: "validUntil",
-    header: "Valid until",
-    render: (item) =>
-      item.validUntil ? new Date(item.validUntil).toLocaleDateString("en-GB") : "-",
-  },
-  { key: "currencyCode", header: "Currency", render: (item) => item.currencyCode },
-  { key: "grandTotal", header: "Grand total", render: (item) => item.grandTotal ?? "-" },
-  {
-    key: "isActive",
-    header: "State",
-    render: (item) => (item.isActive ? "Active" : "Inactive"),
-  },
-];
+function getColumns(locale: string): CrmEntityTableColumn<QuoteListItemDto>[] {
+  return [
+    {
+      key: "quoteNumber",
+      header: tCrm("crm.quotes.columns.quoteNumber", locale),
+      render: (item) => item.quoteNumber,
+    },
+    {
+      key: "proposalTitle",
+      header: tCrm("crm.quotes.columns.proposalTitle", locale),
+      render: (item) => item.proposalTitle || "-",
+    },
+    {
+      key: "status",
+      header: tCrm("crm.quotes.columns.status", locale),
+      render: (item) =>
+        tCrmWithFallback(`crm.quotes.status.${item.status}`, String(item.status), locale),
+    },
+    {
+      key: "quoteDate",
+      header: tCrm("crm.quotes.columns.quoteDate", locale),
+      render: (item) => new Date(item.quoteDate).toLocaleDateString(locale),
+    },
+    {
+      key: "validUntil",
+      header: tCrm("crm.quotes.columns.validUntil", locale),
+      render: (item) =>
+        item.validUntil ? new Date(item.validUntil).toLocaleDateString(locale) : "-",
+    },
+    {
+      key: "currencyCode",
+      header: tCrm("crm.quotes.columns.currency", locale),
+      render: (item) => item.currencyCode,
+    },
+    {
+      key: "grandTotal",
+      header: tCrm("crm.quotes.columns.grandTotal", locale),
+      render: (item) => item.grandTotal ?? "-",
+    },
+    {
+      key: "isActive",
+      header: tCrm("crm.common.columns.state", locale),
+      render: (item) =>
+        item.isActive ? tCrm("crm.states.active", locale) : tCrm("crm.states.inactive", locale),
+    },
+  ];
+}
 
 export default async function QuotesPage({
   searchParams,
@@ -35,6 +61,7 @@ export default async function QuotesPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/quotes");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -48,14 +75,14 @@ export default async function QuotesPage({
 
   return (
     <CrmEntityListPage
-      title="Quotes"
-      description="Quote records from consolidated CRM API."
+      title={tCrm("crm.quotes.title", locale)}
+      description={tCrm("crm.quotes.description", locale)}
       actionPath="/quotes"
       createPath="/quotes/new"
-      createLabel="Create quote"
+      createLabel={tCrm("crm.quotes.actions.create", locale)}
       {...(query.search ? { search: query.search } : {})}
-      caption="Quotes"
-      columns={columns}
+      caption={tCrm("crm.quotes.caption", locale)}
+      columns={getColumns(locale)}
       paged={data}
       detailBasePath="/quotes"
       currentQuery={currentQuery}

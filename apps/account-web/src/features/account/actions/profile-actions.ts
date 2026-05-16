@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { resolveLocale, translate } from "@netmetric/i18n";
+import { resolveLocale, translate, UI_LOCALE_COOKIE_NAME } from "@netmetric/i18n";
 
 import { AccountApiError, accountApiClient, type UpdateMyProfileRequest } from "@/lib/account-api";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
@@ -62,7 +62,7 @@ export async function updateProfileAction(
 ): Promise<MutationState> {
   await assertSameOriginRequest();
   const cookieStore = await cookies();
-  const locale = resolveLocale(cookieStore.get("nm_locale")?.value);
+  const locale = resolveLocale(cookieStore.get(UI_LOCALE_COOKIE_NAME)?.value);
 
   const payload: UpdateMyProfileRequest = {
     firstName: readRequiredString(formData, "firstName"),

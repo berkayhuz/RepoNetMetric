@@ -19,10 +19,11 @@ type PageSectionProps = {
   badge?: string;
   title: string;
   lead: string;
+  governanceText: string;
   highlights: Highlight[];
 };
 
-export function PageSection({ badge, title, lead, highlights }: PageSectionProps) {
+export function PageSection({ badge, title, lead, governanceText, highlights }: PageSectionProps) {
   return (
     <section className="mx-auto w-full max-w-7xl space-y-8 px-4 py-16 sm:px-6">
       <div className="space-y-3">
@@ -38,9 +39,7 @@ export function PageSection({ badge, title, lead, highlights }: PageSectionProps
               <CardDescription>{item.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Text className="text-sm text-muted-foreground">
-                Enterprise-ready controls with shared governance.
-              </Text>
+              <Text className="text-sm text-muted-foreground">{governanceText}</Text>
             </CardContent>
           </Card>
         ))}

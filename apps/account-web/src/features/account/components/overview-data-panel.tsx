@@ -13,6 +13,7 @@ import {
 import type { AccountOverviewResponse } from "@/lib/account-api";
 
 import { ReadOnlyValue } from "./read-only-value";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type OverviewDataPanelProps = {
   overview: AccountOverviewResponse;
@@ -22,29 +23,37 @@ export function OverviewDataPanel({ overview }: OverviewDataPanelProps) {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Overview</Heading>
+        <Heading level={2}>{tAccountClient("account.overview.title")}</Heading>
         <Text className="text-muted-foreground">
-          Live account summary from the account service.
+          {tAccountClient("account.overview.description")}
         </Text>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Identity</CardTitle>
-            <CardDescription>Primary account information</CardDescription>
+            <CardTitle>{tAccountClient("account.overview.identityTitle")}</CardTitle>
+            <CardDescription>
+              {tAccountClient("account.overview.identityDescription")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">Display name</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.fields.displayName")}
+              </Text>
               <ReadOnlyValue value={overview.displayName} />
             </div>
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">Avatar URL</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.fields.avatarUrl")}
+              </Text>
               <ReadOnlyValue value={overview.avatarUrl} />
             </div>
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">Organizations</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.overview.organizationsTitle")}
+              </Text>
               <ReadOnlyValue value={overview.organizations.length} />
             </div>
           </CardContent>
@@ -52,22 +61,32 @@ export function OverviewDataPanel({ overview }: OverviewDataPanelProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Security</CardTitle>
-            <CardDescription>Authentication and session posture</CardDescription>
+            <CardTitle>{tAccountClient("account.security.title")}</CardTitle>
+            <CardDescription>
+              {tAccountClient("account.security.postureDescription")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">MFA enabled</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.mfa.enabledLabel")}
+              </Text>
               <Badge variant={overview.isMfaEnabled ? "secondary" : "outline"}>
-                {overview.isMfaEnabled ? "Enabled" : "Disabled"}
+                {overview.isMfaEnabled
+                  ? tAccountClient("account.common.enabled")
+                  : tAccountClient("account.common.disabled")}
               </Badge>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">Active sessions</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.sessions.activeTitle")}
+              </Text>
               <ReadOnlyValue value={overview.activeSessionCount} />
             </div>
             <div className="flex items-center justify-between gap-3">
-              <Text className="text-sm text-muted-foreground">Last security event</Text>
+              <Text className="text-sm text-muted-foreground">
+                {tAccountClient("account.security.lastEvent")}
+              </Text>
               <ReadOnlyValue value={overview.lastSecurityEventAt} />
             </div>
           </CardContent>
@@ -76,17 +95,19 @@ export function OverviewDataPanel({ overview }: OverviewDataPanelProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Quick links</CardTitle>
-          <CardDescription>Common account areas</CardDescription>
+          <CardTitle>{tAccountClient("account.overview.quickLinks")}</CardTitle>
+          <CardDescription>
+            {tAccountClient("account.overview.quickLinksDescription")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <nav aria-label="Overview quick links">
+          <nav aria-label={tAccountClient("account.a11y.overviewQuickLinks")}>
             <ul className="grid gap-2 sm:grid-cols-2">
               {[
-                { href: "/profile", label: "Profile" },
-                { href: "/preferences", label: "Preferences" },
-                { href: "/security", label: "Security" },
-                { href: "/notifications", label: "Notifications" },
+                { href: "/profile", label: tAccountClient("account.profile.title") },
+                { href: "/preferences", label: tAccountClient("account.preferences.title") },
+                { href: "/security", label: tAccountClient("account.security.title") },
+                { href: "/notifications", label: tAccountClient("account.notifications.title") },
               ].map((item) => (
                 <li key={item.href}>
                   <Link

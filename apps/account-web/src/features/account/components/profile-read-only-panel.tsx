@@ -11,6 +11,7 @@ import {
 import type { MyProfileResponse } from "@/lib/account-api";
 
 import { ReadOnlyValue } from "./read-only-value";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type ProfileReadOnlyPanelProps = {
   profile: MyProfileResponse;
@@ -20,28 +21,46 @@ export function ProfileReadOnlyPanel({ profile }: ProfileReadOnlyPanelProps) {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Profile</Heading>
+        <Heading level={2}>{tAccountClient("account.profile.title")}</Heading>
         <Text className="text-muted-foreground">
-          Read-only profile data from the account service.
+          {tAccountClient("account.profile.readOnlyDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile details</CardTitle>
-          <CardDescription>Editing will be added in the next phase.</CardDescription>
+          <CardTitle>{tAccountClient("account.profile.detailsTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.common.editingNextPhase")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
-          <Field label="Display name" value={profile.displayName} />
-          <Field label="First name" value={profile.firstName} />
-          <Field label="Last name" value={profile.lastName} />
-          <Field label="Phone" value={profile.phoneNumber} />
-          <Field label="Job title" value={profile.jobTitle} />
-          <Field label="Department" value={profile.department} />
-          <Field label="Time zone" value={profile.timeZone} />
-          <Field label="Culture" value={profile.culture} />
-          <Field label="Avatar URL" value={profile.avatarUrl} />
-          <Field label="Version" value={profile.version} />
+          <Field label={tAccountClient("account.fields.displayName")} value={profile.displayName} />
+          <Field
+            label={tAccountClient("account.profile.fields.firstName")}
+            value={profile.firstName}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.lastName")}
+            value={profile.lastName}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.phone")}
+            value={profile.phoneNumber}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.jobTitle")}
+            value={profile.jobTitle}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.department")}
+            value={profile.department}
+          />
+          <Field
+            label={tAccountClient("account.profile.fields.timeZone")}
+            value={profile.timeZone}
+          />
+          <Field label={tAccountClient("account.profile.fields.culture")} value={profile.culture} />
+          <Field label={tAccountClient("account.fields.avatarUrl")} value={profile.avatarUrl} />
+          <Field label={tAccountClient("account.fields.version")} value={profile.version} />
         </CardContent>
       </Card>
     </section>

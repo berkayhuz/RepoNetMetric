@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { cn } from "../../lib/utils";
 
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
@@ -7,8 +5,7 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "bg-muted text-muted-foreground inline-flex h-6 min-w-6 items-center justify-center rounded-md border px-1.5 font-mono text-[0.75rem] font-medium",
-        "select-none",
+        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       {...props}
@@ -16,34 +13,13 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
   );
 }
 
-function KbdGroup({
-  className,
-  separator = "+",
-  children,
-  ...props
-}: React.ComponentProps<"div"> & {
-  separator?: React.ReactNode;
-}) {
-  const items = React.Children.toArray(children);
-
+function KbdGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
+    <kbd
       data-slot="kbd-group"
-      className={cn("inline-flex items-center gap-1.5", className)}
+      className={cn("inline-flex items-center gap-1", className)}
       {...props}
-    >
-      {items.map((child, index) => (
-        <React.Fragment key={index}>
-          {child}
-
-          {index < items.length - 1 ? (
-            <span data-slot="kbd-separator" className="text-muted-foreground text-xs">
-              {separator}
-            </span>
-          ) : null}
-        </React.Fragment>
-      ))}
-    </div>
+    />
   );
 }
 

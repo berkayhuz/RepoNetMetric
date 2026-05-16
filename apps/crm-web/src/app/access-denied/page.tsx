@@ -1,16 +1,21 @@
 import { Alert, AlertDescription, AlertTitle, Heading, Text } from "@netmetric/ui";
 
-export default function AccessDeniedPage() {
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+
+export default async function AccessDeniedPage() {
+  const locale = await getRequestLocale();
+
   return (
     <section className="space-y-4">
-      <Heading level={2}>Access denied</Heading>
+      <Heading level={2}>{tCrm("crm.statusPages.accessDenied.title", locale)}</Heading>
       <Text className="text-muted-foreground">
-        Your current account does not have permission to access this CRM area.
+        {tCrm("crm.statusPages.accessDenied.description", locale)}
       </Text>
       <Alert variant="destructive">
-        <AlertTitle>Authorization required</AlertTitle>
+        <AlertTitle>{tCrm("crm.statusPages.accessDenied.alertTitle", locale)}</AlertTitle>
         <AlertDescription>
-          Contact your CRM administrator if this should be available to you.
+          {tCrm("crm.statusPages.accessDenied.alertDescription", locale)}
         </AlertDescription>
       </Alert>
     </section>

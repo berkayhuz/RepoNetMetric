@@ -3,6 +3,7 @@ import type { AccountDateSettings } from "@/lib/account-date";
 import { formatAccountDateTime } from "@/lib/account-date";
 
 import type { AccountAuditEntryResponse } from "@/lib/account-api/account-api-types";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type AuditActivityItemProps = {
   item: AccountAuditEntryResponse;
@@ -17,14 +18,18 @@ export function AuditActivityItem({ item, dateSettings }: AuditActivityItemProps
           <Badge variant="outline">{item.severity}</Badge>
           <Badge variant="outline">{item.eventType}</Badge>
         </div>
-        <CardTitle className="text-base">Account activity event</CardTitle>
+        <CardTitle className="text-base">{tAccountClient("account.audit.eventTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <Text className="text-sm text-muted-foreground">
-          Occurred: {formatAccountDateTime(item.occurredAt, dateSettings)}
+          {tAccountClient("account.audit.occurredLabel")}:{" "}
+          {formatAccountDateTime(item.occurredAt, dateSettings)}
         </Text>
         <Text className="text-sm text-muted-foreground">
-          Correlation ID: {item.correlationId?.trim() ? item.correlationId : "Not available"}
+          {tAccountClient("account.audit.correlationIdLabel")}:{" "}
+          {item.correlationId?.trim()
+            ? item.correlationId
+            : tAccountClient("account.common.notAvailable")}
         </Text>
       </CardContent>
     </Card>

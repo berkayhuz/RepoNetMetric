@@ -14,6 +14,7 @@ import {
 } from "../actions/notification-actions";
 import { initialMutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type NotificationItemProps = {
   item: AccountNotificationResponse;
@@ -68,15 +69,15 @@ export function NotificationItem({ item, dateSettings }: NotificationItemProps) 
         {readState.status !== "idle" ? (
           <SecurityActionResult
             state={readState}
-            successTitle="Notification updated"
-            errorTitle="Read update failed"
+            successTitle={tAccountClient("account.notifications.updatedOne")}
+            errorTitle={tAccountClient("account.notifications.readUpdateFailed")}
           />
         ) : null}
         {deleteState.status !== "idle" ? (
           <SecurityActionResult
             state={deleteState}
-            successTitle="Notification removed"
-            errorTitle="Remove failed"
+            successTitle={tAccountClient("account.notifications.removed")}
+            errorTitle={tAccountClient("account.common.removeFailed")}
           />
         ) : null}
 
@@ -84,13 +85,20 @@ export function NotificationItem({ item, dateSettings }: NotificationItemProps) 
           {!item.isRead ? (
             <form action={readAction}>
               <input type="hidden" name="notificationId" value={item.id} />
-              <ActionButton idleLabel="Mark read" pendingLabel="Marking..." />
+              <ActionButton
+                idleLabel={tAccountClient("account.notifications.markRead")}
+                pendingLabel={tAccountClient("account.common.marking")}
+              />
             </form>
           ) : null}
           <form action={deleteAction}>
             <input type="hidden" name="notificationId" value={item.id} />
             <input type="hidden" name="confirm" value="delete-notification" />
-            <ActionButton idleLabel="Remove" pendingLabel="Removing..." variant="destructive" />
+            <ActionButton
+              idleLabel={tAccountClient("account.common.remove")}
+              pendingLabel={tAccountClient("account.common.removing")}
+              variant="destructive"
+            />
           </form>
         </div>
       </CardContent>

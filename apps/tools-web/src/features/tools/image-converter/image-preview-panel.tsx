@@ -1,19 +1,28 @@
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@netmetric/ui";
 
+import { tTools } from "@/lib/i18n/tools-i18n";
+
 type ImagePreviewPanelProps = {
   previewUrl: string | null;
   width: number | null;
   height: number | null;
   altText: string;
+  locale?: string | null | undefined;
 };
 
-export function ImagePreviewPanel({ previewUrl, width, height, altText }: ImagePreviewPanelProps) {
+export function ImagePreviewPanel({
+  previewUrl,
+  width,
+  height,
+  altText,
+  locale,
+}: ImagePreviewPanelProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Preview</CardTitle>
-        <CardDescription>Preview is generated locally in your browser only.</CardDescription>
+        <CardTitle>{tTools("tools.image.preview.title", locale)}</CardTitle>
+        <CardDescription>{tTools("tools.image.preview.description", locale)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {previewUrl ? (
@@ -27,13 +36,13 @@ export function ImagePreviewPanel({ previewUrl, width, height, altText }: ImageP
           />
         ) : (
           <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-            Select a valid source file to see a preview.
+            {tTools("tools.image.preview.empty", locale)}
           </p>
         )}
 
         {width && height ? (
           <p className="text-xs text-muted-foreground">
-            Dimensions: {width} x {height}px
+            {tTools("tools.image.preview.dimensions", locale, { width, height })}
           </p>
         ) : null}
       </CardContent>

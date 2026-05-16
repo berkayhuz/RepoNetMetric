@@ -9,6 +9,7 @@ import {
 } from "@netmetric/ui";
 
 import type { TrustedDevicesResponse, UserSessionsResponse } from "@/lib/account-api";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type SessionsReadOnlyPanelProps = {
   sessions: UserSessionsResponse;
@@ -19,44 +20,51 @@ export function SessionsReadOnlyPanel({ sessions, trustedDevices }: SessionsRead
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Sessions & Trusted Devices</Heading>
+        <Heading level={2}>{tAccountClient("account.sessions.title")}</Heading>
         <Text className="text-muted-foreground">
-          Read-only session and device visibility. Revoke actions are coming in the next phase.
+          {tAccountClient("account.sessions.readOnlyDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Active sessions</CardTitle>
-          <CardDescription>Current and recent authenticated sessions.</CardDescription>
+          <CardTitle>{tAccountClient("account.sessions.activeTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.sessions.activeDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {sessions.items.length === 0 ? (
-            <Text className="text-muted-foreground">No active sessions available.</Text>
+            <Text className="text-muted-foreground">
+              {tAccountClient("account.sessions.emptySessions")}
+            </Text>
           ) : (
             sessions.items.map((session) => (
               <div key={session.id} className="rounded-md border border-border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Text className="font-medium">{session.deviceName || "Unknown device"}</Text>
+                  <Text className="font-medium">
+                    {session.deviceName || tAccountClient("account.sessions.unknownDevice")}
+                  </Text>
                   <Text className="text-sm text-muted-foreground">
                     {session.isCurrent
-                      ? "Current session"
+                      ? tAccountClient("account.sessions.currentSession")
                       : session.isActive
-                        ? "Active"
-                        : "Inactive"}
+                        ? tAccountClient("account.common.active")
+                        : tAccountClient("account.common.inactive")}
                   </Text>
                 </div>
                 <Text className="text-sm text-muted-foreground">
-                  User agent: {session.userAgent || "Not available"}
+                  {tAccountClient("account.sessions.userAgentLabel")}:{" "}
+                  {session.userAgent || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  IP: {session.ipAddress || "Not available"}
+                  {tAccountClient("account.sessions.ipLabel")}:{" "}
+                  {session.ipAddress || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Location: {session.approximateLocation || "Not available"}
+                  {tAccountClient("account.sessions.locationLabel")}:{" "}
+                  {session.approximateLocation || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Last seen: {session.lastSeenAt}
+                  {tAccountClient("account.sessions.lastSeenLabel")}: {session.lastSeenAt}
                 </Text>
               </div>
             ))
@@ -66,32 +74,40 @@ export function SessionsReadOnlyPanel({ sessions, trustedDevices }: SessionsRead
 
       <Card>
         <CardHeader>
-          <CardTitle>Trusted devices</CardTitle>
-          <CardDescription>Devices marked as trusted for account sign-in flows.</CardDescription>
+          <CardTitle>{tAccountClient("account.sessions.trustedTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.sessions.trustedDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {trustedDevices.items.length === 0 ? (
-            <Text className="text-muted-foreground">No trusted devices found.</Text>
+            <Text className="text-muted-foreground">
+              {tAccountClient("account.sessions.emptyDevices")}
+            </Text>
           ) : (
             trustedDevices.items.map((device) => (
               <div key={device.id} className="rounded-md border border-border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Text className="font-medium">{device.name}</Text>
                   <Text className="text-sm text-muted-foreground">
-                    {device.isCurrent ? "Current device" : device.isActive ? "Trusted" : "Expired"}
+                    {device.isCurrent
+                      ? tAccountClient("account.sessions.currentDevice")
+                      : device.isActive
+                        ? tAccountClient("account.sessions.trusted")
+                        : tAccountClient("account.sessions.expired")}
                   </Text>
                 </div>
                 <Text className="text-sm text-muted-foreground">
-                  User agent: {device.userAgent || "Not available"}
+                  {tAccountClient("account.sessions.userAgentLabel")}:{" "}
+                  {device.userAgent || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  IP: {device.ipAddress || "Not available"}
+                  {tAccountClient("account.sessions.ipLabel")}:{" "}
+                  {device.ipAddress || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Trusted at: {device.trustedAt}
+                  {tAccountClient("account.sessions.trustedAtLabel")}: {device.trustedAt}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Expires at: {device.expiresAt}
+                  {tAccountClient("account.sessions.expiresAtLabel")}: {device.expiresAt}
                 </Text>
               </div>
             ))

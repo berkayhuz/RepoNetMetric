@@ -10,11 +10,13 @@ import {
 } from "@netmetric/ui";
 
 import type { ToolCatalogItem } from "@/features/tools/catalog/catalog-types";
+import { tTools } from "@/lib/i18n/tools-i18n";
 
 type ToolDetailShellProps = {
   tool: ToolCatalogItem;
   categoryTitle: string;
   isExecutionAvailable?: boolean;
+  locale?: string | null | undefined;
 };
 
 function toMegabytes(bytes: number): number {
@@ -25,13 +27,18 @@ export function ToolDetailShell({
   tool,
   categoryTitle,
   isExecutionAvailable = false,
+  locale,
 }: ToolDetailShellProps) {
   return (
     <section className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">{tool.isEnabled ? "Enabled" : "Coming Soon"}</Badge>
+            <Badge variant="secondary">
+              {tool.isEnabled
+                ? tTools("tools.status.enabled", locale)
+                : tTools("tools.status.comingSoon", locale)}
+            </Badge>
             <Badge variant="outline">{tool.executionMode}</Badge>
             <Badge variant="outline">{categoryTitle}</Badge>
           </div>
@@ -39,24 +46,33 @@ export function ToolDetailShell({
           <CardDescription>{tool.description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Guest local usage limit: {toMegabytes(tool.guestMaxFileBytes)} MB</p>
-          <p>Authenticated save limit: {toMegabytes(tool.authenticatedMaxSaveBytes)} MB</p>
+          <p>
+            {tTools("tools.detail.guestLimit", locale, {
+              size: toMegabytes(tool.guestMaxFileBytes),
+            })}
+          </p>
+          <p>
+            {tTools("tools.detail.authLimit", locale, {
+              size: toMegabytes(tool.authenticatedMaxSaveBytes),
+            })}
+          </p>
           {isExecutionAvailable ? (
-            <p>
-              This tool runs directly in your browser. NetMetric does not need to process guest
-              files on the server for local output generation.
-            </p>
+            <p>{tTools("tools.detail.browserExecution", locale)}</p>
           ) : (
-            <p>Tool execution will be added in the next phase.</p>
+            <p>{tTools("tools.detail.executionComingSoon", locale)}</p>
           )}
-          <p>Sign in if you want to explicitly save generated output to your account history.</p>
+          <p>{tTools("tools.detail.signInHistoryHint", locale)}</p>
           {tool.acceptedMimeTypes.length > 0 ? (
-            <p>Accepted MIME hints: {tool.acceptedMimeTypes.join(", ")}</p>
+            <p>
+              {tTools("tools.detail.acceptedMimeHints", locale, {
+                mimeTypes: tool.acceptedMimeTypes.join(", "),
+              })}
+            </p>
           ) : null}
         </CardContent>
         <div className="px-6 pb-6">
           <Button asChild variant="outline">
-            <Link href="/history">Go to saved history</Link>
+            <Link href="/history">{tTools("tools.actions.goToHistory", locale)}</Link>
           </Button>
         </div>
       </Card>

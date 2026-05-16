@@ -22,6 +22,7 @@ import type { NotificationPreferencesResponse } from "@/lib/account-api";
 import { updateNotificationPreferencesAction } from "../actions/notification-actions";
 import { initialMutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type NotificationPreferencesPanelProps = {
   preferences: NotificationPreferencesResponse;
@@ -31,7 +32,9 @@ function SaveButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : "Save preferences"}
+      {pending
+        ? tAccountClient("account.common.saving")
+        : tAccountClient("account.preferences.save")}
     </Button>
   );
 }
@@ -45,22 +48,24 @@ export function NotificationPreferencesPanel({ preferences }: NotificationPrefer
   return (
     <section className="space-y-4">
       <div className="space-y-2">
-        <Heading level={3}>Notification preferences</Heading>
+        <Heading level={3}>{tAccountClient("account.notifications.preferencesTitle")}</Heading>
         <Text className="text-sm text-muted-foreground">
-          Configure delivery channels per notification category.
+          {tAccountClient("account.notifications.deliveryDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Preference settings</CardTitle>
-          <CardDescription>Changes apply to future account notifications.</CardDescription>
+          <CardTitle>{tAccountClient("account.notifications.preferenceSettingsTitle")}</CardTitle>
+          <CardDescription>
+            {tAccountClient("account.notifications.preferencesDescription")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <SecurityActionResult
             state={state}
-            successTitle="Preferences saved"
-            errorTitle="Preferences update failed"
+            successTitle={tAccountClient("account.notifications.preferencesSaved")}
+            errorTitle={tAccountClient("account.notifications.preferencesUpdateFailed")}
           />
           <form action={formAction} className="space-y-4">
             <div className="grid gap-3">
@@ -78,7 +83,10 @@ export function NotificationPreferencesPanel({ preferences }: NotificationPrefer
                         name={`enabled:${key}`}
                         type="checkbox"
                         defaultChecked={item.isEnabled}
-                        aria-label={`${item.channel} ${item.category} notification toggle`}
+                        aria-label={tAccountClient("account.notifications.toggleAriaLabel", {
+                          channel: item.channel,
+                          category: item.category,
+                        })}
                       />
                     </FieldContent>
                   </Field>

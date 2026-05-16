@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { assertSameOriginRequest } from "@/lib/security/csrf";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tTools } from "@/lib/i18n/tools-i18n";
 import { buildAuthLoginRedirectUrl } from "@/lib/tools-auth/safe-return-url";
 import { getToolsApiRequestOptions } from "@/lib/tools-api/tools-api-request-options";
 import { toolsApiClient, ToolsApiError } from "@/lib/tools-api";
@@ -17,33 +19,41 @@ function readTrimmedString(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function mapDeleteError(error: unknown): ToolHistoryActionState {
+function mapDeleteError(
+  error: unknown,
+  locale?: string | null | undefined,
+): ToolHistoryActionState {
   if (error instanceof ToolsApiError) {
     if (error.kind === "unauthorized") {
       return {
         status: "error",
-        message: `Sign in required. Continue at: ${buildAuthLoginRedirectUrl("/history")}`,
+        message: tTools("tools.history.errors.signInRequired", locale, {
+          url: buildAuthLoginRedirectUrl("/history"),
+        }),
       };
     }
 
     if (error.kind === "forbidden") {
-      return { status: "error", message: "You are not permitted to delete this run." };
+      return { status: "error", message: tTools("tools.history.errors.deleteForbidden", locale) };
     }
 
     if (error.kind === "not_found") {
-      return { status: "error", message: "Run was not found or was already deleted." };
+      return { status: "error", message: tTools("tools.history.errors.notFound", locale) };
     }
 
     if (error.kind === "rate_limited") {
-      return { status: "error", message: "Too many requests. Please retry shortly." };
+      return { status: "error", message: tTools("tools.history.errors.rateLimitedRetry", locale) };
     }
 
     if (error.kind === "server_error" || error.kind === "upstream_unavailable") {
-      return { status: "error", message: "History service is temporarily unavailable." };
+      return {
+        status: "error",
+        message: tTools("tools.history.errors.serviceUnavailable", locale),
+      };
     }
   }
 
-  return { status: "error", message: "Unexpected error while deleting the run." };
+  return { status: "error", message: tTools("tools.history.errors.unexpectedDelete", locale) };
 }
 
 export async function deleteToolRunAction(
@@ -51,18 +61,19 @@ export async function deleteToolRunAction(
   formData: FormData,
 ): Promise<ToolHistoryActionState> {
   await assertSameOriginRequest();
+  const locale = await getRequestLocale();
 
   const runId = readTrimmedString(formData, "runId");
   const confirm = readTrimmedString(formData, "confirm");
 
   if (!runId) {
-    return { status: "error", message: "Run id is required." };
+    return { status: "error", message: tTools("tools.history.errors.runIdRequired", locale) };
   }
 
   if (confirm !== "delete-tool-run") {
     return {
       status: "error",
-      message: "Please type the confirmation marker before deleting this run.",
+      message: tTools("tools.history.errors.confirmRequired", locale),
     };
   }
 
@@ -75,10 +86,10 @@ export async function deleteToolRunAction(
 
     return {
       status: "success",
-      message: "Run deleted successfully.",
+      message: tTools("tools.history.deletedMessage", locale),
     };
   } catch (error) {
-    return mapDeleteError(error);
+    return mapDeleteError(error, locale);
   }
 }
 

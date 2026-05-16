@@ -11,17 +11,16 @@ import {
   updateTicketSlaPolicyAction,
 } from "@/features/ticket-sla/actions/ticket-sla-mutation-actions";
 import { TicketSlaMutationPanels } from "@/features/ticket-sla/forms/ticket-sla-mutation-panels";
+import { TicketSlaReadFiltersForm } from "@/features/ticket-sla/components/ticket-sla-read-filters-form";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Badge,
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
-  NativeSelect,
-  NativeSelectOption,
   Table,
   TableBody,
   TableCaption,
@@ -37,11 +36,16 @@ function toSingleValue(value: string | string[] | undefined): string | undefined
   return undefined;
 }
 
+function enumLabel(namespace: string, value: string, locale: string): string {
+  return tCrmWithFallback(`${namespace}.${value}`, value, locale);
+}
+
 export default async function TicketSlaPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const locale = await getRequestLocale();
   const params = await searchParams;
   const policyIdRaw = toSingleValue(params.policyId);
   const ticketIdRaw = toSingleValue(params.ticketId);
@@ -59,90 +63,72 @@ export default async function TicketSlaPage({
   return (
     <section className="space-y-6">
       <CrmPageHeader
-        title="Ticket SLA"
-        description="Read-only SLA policies and ticket SLA execution views from consolidated CRM API."
+        title={tCrm("crm.ticketSla.page.title", locale)}
+        description={tCrm("crm.ticketSla.page.description", locale)}
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Read Filters</CardTitle>
-          <CardDescription>
-            Select a policy for escalation rules and optionally provide a ticket id for workspace
-            and escalation runs.
-          </CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.readFilters.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.readFilters.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form method="get" className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-2">
-              <label htmlFor="ticket-sla-policyId" className="text-sm font-medium">
-                Policy
-              </label>
-              <NativeSelect id="ticket-sla-policyId" name="policyId" defaultValue={policyId ?? ""}>
-                <NativeSelectOption value="">No policy selected</NativeSelectOption>
-                {policies.map((policy) => (
-                  <NativeSelectOption key={policy.id} value={policy.id}>
-                    {policy.name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="ticket-sla-ticketId" className="text-sm font-medium">
-                Ticket ID (GUID)
-              </label>
-              <Input
-                id="ticket-sla-ticketId"
-                name="ticketId"
-                defaultValue={ticketId ?? ticketIdRaw ?? ""}
-              />
-            </div>
-            <div className="flex items-end">
-              <Button type="submit" variant="outline" className="w-full">
-                Load read views
-              </Button>
-            </div>
-          </form>
+          <TicketSlaReadFiltersForm
+            policies={policies}
+            policyId={policyId}
+            ticketIdValue={ticketId ?? ticketIdRaw ?? ""}
+          />
           {ticketIdRaw && !ticketId ? (
-            <p className="mt-3 text-sm text-muted-foreground">Ticket ID is not a valid GUID.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {tCrm("crm.ticketSla.validation.invalidTicketId", locale)}
+            </p>
           ) : null}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>SLA Policies</CardTitle>
-          <CardDescription>Configured ticket SLA policies (read-only).</CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.policies.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.policies.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
           {policies.length === 0 ? (
             <CrmEmptyState
-              title="No SLA policies found"
-              description="No ticket SLA policies are currently available."
+              title={tCrm("crm.ticketSla.policies.emptyTitle", locale)}
+              description={tCrm("crm.ticketSla.policies.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Ticket SLA policies</TableCaption>
+              <TableCaption>{tCrm("crm.ticketSla.policies.caption", locale)}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>First response (min)</TableHead>
-                  <TableHead>Resolution (min)</TableHead>
-                  <TableHead>Category ID</TableHead>
-                  <TableHead>Default</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.name", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.priority", locale)}</TableHead>
+                  <TableHead>
+                    {tCrm("crm.ticketSla.fields.firstResponseTargetMinutes", locale)}
+                  </TableHead>
+                  <TableHead>
+                    {tCrm("crm.ticketSla.fields.resolutionTargetMinutes", locale)}
+                  </TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.categoryId", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.default", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {policies.map((policy) => (
                   <TableRow key={policy.id}>
                     <TableCell>{policy.name}</TableCell>
-                    <TableCell>{policy.priority}</TableCell>
+                    <TableCell>
+                      {enumLabel("crm.common.priority", String(policy.priority), locale)}
+                    </TableCell>
                     <TableCell>{policy.firstResponseTargetMinutes}</TableCell>
                     <TableCell>{policy.resolutionTargetMinutes}</TableCell>
                     <TableCell>{policy.ticketCategoryId ?? "-"}</TableCell>
                     <TableCell>
                       <Badge variant={policy.isDefault ? "default" : "secondary"}>
-                        {policy.isDefault ? "Default" : "No"}
+                        {policy.isDefault
+                          ? tCrm("crm.ticketSla.labels.default", locale)
+                          : tCrm("crm.common.boolean.false", locale)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -155,42 +141,50 @@ export default async function TicketSlaPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Escalation Rules</CardTitle>
-          <CardDescription>Read-only rules for the selected SLA policy.</CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.rules.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.rules.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
           {!policyId ? (
             <CrmEmptyState
-              title="Select a policy"
-              description="Choose an SLA policy above to load escalation rules."
+              title={tCrm("crm.ticketSla.rules.selectPolicyTitle", locale)}
+              description={tCrm("crm.ticketSla.rules.selectPolicyDescription", locale)}
             />
           ) : !escalationRules || escalationRules.length === 0 ? (
             <CrmEmptyState
-              title="No escalation rules found"
-              description="No escalation rules are configured for the selected policy."
+              title={tCrm("crm.ticketSla.rules.emptyTitle", locale)}
+              description={tCrm("crm.ticketSla.rules.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Escalation rules</TableCaption>
+              <TableCaption>{tCrm("crm.ticketSla.rules.caption", locale)}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Metric</TableHead>
-                  <TableHead>Trigger (min)</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Target team</TableHead>
-                  <TableHead>Target user</TableHead>
-                  <TableHead>Enabled</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.metric", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.triggerMinutes", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.action", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.targetTeam", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.targetUser", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.enabled", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {escalationRules.map((rule) => (
                   <TableRow key={rule.id}>
-                    <TableCell>{rule.metricType}</TableCell>
+                    <TableCell>
+                      {enumLabel("crm.ticketSla.metric", rule.metricType, locale)}
+                    </TableCell>
                     <TableCell>{rule.triggerBeforeOrAfterMinutes}</TableCell>
-                    <TableCell>{rule.actionType}</TableCell>
+                    <TableCell>
+                      {enumLabel("crm.ticketSla.action", rule.actionType, locale)}
+                    </TableCell>
                     <TableCell>{rule.targetTeamId ?? "-"}</TableCell>
                     <TableCell>{rule.targetUserId ?? "-"}</TableCell>
-                    <TableCell>{rule.isEnabled ? "Yes" : "No"}</TableCell>
+                    <TableCell>
+                      {rule.isEnabled
+                        ? tCrm("crm.common.boolean.true", locale)
+                        : tCrm("crm.common.boolean.false", locale)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -201,55 +195,65 @@ export default async function TicketSlaPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Ticket SLA Workspace</CardTitle>
-          <CardDescription>Read-only SLA state for the selected ticket.</CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.workspace.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.workspace.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
           {!ticketId ? (
             <CrmEmptyState
-              title="Select a ticket"
-              description="Enter a valid ticket GUID above to load SLA workspace and escalation runs."
+              title={tCrm("crm.ticketSla.workspace.selectTicketTitle", locale)}
+              description={tCrm("crm.ticketSla.workspace.selectTicketDescription", locale)}
             />
           ) : !workspace ? (
             <CrmEmptyState
-              title="No workspace data found"
-              description="The selected ticket has no SLA workspace data."
+              title={tCrm("crm.ticketSla.workspace.emptyTitle", locale)}
+              description={tCrm("crm.ticketSla.workspace.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Ticket SLA workspace</TableCaption>
+              <TableCaption>{tCrm("crm.ticketSla.workspace.caption", locale)}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Policy ID</TableHead>
-                  <TableHead>First response due</TableHead>
-                  <TableHead>Resolution due</TableHead>
-                  <TableHead>First responded at</TableHead>
-                  <TableHead>Resolved at</TableHead>
-                  <TableHead>First response breached</TableHead>
-                  <TableHead>Resolution breached</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.policyId", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.firstResponseDue", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.resolutionDue", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.firstRespondedAt", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.resolvedAt", locale)}</TableHead>
+                  <TableHead>
+                    {tCrm("crm.ticketSla.fields.firstResponseBreached", locale)}
+                  </TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.resolutionBreached", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
                   <TableCell>{workspace.slaPolicyId}</TableCell>
                   <TableCell>
-                    {new Date(workspace.firstResponseDueAtUtc).toLocaleString("en-GB")}
+                    {new Date(workspace.firstResponseDueAtUtc).toLocaleString(locale)}
                   </TableCell>
                   <TableCell>
-                    {new Date(workspace.resolutionDueAtUtc).toLocaleString("en-GB")}
+                    {new Date(workspace.resolutionDueAtUtc).toLocaleString(locale)}
                   </TableCell>
                   <TableCell>
                     {workspace.firstRespondedAtUtc
-                      ? new Date(workspace.firstRespondedAtUtc).toLocaleString("en-GB")
+                      ? new Date(workspace.firstRespondedAtUtc).toLocaleString(locale)
                       : "-"}
                   </TableCell>
                   <TableCell>
                     {workspace.resolvedAtUtc
-                      ? new Date(workspace.resolvedAtUtc).toLocaleString("en-GB")
+                      ? new Date(workspace.resolvedAtUtc).toLocaleString(locale)
                       : "-"}
                   </TableCell>
-                  <TableCell>{workspace.isFirstResponseBreached ? "Yes" : "No"}</TableCell>
-                  <TableCell>{workspace.isResolutionBreached ? "Yes" : "No"}</TableCell>
+                  <TableCell>
+                    {workspace.isFirstResponseBreached
+                      ? tCrm("crm.common.boolean.true", locale)
+                      : tCrm("crm.common.boolean.false", locale)}
+                  </TableCell>
+                  <TableCell>
+                    {workspace.isResolutionBreached
+                      ? tCrm("crm.common.boolean.true", locale)
+                      : tCrm("crm.common.boolean.false", locale)}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -259,38 +263,38 @@ export default async function TicketSlaPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Escalation Runs</CardTitle>
-          <CardDescription>
-            Read-only escalation execution history for the selected ticket.
-          </CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.runs.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.runs.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
           {!ticketId ? (
             <CrmEmptyState
-              title="Select a ticket"
-              description="Enter a valid ticket GUID above to load escalation runs."
+              title={tCrm("crm.ticketSla.runs.selectTicketTitle", locale)}
+              description={tCrm("crm.ticketSla.runs.selectTicketDescription", locale)}
             />
           ) : !escalationRuns || escalationRuns.length === 0 ? (
             <CrmEmptyState
-              title="No escalation runs found"
-              description="No escalation runs are available for the selected ticket."
+              title={tCrm("crm.ticketSla.runs.emptyTitle", locale)}
+              description={tCrm("crm.ticketSla.runs.emptyDescription", locale)}
             />
           ) : (
             <Table>
-              <TableCaption>Ticket escalation runs</TableCaption>
+              <TableCaption>{tCrm("crm.ticketSla.runs.caption", locale)}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Executed at</TableHead>
-                  <TableHead>Metric</TableHead>
-                  <TableHead>Rule ID</TableHead>
-                  <TableHead>Note</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.executedAt", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.metric", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.ruleId", locale)}</TableHead>
+                  <TableHead>{tCrm("crm.ticketSla.fields.note", locale)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {escalationRuns.map((run) => (
                   <TableRow key={run.id}>
-                    <TableCell>{new Date(run.executedAtUtc).toLocaleString("en-GB")}</TableCell>
-                    <TableCell>{run.metricType}</TableCell>
+                    <TableCell>{new Date(run.executedAtUtc).toLocaleString(locale)}</TableCell>
+                    <TableCell>
+                      {enumLabel("crm.ticketSla.metric", run.metricType, locale)}
+                    </TableCell>
                     <TableCell>{run.escalationRuleId}</TableCell>
                     <TableCell>{run.note}</TableCell>
                   </TableRow>
@@ -303,11 +307,8 @@ export default async function TicketSlaPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Mutation Actions</CardTitle>
-          <CardDescription>
-            Safe mutation flows implemented from source-visible contracts. Escalation rule delete is
-            not available in the backend route surface yet.
-          </CardDescription>
+          <CardTitle>{tCrm("crm.ticketSla.mutations.title", locale)}</CardTitle>
+          <CardDescription>{tCrm("crm.ticketSla.mutations.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent>
           <TicketSlaMutationPanels
@@ -320,7 +321,7 @@ export default async function TicketSlaPage({
         </CardContent>
       </Card>
 
-      <CrmContractPending module="Ticket SLA escalation rule delete mutation route" />
+      <CrmContractPending module={tCrm("crm.ticketSla.contractPending.deleteRule", locale)} />
     </section>
   );
 }

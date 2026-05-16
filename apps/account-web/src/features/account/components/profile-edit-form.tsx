@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -19,9 +20,15 @@ import {
   FieldSet,
   Heading,
   Input,
-  NativeSelect,
   Text,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 
 import type { AccountOptionsResponse, MyProfileResponse } from "@/lib/account-api";
 import { resolveLanguageSelectState } from "@/lib/language-select";
@@ -29,6 +36,7 @@ import { resolveLanguageSelectState } from "@/lib/language-select";
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { AvatarManagementPanel } from "./avatar-management-panel";
 import { ReadOnlyValue } from "./read-only-value";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type ProfileEditFormProps = {
   profile: MyProfileResponse;
@@ -80,6 +88,12 @@ function SubmitButton({ copy }: { copy: ProfileEditCopy }) {
 export function ProfileEditForm({ profile, options, copy, action }: ProfileEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
   const languageSelect = resolveLanguageSelectState(profile.culture, options.languages);
+  const noPhoneCountry = "__none__";
+  const [phoneCountryIso2, setPhoneCountryIso2] = useState(
+    profile.phoneCountryIso2 ?? noPhoneCountry,
+  );
+  const [timeZone, setTimeZone] = useState(profile.timeZone);
+  const [culture, setCulture] = useState(languageSelect.selectedValue);
 
   return (
     <section className="space-y-6">
@@ -141,18 +155,28 @@ export function ProfileEditForm({ profile, options, copy, action }: ProfileEditF
               <Field>
                 <FieldLabel htmlFor="phoneCountryIso2">{copy.fields.phoneCountry}</FieldLabel>
                 <FieldContent>
-                  <NativeSelect
+                  <input
+                    type="hidden"
                     id="phoneCountryIso2"
                     name="phoneCountryIso2"
-                    defaultValue={profile.phoneCountryIso2 ?? ""}
+                    value={phoneCountryIso2 === noPhoneCountry ? "" : phoneCountryIso2}
+                  />
+                  <Select
+                    value={phoneCountryIso2}
+                    onValueChange={(nextValue) => setPhoneCountryIso2(nextValue ?? noPhoneCountry)}
                   >
-                    <option value="">{copy.fields.noPhone}</option>
-                    {options.phoneCountries.map((country) => (
-                      <option key={country.iso2} value={country.iso2}>
-                        {country.name} ({country.iso2}) {country.dialCode}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                    <SelectTrigger>
+                      <SelectValue placeholder={copy.fields.noPhone} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={noPhoneCountry}>{copy.fields.noPhone}</SelectItem>
+                      {options.phoneCountries.map((country) => (
+                        <SelectItem key={country.iso2} value={country.iso2}>
+                          {country.name} ({country.iso2}) {country.dialCode}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FieldContent>
               </Field>
               <FormField
@@ -185,36 +209,44 @@ export function ProfileEditForm({ profile, options, copy, action }: ProfileEditF
               <Field>
                 <FieldLabel htmlFor="timeZone">{copy.fields.timeZone}</FieldLabel>
                 <FieldContent>
-                  <NativeSelect
-                    id="timeZone"
-                    name="timeZone"
-                    defaultValue={profile.timeZone}
-                    aria-invalid={Boolean(state.fieldErrors?.timeZone?.[0])}
+                  <input type="hidden" id="timeZone" name="timeZone" value={timeZone} />
+                  <Select
+                    value={timeZone}
+                    onValueChange={(nextValue) => setTimeZone(nextValue ?? "")}
                   >
-                    {options.timeZones.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                    <SelectTrigger aria-invalid={Boolean(state.fieldErrors?.timeZone?.[0])}>
+                      <SelectValue placeholder={tAccountClient("account.profile.selectTimeZone")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options.timeZones.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FieldError id="timeZone-error">{state.fieldErrors?.timeZone?.[0]}</FieldError>
                 </FieldContent>
               </Field>
               <Field>
                 <FieldLabel htmlFor="culture">{copy.fields.language}</FieldLabel>
                 <FieldContent>
-                  <NativeSelect
-                    id="culture"
-                    name="culture"
-                    defaultValue={languageSelect.selectedValue}
-                    aria-invalid={Boolean(state.fieldErrors?.culture?.[0])}
+                  <input type="hidden" id="culture" name="culture" value={culture} />
+                  <Select
+                    value={culture}
+                    onValueChange={(nextValue) => setCulture(nextValue ?? "")}
                   >
-                    {languageSelect.options.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                    <SelectTrigger aria-invalid={Boolean(state.fieldErrors?.culture?.[0])}>
+                      <SelectValue placeholder={tAccountClient("account.profile.selectLanguage")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languageSelect.options.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FieldError id="culture-error">{state.fieldErrors?.culture?.[0]}</FieldError>
                 </FieldContent>
               </Field>
@@ -234,13 +266,22 @@ export function ProfileEditForm({ profile, options, copy, action }: ProfileEditF
 
       <Card>
         <CardHeader>
-          <CardTitle>Read-only metadata</CardTitle>
+          <CardTitle>{tAccountClient("account.common.readOnlyMetadata")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
-          <MetaField label="Profile ID" value={profile.id} />
-          <MetaField label="Tenant ID" value={profile.tenantId} />
-          <MetaField label="User ID" value={profile.userId} />
-          <MetaField label="Avatar URL" value={profile.avatarUrl} />
+          <MetaField
+            label={tAccountClient("account.profile.fields.profileId")}
+            value={profile.id}
+          />
+          <MetaField
+            label={tAccountClient("account.profile.fields.tenantId")}
+            value={profile.tenantId}
+          />
+          <MetaField
+            label={tAccountClient("account.profile.fields.userId")}
+            value={profile.userId}
+          />
+          <MetaField label={tAccountClient("account.fields.avatarUrl")} value={profile.avatarUrl} />
         </CardContent>
       </Card>
     </section>

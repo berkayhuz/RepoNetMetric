@@ -10,6 +10,7 @@ import {
   Text,
 } from "@netmetric/ui";
 
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 import type {
   AccountOverviewResponse,
   MfaStatusResponse,
@@ -33,48 +34,64 @@ export function SecurityOverviewPanel({
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Security</Heading>
+        <Heading level={2}>{tAccountClient("account.security.title")}</Heading>
         <Text className="text-muted-foreground">
-          Read-only security posture from account services.
+          {tAccountClient("account.security.postureDescription")}
         </Text>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard
-          label="MFA"
-          value={mfaStatus.isEnabled ? "Enabled" : "Disabled"}
-          note={mfaStatus.hasAuthenticator ? "Authenticator ready" : "No authenticator configured"}
+          label={tAccountClient("account.mfa.short")}
+          value={
+            mfaStatus.isEnabled
+              ? tAccountClient("account.common.enabled")
+              : tAccountClient("account.common.disabled")
+          }
+          note={
+            mfaStatus.hasAuthenticator
+              ? tAccountClient("account.mfa.authenticatorReady")
+              : tAccountClient("account.mfa.noAuthenticatorConfigured")
+          }
         />
         <SummaryCard
-          label="Active sessions"
+          label={tAccountClient("account.sessions.activeTitle")}
           value={String(sessions.items.filter((item) => item.isActive).length)}
-          note={`Current count: ${overview.activeSessionCount}`}
+          note={tAccountClient("account.security.currentCount", {
+            count: overview.activeSessionCount,
+          })}
         />
         <SummaryCard
-          label="Trusted devices"
+          label={tAccountClient("account.sessions.trustedTitle")}
           value={String(trustedDevices.items.length)}
-          note="Device revoke actions in next phase"
+          note={tAccountClient("account.sessions.revokeNextPhase")}
         />
         <SummaryCard
-          label="Recovery codes"
+          label={tAccountClient("account.mfa.recoveryCodesTitle")}
           value={String(mfaStatus.recoveryCodesRemaining)}
-          note="Regeneration in next phase"
+          note={tAccountClient("account.mfa.regenerationNextPhase")}
         />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Security actions roadmap</CardTitle>
+          <CardTitle>{tAccountClient("account.security.actionsRoadmap")}</CardTitle>
           <CardDescription>
-            Mutation actions are intentionally deferred to upcoming phases.
+            {tAccountClient("account.security.actionsRoadmapDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="grid gap-2 sm:grid-cols-2">
             {[
-              { href: "/security/password", label: "Password management" },
-              { href: "/security/mfa", label: "MFA management" },
-              { href: "/security/sessions", label: "Sessions and trusted devices" },
+              {
+                href: "/security/password",
+                label: tAccountClient("account.security.passwordManagement"),
+              },
+              { href: "/security/mfa", label: tAccountClient("account.mfa.managementTitle") },
+              {
+                href: "/security/sessions",
+                label: tAccountClient("account.sessions.managementTitle"),
+              },
             ].map((item) => (
               <li key={item.href}>
                 <Link

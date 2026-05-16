@@ -1,3 +1,5 @@
+import { tTools } from "@/lib/i18n/tools-i18n";
+
 export const GUEST_MAX_FILE_BYTES = 5 * 1024 * 1024;
 export const MAX_IMAGE_PIXELS = 40_000_000;
 
@@ -50,11 +52,12 @@ export function buildSafeOutputFileName(originalName: string, mode: ImageConvert
 export function validateInputFile(
   file: File | null,
   mode: ImageConverterMode,
+  locale?: string | null | undefined,
 ): ImageValidationResult {
   if (!file) {
     return {
       isValid: false,
-      errorMessage: "Select an image file to continue.",
+      errorMessage: tTools("tools.image.validation.required", locale),
     };
   }
 
@@ -65,15 +68,15 @@ export function validateInputFile(
       isValid: false,
       errorMessage:
         mode === "png-to-jpg"
-          ? "Only PNG files are supported for this converter."
-          : "Only JPG or JPEG files are supported for this converter.",
+          ? tTools("tools.image.validation.pngOnly", locale)
+          : tTools("tools.image.validation.jpgOnly", locale),
     };
   }
 
   if (file.size > GUEST_MAX_FILE_BYTES) {
     return {
       isValid: false,
-      errorMessage: "File size must be 5 MB or smaller for guest conversion.",
+      errorMessage: tTools("tools.image.validation.maxSize", locale),
     };
   }
 

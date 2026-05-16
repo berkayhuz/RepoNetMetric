@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -14,10 +15,15 @@ import {
   FieldError,
   FieldLabel,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import {
@@ -98,6 +104,8 @@ export function DealLifecycleActionPanel({
   rowVersion?: string;
 }>) {
   const [state, formAction] = useActionState(action, initialCrmMutationState);
+  const lostReasonNone = "__none__";
+  const [lostReasonId, setLostReasonId] = useState(lostReasonNone);
 
   return (
     <Card className="border-destructive/30">
@@ -125,20 +133,29 @@ export function DealLifecycleActionPanel({
                 {tCrmClient("crm.deals.fields.lostReasonId")}
               </FieldLabel>
               <FieldContent>
-                <NativeSelect
-                  id={`${confirmValue}-lostReasonId`}
+                <input
+                  type="hidden"
                   name="lostReasonId"
-                  defaultValue=""
+                  value={lostReasonId === lostReasonNone ? "" : lostReasonId}
+                />
+                <Select
+                  value={lostReasonId}
+                  onValueChange={(value) => setLostReasonId(value ?? lostReasonNone)}
                 >
-                  <NativeSelectOption value="">
-                    {tCrmClient("crm.deals.lifecycle.selectLostReason")}
-                  </NativeSelectOption>
-                  {(lostReasons ?? []).map((reason) => (
-                    <NativeSelectOption key={reason.id} value={reason.id}>
-                      {reason.name}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
+                  <SelectTrigger id={`${confirmValue}-lostReasonId`}>
+                    <SelectValue placeholder={tCrmClient("crm.deals.lifecycle.selectLostReason")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={lostReasonNone}>
+                      {tCrmClient("crm.deals.lifecycle.selectLostReason")}
+                    </SelectItem>
+                    {(lostReasons ?? []).map((reason) => (
+                      <SelectItem key={reason.id} value={reason.id}>
+                        {reason.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FieldError>{state.fieldErrors?.lostReasonId?.[0]}</FieldError>
               </FieldContent>
             </Field>

@@ -18,6 +18,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createQuoteAction, updateQuoteAction } from "../actions/quote-mutation-actions";
 import { quoteFormSchema, type QuoteFormInput } from "./quote-form-schema";
@@ -106,70 +107,88 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="quote-number">Quote number</FieldLabel>
+          <FieldLabel htmlFor="quote-number">
+            {tCrmClient("crm.quotes.fields.quoteNumber")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-number" {...form.register("quoteNumber")} />
             <FieldError>{form.formState.errors.quoteNumber?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-title">Proposal title</FieldLabel>
+          <FieldLabel htmlFor="quote-title">
+            {tCrmClient("crm.quotes.fields.proposalTitle")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-title" {...form.register("proposalTitle")} />
             <FieldError>{form.formState.errors.proposalTitle?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-date">Quote date</FieldLabel>
+          <FieldLabel htmlFor="quote-date">{tCrmClient("crm.quotes.fields.quoteDate")}</FieldLabel>
           <FieldContent>
             <Input id="quote-date" type="date" {...form.register("quoteDate")} />
             <FieldError>{form.formState.errors.quoteDate?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-validUntil">Valid until</FieldLabel>
+          <FieldLabel htmlFor="quote-validUntil">
+            {tCrmClient("crm.quotes.fields.validUntil")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-validUntil" type="date" {...form.register("validUntil")} />
             <FieldError>{form.formState.errors.validUntil?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-currency">Currency code</FieldLabel>
+          <FieldLabel htmlFor="quote-currency">
+            {tCrmClient("crm.quotes.fields.currencyCode")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-currency" maxLength={3} {...form.register("currencyCode")} />
             <FieldError>{form.formState.errors.currencyCode?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-exchangeRate">Exchange rate</FieldLabel>
+          <FieldLabel htmlFor="quote-exchangeRate">
+            {tCrmClient("crm.quotes.fields.exchangeRate")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-exchangeRate" inputMode="decimal" {...form.register("exchangeRate")} />
             <FieldError>{form.formState.errors.exchangeRate?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-opportunityId">Opportunity ID</FieldLabel>
+          <FieldLabel htmlFor="quote-opportunityId">
+            {tCrmClient("crm.quotes.fields.opportunityId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-opportunityId" {...form.register("opportunityId")} />
             <FieldError>{form.formState.errors.opportunityId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-customerId">Customer ID</FieldLabel>
+          <FieldLabel htmlFor="quote-customerId">
+            {tCrmClient("crm.quotes.fields.customerId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-customerId" {...form.register("customerId")} />
             <FieldError>{form.formState.errors.customerId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="quote-ownerUserId">
+            {tCrmClient("crm.quotes.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-proposalTemplateId">Proposal template ID</FieldLabel>
+          <FieldLabel htmlFor="quote-proposalTemplateId">
+            {tCrmClient("crm.quotes.fields.proposalTemplateId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="quote-proposalTemplateId" {...form.register("proposalTemplateId")} />
             <FieldError>{form.formState.errors.proposalTemplateId?.message}</FieldError>
@@ -179,21 +198,27 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="quote-summary">Proposal summary</FieldLabel>
+          <FieldLabel htmlFor="quote-summary">
+            {tCrmClient("crm.quotes.fields.proposalSummary")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="quote-summary" rows={3} {...form.register("proposalSummary")} />
             <FieldError>{form.formState.errors.proposalSummary?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-body">Proposal body</FieldLabel>
+          <FieldLabel htmlFor="quote-body">
+            {tCrmClient("crm.quotes.fields.proposalBody")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="quote-body" rows={5} {...form.register("proposalBody")} />
             <FieldError>{form.formState.errors.proposalBody?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="quote-terms">Terms and conditions</FieldLabel>
+          <FieldLabel htmlFor="quote-terms">
+            {tCrmClient("crm.quotes.fields.termsAndConditions")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="quote-terms" rows={4} {...form.register("termsAndConditions")} />
             <FieldError>{form.formState.errors.termsAndConditions?.message}</FieldError>
@@ -203,20 +228,22 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
 
       <FieldSet className="grid gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium">Line items</h2>
+          <h2 className="text-sm font-medium">{tCrmClient("crm.quotes.lineItems.title")}</h2>
           <Button
             type="button"
             variant="outline"
             onClick={() => lineItems.append({ ...defaultLine })}
           >
-            Add line
+            {tCrmClient("crm.quotes.lineItems.addLine")}
           </Button>
         </div>
 
         {lineItems.fields.map((line, index) => (
           <div key={line.id} className="grid gap-3 rounded-md border p-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor={`quote-item-${index}-productId`}>Product ID</FieldLabel>
+              <FieldLabel htmlFor={`quote-item-${index}-productId`}>
+                {tCrmClient("crm.quotes.fields.productId")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id={`quote-item-${index}-productId`}
@@ -226,7 +253,9 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`quote-item-${index}-quantity`}>Quantity</FieldLabel>
+              <FieldLabel htmlFor={`quote-item-${index}-quantity`}>
+                {tCrmClient("crm.quotes.fields.quantity")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id={`quote-item-${index}-quantity`}
@@ -238,7 +267,9 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`quote-item-${index}-unitPrice`}>Unit price</FieldLabel>
+              <FieldLabel htmlFor={`quote-item-${index}-unitPrice`}>
+                {tCrmClient("crm.quotes.fields.unitPrice")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id={`quote-item-${index}-unitPrice`}
@@ -250,7 +281,7 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
             </Field>
             <Field>
               <FieldLabel htmlFor={`quote-item-${index}-discountRate`}>
-                Discount rate (%)
+                {tCrmClient("crm.quotes.fields.discountRate")}
               </FieldLabel>
               <FieldContent>
                 <Input
@@ -267,7 +298,9 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`quote-item-${index}-taxRate`}>Tax rate (%)</FieldLabel>
+              <FieldLabel htmlFor={`quote-item-${index}-taxRate`}>
+                {tCrmClient("crm.quotes.fields.taxRate")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id={`quote-item-${index}-taxRate`}
@@ -281,7 +314,9 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
               </FieldContent>
             </Field>
             <Field className="sm:col-span-2">
-              <FieldLabel htmlFor={`quote-item-${index}-description`}>Description</FieldLabel>
+              <FieldLabel htmlFor={`quote-item-${index}-description`}>
+                {tCrmClient("crm.quotes.fields.description")}
+              </FieldLabel>
               <FieldContent>
                 <Textarea
                   id={`quote-item-${index}-description`}
@@ -300,7 +335,7 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
                 disabled={lineItems.fields.length <= 1}
                 onClick={() => lineItems.remove(index)}
               >
-                Remove line
+                {tCrmClient("crm.quotes.lineItems.removeLine")}
               </Button>
             </div>
           </div>
@@ -311,10 +346,14 @@ export function QuoteForm({ mode, quoteId, initialValues }: Readonly<QuoteFormPr
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create quote" : "Save quote"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.quotes.actions.create")
+              : tCrmClient("crm.quotes.actions.save")}
         </Button>
       </div>
     </form>

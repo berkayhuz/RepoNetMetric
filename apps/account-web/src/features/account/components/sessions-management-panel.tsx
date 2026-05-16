@@ -21,6 +21,7 @@ import type { AccountDateSettings } from "@/lib/account-date";
 import { formatAccountDateTime } from "@/lib/account-date";
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type SessionsManagementPanelProps = {
   sessions: UserSessionsResponse;
@@ -52,7 +53,7 @@ function MutationStateAlert({ state }: { state: MutationState }) {
   if (state.status === "success") {
     return (
       <Alert>
-        <AlertTitle>Success</AlertTitle>
+        <AlertTitle>{tAccountClient("account.common.success")}</AlertTitle>
         <AlertDescription>{state.message}</AlertDescription>
       </Alert>
     );
@@ -60,7 +61,7 @@ function MutationStateAlert({ state }: { state: MutationState }) {
 
   return (
     <Alert variant="destructive">
-      <AlertTitle>Action failed</AlertTitle>
+      <AlertTitle>{tAccountClient("account.common.actionFailed")}</AlertTitle>
       <AlertDescription>{state.message}</AlertDescription>
     </Alert>
   );
@@ -95,9 +96,9 @@ export function SessionsManagementPanel({
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Sessions & Trusted Devices</Heading>
+        <Heading level={2}>{tAccountClient("account.sessions.title")}</Heading>
         <Text className="text-muted-foreground">
-          Manage active sessions and trusted devices with confirmation prompts.
+          {tAccountClient("account.sessions.manageDescription")}
         </Text>
       </div>
 
@@ -108,55 +109,63 @@ export function SessionsManagementPanel({
 
       <Card>
         <CardHeader>
-          <CardTitle>Active sessions</CardTitle>
-          <CardDescription>Current and recent authenticated sessions.</CardDescription>
+          <CardTitle>{tAccountClient("account.sessions.activeTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.sessions.activeDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {sessions.items.length === 0 ? (
-            <Text className="text-muted-foreground">No active sessions available.</Text>
+            <Text className="text-muted-foreground">
+              {tAccountClient("account.sessions.emptySessions")}
+            </Text>
           ) : (
             sessions.items.map((session) => (
               <div key={session.id} className="rounded-md border border-border p-3 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Text className="font-medium">{session.deviceName || "Unknown device"}</Text>
+                  <Text className="font-medium">
+                    {session.deviceName || tAccountClient("account.sessions.unknownDevice")}
+                  </Text>
                   <Text className="text-sm text-muted-foreground">
                     {session.isCurrent
-                      ? "Current session"
+                      ? tAccountClient("account.sessions.currentSession")
                       : session.isActive
-                        ? "Active"
-                        : "Inactive"}
+                        ? tAccountClient("account.common.active")
+                        : tAccountClient("account.common.inactive")}
                   </Text>
                 </div>
                 <Text className="text-sm text-muted-foreground">
-                  User agent: {session.userAgent || "Not available"}
+                  {tAccountClient("account.sessions.userAgentLabel")}:{" "}
+                  {session.userAgent || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  IP: {session.ipAddress || "Not available"}
+                  {tAccountClient("account.sessions.ipLabel")}:{" "}
+                  {session.ipAddress || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Location: {session.approximateLocation || "Not available"}
+                  {tAccountClient("account.sessions.locationLabel")}:{" "}
+                  {session.approximateLocation || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Last seen: {formatAccountDateTime(session.lastSeenAt, dateSettings)}
+                  {tAccountClient("account.sessions.lastSeenLabel")}:{" "}
+                  {formatAccountDateTime(session.lastSeenAt, dateSettings)}
                 </Text>
 
                 {session.isCurrent ? (
                   <Text className="text-xs text-muted-foreground">
-                    Current session cannot be revoked from this page.
+                    {tAccountClient("account.sessions.currentCannotRevoke")}
                   </Text>
                 ) : (
                   <details className="rounded-md border border-border p-2">
                     <summary className="cursor-pointer text-sm font-medium">
-                      Revoke this session
+                      {tAccountClient("account.sessions.revokeThisSession")}
                     </summary>
                     <form action={revokeSessionFormAction} className="mt-3 space-y-2">
                       <input type="hidden" name="sessionId" value={session.id} />
                       <Text className="text-xs text-muted-foreground">
-                        This will sign out the selected session.
+                        {tAccountClient("account.sessions.revokeThisSessionDescription")}
                       </Text>
                       <SubmitButton
-                        label="Confirm revoke session"
-                        pendingLabel="Revoking session..."
+                        label={tAccountClient("account.sessions.confirmRevokeSession")}
+                        pendingLabel={tAccountClient("account.sessions.revokingSession")}
                       />
                     </form>
                   </details>
@@ -168,16 +177,16 @@ export function SessionsManagementPanel({
           {sessions.items.some((session) => !session.isCurrent) ? (
             <details className="rounded-md border border-border p-3">
               <summary className="cursor-pointer text-sm font-medium">
-                Revoke all other sessions
+                {tAccountClient("account.sessions.revokeOtherSessions")}
               </summary>
               <form action={revokeOthersFormAction} className="mt-3 space-y-2">
                 <input type="hidden" name="confirm" value="revoke-others" />
                 <Text className="text-xs text-muted-foreground">
-                  This signs out every session except the current one.
+                  {tAccountClient("account.sessions.revokeOtherSessionsDescription")}
                 </Text>
                 <SubmitButton
-                  label="Confirm revoke other sessions"
-                  pendingLabel="Revoking others..."
+                  label={tAccountClient("account.sessions.confirmRevokeOtherSessions")}
+                  pendingLabel={tAccountClient("account.sessions.revokingOthers")}
                 />
               </form>
             </details>
@@ -187,45 +196,58 @@ export function SessionsManagementPanel({
 
       <Card>
         <CardHeader>
-          <CardTitle>Trusted devices</CardTitle>
-          <CardDescription>Devices marked as trusted for account sign-in flows.</CardDescription>
+          <CardTitle>{tAccountClient("account.sessions.trustedTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.sessions.trustedDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {trustedDevices.items.length === 0 ? (
-            <Text className="text-muted-foreground">No trusted devices found.</Text>
+            <Text className="text-muted-foreground">
+              {tAccountClient("account.sessions.emptyDevices")}
+            </Text>
           ) : (
             trustedDevices.items.map((device) => (
               <div key={device.id} className="rounded-md border border-border p-3 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Text className="font-medium">{device.name}</Text>
                   <Text className="text-sm text-muted-foreground">
-                    {device.isCurrent ? "Current device" : device.isActive ? "Trusted" : "Expired"}
+                    {device.isCurrent
+                      ? tAccountClient("account.sessions.currentDevice")
+                      : device.isActive
+                        ? tAccountClient("account.sessions.trusted")
+                        : tAccountClient("account.sessions.expired")}
                   </Text>
                 </div>
                 <Text className="text-sm text-muted-foreground">
-                  User agent: {device.userAgent || "Not available"}
+                  {tAccountClient("account.sessions.userAgentLabel")}:{" "}
+                  {device.userAgent || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  IP: {device.ipAddress || "Not available"}
+                  {tAccountClient("account.sessions.ipLabel")}:{" "}
+                  {device.ipAddress || tAccountClient("account.common.notAvailable")}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Trusted at: {formatAccountDateTime(device.trustedAt, dateSettings)}
+                  {tAccountClient("account.sessions.trustedAtLabel")}:{" "}
+                  {formatAccountDateTime(device.trustedAt, dateSettings)}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Expires at: {formatAccountDateTime(device.expiresAt, dateSettings)}
+                  {tAccountClient("account.sessions.expiresAtLabel")}:{" "}
+                  {formatAccountDateTime(device.expiresAt, dateSettings)}
                 </Text>
 
                 <details className="rounded-md border border-border p-2">
                   <summary className="cursor-pointer text-sm font-medium">
-                    Revoke trusted device
+                    {tAccountClient("account.sessions.revokeTrustedDevice")}
                   </summary>
                   <form action={revokeDeviceFormAction} className="mt-3 space-y-2">
                     <input type="hidden" name="deviceId" value={device.id} />
                     <input type="hidden" name="confirm" value="revoke-device" />
                     <Text className="text-xs text-muted-foreground">
-                      This removes trusted status for the selected device.
+                      {tAccountClient("account.sessions.revokeTrustedDeviceDescription")}
                     </Text>
-                    <SubmitButton label="Confirm revoke device" pendingLabel="Revoking device..." />
+                    <SubmitButton
+                      label={tAccountClient("account.sessions.confirmRevokeDevice")}
+                      pendingLabel={tAccountClient("account.sessions.revokingDevice")}
+                    />
                   </form>
                 </details>
               </div>
@@ -234,16 +256,16 @@ export function SessionsManagementPanel({
           {trustedDevices.items.some((device) => !device.isCurrent && device.isActive) ? (
             <details className="rounded-md border border-border p-3">
               <summary className="cursor-pointer text-sm font-medium">
-                Revoke all other trusted devices
+                {tAccountClient("account.sessions.revokeOtherTrustedDevices")}
               </summary>
               <form action={revokeOtherDevicesFormAction} className="mt-3 space-y-2">
                 <input type="hidden" name="confirm" value="revoke-other-devices" />
                 <Text className="text-xs text-muted-foreground">
-                  This keeps the current device trusted and removes trust from others.
+                  {tAccountClient("account.sessions.revokeOtherTrustedDevicesDescription")}
                 </Text>
                 <SubmitButton
-                  label="Confirm revoke other trusted devices"
-                  pendingLabel="Revoking other devices..."
+                  label={tAccountClient("account.sessions.confirmRevokeOtherDevices")}
+                  pendingLabel={tAccountClient("account.sessions.revokingOtherDevices")}
                 />
               </form>
             </details>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { CrmApiError } from "@/lib/crm-api";
 import { buildAuthLoginRedirectUrl } from "@/lib/crm-auth/safe-return-url";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 import type { CrmMutationState } from "./mutation-state";
 
@@ -49,39 +50,39 @@ export function mapCrmMutationErrorToState(error: unknown, returnPath: string): 
       if (fieldErrors) {
         return {
           status: "error",
-          message: error.problem?.detail ?? "Please review the highlighted fields.",
+          message: error.problem?.detail ?? tCrm("crm.forms.errors.reviewTitle"),
           fieldErrors,
         };
       }
 
       return {
         status: "error",
-        message: error.problem?.detail ?? "Please review the highlighted fields.",
+        message: error.problem?.detail ?? tCrm("crm.forms.errors.reviewTitle"),
       };
     }
 
     if (error.kind === "conflict") {
       return {
         status: "error",
-        message: error.problem?.detail ?? "This record changed elsewhere. Refresh and try again.",
+        message: error.problem?.detail ?? tCrm("crm.forms.errors.conflict"),
       };
     }
 
     if (error.kind === "not_found") {
       return {
         status: "error",
-        message: "The requested record no longer exists.",
+        message: tCrm("crm.forms.errors.notFound"),
       };
     }
 
     return {
       status: "error",
-      message: "Unable to save changes right now.",
+      message: tCrm("crm.forms.errors.saveFailed"),
     };
   }
 
   return {
     status: "error",
-    message: "Unexpected error while saving changes.",
+    message: tCrm("crm.forms.errors.unexpectedSave"),
   };
 }

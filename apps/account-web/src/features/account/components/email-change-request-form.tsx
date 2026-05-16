@@ -20,6 +20,7 @@ import {
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type EmailChangeRequestFormProps = {
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
@@ -29,7 +30,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Requesting..." : "Request email change"}
+      {pending
+        ? tAccountClient("account.security.email.requesting")
+        : tAccountClient("account.security.email.requestSubmit")}
     </Button>
   );
 }
@@ -40,22 +43,26 @@ export function EmailChangeRequestForm({ action }: EmailChangeRequestFormProps) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change email</CardTitle>
-        <CardDescription>Request an email change with password confirmation.</CardDescription>
+        <CardTitle>{tAccountClient("account.security.email.changeTitle")}</CardTitle>
+        <CardDescription>
+          {tAccountClient("account.security.email.changeDescription")}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Text className="text-sm text-muted-foreground">
-          If confirmation is required, follow the verification link sent to the new email address.
+          {tAccountClient("account.security.email.changeHelp")}
         </Text>
         <SecurityActionResult
           state={state}
-          successTitle="Email change requested"
-          errorTitle="Email change request failed"
+          successTitle={tAccountClient("account.security.email.changeRequested")}
+          errorTitle={tAccountClient("account.security.email.changeRequestFailed")}
         />
         <form action={formAction} className="space-y-4" noValidate>
           <FieldSet className="grid gap-4">
             <Field>
-              <FieldLabel htmlFor="newEmail">New email address</FieldLabel>
+              <FieldLabel htmlFor="newEmail">
+                {tAccountClient("account.security.email.newEmail")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id="newEmail"
@@ -70,7 +77,9 @@ export function EmailChangeRequestForm({ action }: EmailChangeRequestFormProps) 
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="currentPasswordForEmail">Current password</FieldLabel>
+              <FieldLabel htmlFor="currentPasswordForEmail">
+                {tAccountClient("account.security.password.current")}
+              </FieldLabel>
               <FieldContent>
                 <Input
                   id="currentPasswordForEmail"
@@ -93,7 +102,7 @@ export function EmailChangeRequestForm({ action }: EmailChangeRequestFormProps) 
           <div className="flex flex-wrap items-center gap-2">
             <SubmitButton />
             <Button type="reset" variant="outline">
-              Reset
+              {tAccountClient("account.common.reset")}
             </Button>
           </div>
         </form>

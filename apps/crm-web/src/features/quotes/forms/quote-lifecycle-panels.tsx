@@ -22,6 +22,7 @@ import {
   initialCrmMutationState,
   type CrmMutationState,
 } from "@/features/shared/actions/mutation-state";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 function SubmitButton({ label, pendingLabel }: Readonly<{ label: string; pendingLabel: string }>) {
   const { pending } = useFormStatus();
@@ -74,7 +75,9 @@ export function QuoteLifecycleActionPanel({
 
           {confirmValue === "revise-quote" ? (
             <Field>
-              <FieldLabel htmlFor={`${confirmValue}-newQuoteNumber`}>New quote number</FieldLabel>
+              <FieldLabel htmlFor={`${confirmValue}-newQuoteNumber`}>
+                {tCrmClient("crm.quotes.fields.newQuoteNumber")}
+              </FieldLabel>
               <FieldContent>
                 <Input id={`${confirmValue}-newQuoteNumber`} name="newQuoteNumber" />
                 <FieldError>{state.fieldErrors?.newQuoteNumber?.[0]}</FieldError>
@@ -84,7 +87,9 @@ export function QuoteLifecycleActionPanel({
 
           {showDate ? (
             <Field>
-              <FieldLabel htmlFor={`${confirmValue}-at`}>Occurred on</FieldLabel>
+              <FieldLabel htmlFor={`${confirmValue}-at`}>
+                {tCrmClient("crm.quotes.fields.occurredOn")}
+              </FieldLabel>
               <FieldContent>
                 <Input id={`${confirmValue}-at`} name="at" type="date" />
                 <FieldError>{state.fieldErrors?.at?.[0]}</FieldError>
@@ -94,7 +99,9 @@ export function QuoteLifecycleActionPanel({
 
           {showReason ? (
             <Field>
-              <FieldLabel htmlFor={`${confirmValue}-reason`}>Reason</FieldLabel>
+              <FieldLabel htmlFor={`${confirmValue}-reason`}>
+                {tCrmClient("crm.quotes.fields.reason")}
+              </FieldLabel>
               <FieldContent>
                 <Textarea id={`${confirmValue}-reason`} name="reason" rows={3} />
                 <FieldError>{state.fieldErrors?.reason?.[0]}</FieldError>
@@ -102,7 +109,9 @@ export function QuoteLifecycleActionPanel({
             </Field>
           ) : (
             <Field>
-              <FieldLabel htmlFor={`${confirmValue}-note`}>Note</FieldLabel>
+              <FieldLabel htmlFor={`${confirmValue}-note`}>
+                {tCrmClient("crm.quotes.fields.note")}
+              </FieldLabel>
               <FieldContent>
                 <Textarea id={`${confirmValue}-note`} name="note" rows={3} />
                 <FieldError>{state.fieldErrors?.note?.[0]}</FieldError>
@@ -110,7 +119,7 @@ export function QuoteLifecycleActionPanel({
             </Field>
           )}
 
-          <SubmitButton label={title} pendingLabel="Processing..." />
+          <SubmitButton label={title} pendingLabel={tCrmClient("crm.forms.actions.processing")} />
         </form>
       </CardContent>
     </Card>

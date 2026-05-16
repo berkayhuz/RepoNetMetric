@@ -9,28 +9,25 @@ import {
 } from "@netmetric/ui";
 import Link from "next/link";
 
-export function ToolsHero() {
+import { tTools } from "@/lib/i18n/tools-i18n";
+
+export function ToolsHero({ locale }: { locale?: string | null | undefined }) {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <Card>
         <CardHeader>
           <Badge className="w-fit" variant="secondary">
-            Public Tools Platform
+            {tTools("tools.hero.badge", locale)}
           </Badge>
-          <CardTitle className="text-3xl">
-            Fast tools that run where your data is: your browser
-          </CardTitle>
-          <CardDescription>
-            Use tools as a guest with local downloads, or sign in to explicitly save output history
-            to your account.
-          </CardDescription>
+          <CardTitle className="text-3xl">{tTools("tools.hero.title", locale)}</CardTitle>
+          <CardDescription>{tTools("tools.hero.description", locale)}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/qr-generator">Try QR Generator</Link>
+            <Link href="/qr-generator">{tTools("tools.hero.tryQr", locale)}</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/categories">Browse Categories</Link>
+            <Link href="/categories">{tTools("tools.hero.browseCategories", locale)}</Link>
           </Button>
         </CardContent>
       </Card>

@@ -11,6 +11,7 @@ import {
 import type { ConsentsResponse } from "@/lib/account-api";
 
 import { ConsentStatusCard } from "./consent-status-card";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type PrivacyConsentsPanelProps = {
   consents: ConsentsResponse;
@@ -20,29 +21,31 @@ export function PrivacyConsentsPanel({ consents }: PrivacyConsentsPanelProps) {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Privacy and consent history</Heading>
+        <Heading level={2}>{tAccountClient("account.privacy.title")}</Heading>
         <Text className="text-muted-foreground">
-          Review your consent timeline and accept actionable consent entries.
+          {tAccountClient("account.privacy.description")}
         </Text>
       </div>
 
       {consents.items.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No consent entries</CardTitle>
-            <CardDescription>No consent history is available for this account yet.</CardDescription>
+            <CardTitle>{tAccountClient("account.privacy.emptyTitle")}</CardTitle>
+            <CardDescription>{tAccountClient("account.privacy.emptyDescription")}</CardDescription>
           </CardHeader>
         </Card>
       ) : (
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Consent overview</CardTitle>
-              <CardDescription>Read-only entries returned by the account API.</CardDescription>
+              <CardTitle>{tAccountClient("account.privacy.overviewTitle")}</CardTitle>
+              <CardDescription>
+                {tAccountClient("account.privacy.overviewDescription")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Text className="text-sm text-muted-foreground">
-                Returned entries: {consents.items.length}
+                {tAccountClient("account.audit.returnedEntriesLabel")}: {consents.items.length}
               </Text>
             </CardContent>
           </Card>

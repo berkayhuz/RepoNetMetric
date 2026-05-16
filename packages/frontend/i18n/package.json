@@ -10,6 +10,7 @@
   },
   "scripts": {
     "generate:messages": "node ./scripts/generate-message-registry.mjs",
+    "check:frontend-i18n": "node ./scripts/check-frontend-i18n.mjs",
     "typecheck": "pnpm run generate:messages && tsc --noEmit",
     "build": "pnpm run typecheck"
   },

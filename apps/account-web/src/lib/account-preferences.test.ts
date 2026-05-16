@@ -57,6 +57,11 @@ describe("account date and ui preference mapping", () => {
     expect(translate("locale.name", { locale: "zh-CN" })).toBe("English");
   });
 
+  it("keeps Turkish auth strings as valid UTF-8 text", () => {
+    expect(getMessages("tr")["auth.login.cardTitle"]).toBe("Hesabınıza giriş yapın");
+    expect(getMessages("tr")["action.login"]).toBe("Giriş yap");
+  });
+
   it("exposes available message locales from the i18n registry", () => {
     expect(getAvailableMessageLocales()).toContain("en");
     expect(getAvailableMessageLocales()).toContain("tr");

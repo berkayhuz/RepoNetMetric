@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from "@netmetric/ui";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type RecoveryCodesDisplayProps = {
   codes: string[];
@@ -14,8 +15,8 @@ export function RecoveryCodesDisplay({ codes }: RecoveryCodesDisplayProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recovery codes</CardTitle>
-        <CardDescription>These are shown once. Save them in a secure place now.</CardDescription>
+        <CardTitle>{tAccountClient("account.mfa.recoveryCodesTitle")}</CardTitle>
+        <CardDescription>{tAccountClient("account.mfa.recoveryCodesDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="grid gap-2 sm:grid-cols-2">

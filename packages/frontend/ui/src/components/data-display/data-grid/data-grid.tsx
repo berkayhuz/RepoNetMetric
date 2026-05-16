@@ -53,9 +53,7 @@ function createSelectionColumn<TData>(): ColumnDef<TData, unknown> {
     header: ({ table }) => (
       <Checkbox
         aria-label="Select all rows on page"
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
       />
     ),

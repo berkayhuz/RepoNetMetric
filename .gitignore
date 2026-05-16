@@ -126,3 +126,5 @@ graph.json
 apps/auth-web/tsconfig.tsbuildinfo
 *.tsbuildinfo
 AGENTS.md
+
+**/.codex/

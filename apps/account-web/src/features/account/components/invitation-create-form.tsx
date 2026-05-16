@@ -7,6 +7,7 @@ import { Button, Field, FieldContent, FieldError, FieldLabel, Input } from "@net
 import { createInvitationAction } from "../actions/invitation-actions";
 import { initialMutationState } from "../actions/mutation-state";
 import { InvitationActionResult } from "./invitation-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -23,7 +24,7 @@ export function InvitationCreateForm() {
   return (
     <form action={formAction} className="space-y-3" noValidate>
       <Field>
-        <FieldLabel htmlFor="invite-email">Email</FieldLabel>
+        <FieldLabel htmlFor="invite-email">{tAccountClient("account.fields.email")}</FieldLabel>
         <FieldContent>
           <Input
             id="invite-email"
@@ -38,14 +39,18 @@ export function InvitationCreateForm() {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="invite-firstName">First name (optional)</FieldLabel>
+        <FieldLabel htmlFor="invite-firstName">
+          {tAccountClient("account.fields.firstNameOptional")}
+        </FieldLabel>
         <FieldContent>
           <Input id="invite-firstName" name="firstName" />
         </FieldContent>
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="invite-lastName">Last name (optional)</FieldLabel>
+        <FieldLabel htmlFor="invite-lastName">
+          {tAccountClient("account.fields.lastNameOptional")}
+        </FieldLabel>
         <FieldContent>
           <Input id="invite-lastName" name="lastName" />
         </FieldContent>
@@ -54,8 +59,8 @@ export function InvitationCreateForm() {
       <SubmitButton />
       <InvitationActionResult
         state={state}
-        successTitle="Invitation created"
-        errorTitle="Create invitation failed"
+        successTitle={tAccountClient("account.invitations.created")}
+        errorTitle={tAccountClient("account.invitations.createFailed")}
       />
     </form>
   );

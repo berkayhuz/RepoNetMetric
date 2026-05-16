@@ -9,6 +9,7 @@ import { opportunityStageOptions } from "@/features/shared/forms/options";
 import { crmApiClient } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 const allowedStages = new Set<number>(opportunityStageOptions.map((item) => item.value));
@@ -22,7 +23,7 @@ export async function moveOpportunityStageAction(
   await requireCrmSession("/pipeline");
 
   if (!isGuid(opportunityId)) {
-    return { status: "error", message: "Invalid opportunity id." };
+    return { status: "error", message: tCrm("crm.pipeline.validation.invalidOpportunityId") };
   }
 
   const stageRaw = formData.get("newStage");
@@ -31,8 +32,8 @@ export async function moveOpportunityStageAction(
   if (!Number.isInteger(stageNumber) || !allowedStages.has(stageNumber)) {
     return {
       status: "error",
-      message: "Please choose a valid target stage.",
-      fieldErrors: { newStage: ["Invalid target stage."] },
+      message: tCrm("crm.pipeline.validation.chooseValidStage"),
+      fieldErrors: { newStage: [tCrm("crm.pipeline.validation.invalidTargetStage")] },
     };
   }
 
@@ -57,7 +58,7 @@ export async function moveOpportunityStageAction(
 
     return {
       status: "success",
-      message: "Opportunity stage updated.",
+      message: tCrm("crm.pipeline.result.stageUpdated"),
     };
   } catch (error) {
     return mapCrmMutationErrorToState(error, "/pipeline");

@@ -2,22 +2,37 @@ import Link from "next/link";
 
 import { Muted, Text } from "@netmetric/ui";
 
-import { legalLinks } from "@/features/public/content/navigation";
 import { publicEnv } from "@/lib/public-env";
 
-export function PublicFooter() {
+type PublicFooterLink = {
+  href: string;
+  label: string;
+};
+
+type PublicFooterCopy = {
+  description: string;
+  platform: string;
+  legal: string;
+  apiEndpoint: string;
+};
+
+export function PublicFooter({
+  legalLinks,
+  copy,
+}: {
+  legalLinks: readonly PublicFooterLink[];
+  copy: PublicFooterCopy;
+}) {
   return (
     <footer className="border-t bg-background">
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-3">
         <div className="space-y-2">
           <Text className="font-semibold">NetMetric</Text>
-          <Muted>
-            Enterprise platform for customer operations, identity, and secure integrations.
-          </Muted>
+          <Muted>{copy.description}</Muted>
         </div>
 
         <div className="space-y-2">
-          <Text className="font-medium">Platform</Text>
+          <Text className="font-medium">{copy.platform}</Text>
           <ul className="space-y-1 text-sm">
             <li>
               <a href={publicEnv.authUrl} className="hover:underline">
@@ -31,14 +46,14 @@ export function PublicFooter() {
             </li>
             <li>
               <a href={publicEnv.apiUrl} className="hover:underline">
-                API endpoint
+                {copy.apiEndpoint}
               </a>
             </li>
           </ul>
         </div>
 
         <div className="space-y-2">
-          <Text className="font-medium">Legal</Text>
+          <Text className="font-medium">{copy.legal}</Text>
           <ul className="space-y-1 text-sm">
             {legalLinks.map((link) => (
               <li key={link.href}>

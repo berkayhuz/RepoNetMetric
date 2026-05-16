@@ -11,16 +11,22 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
 import { booleanOptions } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { scheduleWorkMeetingAction } from "../actions/work-management-create-actions";
 import { meetingFormSchema, type MeetingFormInput } from "./task-form-schema";
@@ -71,7 +77,7 @@ export function MeetingForm() {
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="meeting-title">Title</FieldLabel>
+          <FieldLabel htmlFor="meeting-title">{tCrmClient("crm.meetings.fields.title")}</FieldLabel>
           <FieldContent>
             <Input id="meeting-title" {...form.register("title")} />
             <FieldError>{form.formState.errors.title?.message}</FieldError>
@@ -79,7 +85,9 @@ export function MeetingForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="meeting-startsAtUtc">Starts at (UTC)</FieldLabel>
+          <FieldLabel htmlFor="meeting-startsAtUtc">
+            {tCrmClient("crm.meetings.fields.startsAtUtc")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="meeting-startsAtUtc"
@@ -91,7 +99,9 @@ export function MeetingForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="meeting-endsAtUtc">Ends at (UTC)</FieldLabel>
+          <FieldLabel htmlFor="meeting-endsAtUtc">
+            {tCrmClient("crm.meetings.fields.endsAtUtc")}
+          </FieldLabel>
           <FieldContent>
             <Input id="meeting-endsAtUtc" type="datetime-local" {...form.register("endsAtUtc")} />
             <FieldError>{form.formState.errors.endsAtUtc?.message}</FieldError>
@@ -99,7 +109,9 @@ export function MeetingForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="meeting-organizerEmail">Organizer email</FieldLabel>
+          <FieldLabel htmlFor="meeting-organizerEmail">
+            {tCrmClient("crm.meetings.fields.organizerEmail")}
+          </FieldLabel>
           <FieldContent>
             <Input id="meeting-organizerEmail" type="email" {...form.register("organizerEmail")} />
             <FieldError>{form.formState.errors.organizerEmail?.message}</FieldError>
@@ -107,7 +119,9 @@ export function MeetingForm() {
         </Field>
 
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="meeting-attendeeSummary">Attendee summary</FieldLabel>
+          <FieldLabel htmlFor="meeting-attendeeSummary">
+            {tCrmClient("crm.meetings.fields.attendeeSummary")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="meeting-attendeeSummary" rows={4} {...form.register("attendeeSummary")} />
             <FieldError>{form.formState.errors.attendeeSummary?.message}</FieldError>
@@ -115,18 +129,30 @@ export function MeetingForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="meeting-requiresExternalSync">Requires external sync</FieldLabel>
+          <FieldLabel htmlFor="meeting-requiresExternalSync">
+            {tCrmClient("crm.meetings.fields.requiresExternalSync")}
+          </FieldLabel>
           <FieldContent>
-            <NativeSelect
-              id="meeting-requiresExternalSync"
-              {...form.register("requiresExternalSync")}
+            <Select
+              value={String(form.watch("requiresExternalSync"))}
+              onValueChange={(value) =>
+                form.setValue("requiresExternalSync", value === "true", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
             >
-              {booleanOptions.map((o) => (
-                <NativeSelectOption key={`meeting-sync-${o.value}`} value={o.value}>
-                  {o.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+              <SelectTrigger id="meeting-requiresExternalSync">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {booleanOptions.map((o) => (
+                  <SelectItem key={`meeting-sync-${o.value}`} value={o.value}>
+                    {tCrmClient(`crm.common.boolean.${o.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.requiresExternalSync?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -134,10 +160,12 @@ export function MeetingForm() {
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Scheduling..." : "Schedule meeting"}
+          {isPending
+            ? tCrmClient("crm.meetings.actions.scheduling")
+            : tCrmClient("crm.meetings.actions.schedule")}
         </Button>
       </div>
     </form>

@@ -19,6 +19,7 @@ import {
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type PasswordChangeFormProps = {
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
@@ -28,7 +29,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Changing..." : "Change password"}
+      {pending
+        ? tAccountClient("account.security.password.changing")
+        : tAccountClient("account.security.password.changeSubmit")}
     </Button>
   );
 }
@@ -39,40 +42,42 @@ export function PasswordChangeForm({ action }: PasswordChangeFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change password</CardTitle>
-        <CardDescription>Your password update will secure this account session.</CardDescription>
+        <CardTitle>{tAccountClient("account.security.password.changeTitle")}</CardTitle>
+        <CardDescription>
+          {tAccountClient("account.security.password.changeDescription")}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <SecurityActionResult
           state={state}
-          successTitle="Password changed"
-          errorTitle="Password update failed"
+          successTitle={tAccountClient("account.security.password.changed")}
+          errorTitle={tAccountClient("account.security.password.updateFailed")}
         />
         <form action={formAction} className="space-y-4" noValidate>
           <FieldSet className="grid gap-4">
             <PasswordField
               id="currentPassword"
               name="currentPassword"
-              label="Current password"
+              label={tAccountClient("account.security.password.current")}
               error={state.fieldErrors?.currentPassword?.[0]}
             />
             <PasswordField
               id="newPassword"
               name="newPassword"
-              label="New password"
+              label={tAccountClient("account.security.password.new")}
               error={state.fieldErrors?.newPassword?.[0]}
             />
             <PasswordField
               id="confirmNewPassword"
               name="confirmNewPassword"
-              label="Confirm new password"
+              label={tAccountClient("account.security.password.confirmNew")}
               error={state.fieldErrors?.confirmNewPassword?.[0]}
             />
           </FieldSet>
           <div className="flex flex-wrap items-center gap-2">
             <SubmitButton />
             <Button type="reset" variant="outline">
-              Reset
+              {tAccountClient("account.common.reset")}
             </Button>
           </div>
         </form>

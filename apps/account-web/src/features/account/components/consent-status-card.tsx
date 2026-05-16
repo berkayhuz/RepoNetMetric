@@ -9,16 +9,18 @@ import {
 } from "@netmetric/ui";
 
 import type { ConsentHistoryItemResponse } from "@/lib/account-api";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
+
 import { ConsentAcceptForm } from "./consent-accept-form";
 
 type ConsentStatusCardProps = {
   item: ConsentHistoryItemResponse;
 };
 
-function formatDate(value: string): string {
+function formatDate(value: string, emptyLabel: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return emptyLabel;
   }
 
   return date.toLocaleString();
@@ -40,14 +42,17 @@ export function ConsentStatusCard({ item }: ConsentStatusCardProps) {
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{item.status}</Badge>
-          <Badge variant="outline">Version {item.version}</Badge>
+          <Badge variant="outline">
+            {tAccountClient("account.privacy.versionLabel", { version: item.version })}
+          </Badge>
         </div>
         <CardTitle className="text-base">{item.consentType}</CardTitle>
-        <CardDescription>Consent history entry</CardDescription>
+        <CardDescription>{tAccountClient("account.privacy.historyEntry")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Text className="text-sm text-muted-foreground">
-          Decided at: {formatDate(item.decidedAt)}
+          {tAccountClient("account.privacy.decidedAtLabel")}:{" "}
+          {formatDate(item.decidedAt, tAccountClient("account.common.notAvailable"))}
         </Text>
         {isActionable ? (
           <div className="mt-3">
@@ -55,7 +60,7 @@ export function ConsentStatusCard({ item }: ConsentStatusCardProps) {
           </div>
         ) : (
           <Text className="mt-3 text-xs text-muted-foreground">
-            Consent action is not required for the current status.
+            {tAccountClient("account.privacy.actionNotRequired")}
           </Text>
         )}
       </CardContent>

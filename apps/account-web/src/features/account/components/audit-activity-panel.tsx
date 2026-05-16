@@ -10,6 +10,7 @@ import {
 
 import type { AccountAuditEntriesResponse } from "@/lib/account-api";
 import type { AccountDateSettings } from "@/lib/account-date";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 import { AuditActivityItem } from "./audit-activity-item";
 
@@ -29,21 +30,22 @@ export function AuditActivityPanel({
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Audit activity</Heading>
-        <Text className="text-muted-foreground">
-          Read-only account activity timeline for security and compliance visibility.
-        </Text>
+        <Heading level={2}>{tAccountClient("account.audit.title")}</Heading>
+        <Text className="text-muted-foreground">{tAccountClient("account.audit.description")}</Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Applied filters</CardTitle>
-          <CardDescription>Current server-side query options for this view.</CardDescription>
+          <CardTitle>{tAccountClient("account.audit.filtersTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.audit.filtersDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-2">
-          <Text className="text-sm text-muted-foreground">Limit: {activeLimit}</Text>
           <Text className="text-sm text-muted-foreground">
-            Event type: {activeEventType?.trim() ? activeEventType : "All"}
+            {tAccountClient("account.audit.limitLabel")}: {activeLimit}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.audit.eventTypeLabel")}:{" "}
+            {activeEventType?.trim() ? activeEventType : tAccountClient("account.common.all")}
           </Text>
         </CardContent>
       </Card>
@@ -51,13 +53,15 @@ export function AuditActivityPanel({
       {audit.items.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No audit entries</CardTitle>
-            <CardDescription>No activity entries matched the current filters.</CardDescription>
+            <CardTitle>{tAccountClient("account.audit.emptyTitle")}</CardTitle>
+            <CardDescription>{tAccountClient("account.audit.emptyDescription")}</CardDescription>
           </CardHeader>
         </Card>
       ) : (
         <div className="space-y-4">
-          <Text className="text-sm text-muted-foreground">Returned entries: {audit.count}</Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.audit.returnedEntriesLabel")}: {audit.count}
+          </Text>
           {audit.items.map((item) => (
             <AuditActivityItem key={item.id} item={item} dateSettings={dateSettings} />
           ))}

@@ -11,10 +11,15 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
@@ -177,13 +182,23 @@ export function OpportunityForm({
             {tCrmClient("crm.opportunities.fields.stage")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="opportunity-stage" {...form.register("stage")}>
-              {opportunityStageOptions.map((o) => (
-                <NativeSelectOption key={`opportunity-stage-${o.value}`} value={String(o.value)}>
-                  {tCrmClient(`crm.opportunities.stage.${o.value}`)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("stage"))}
+              onValueChange={(value) =>
+                form.setValue("stage", Number(value), { shouldDirty: true, shouldValidate: true })
+              }
+            >
+              <SelectTrigger id="opportunity-stage">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {opportunityStageOptions.map((o) => (
+                  <SelectItem key={`opportunity-stage-${o.value}`} value={String(o.value)}>
+                    {tCrmClient(`crm.opportunities.stage.${o.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.stage?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -192,13 +207,23 @@ export function OpportunityForm({
             {tCrmClient("crm.opportunities.fields.status")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="opportunity-status" {...form.register("status")}>
-              {opportunityStatusOptions.map((o) => (
-                <NativeSelectOption key={`opportunity-status-${o.value}`} value={String(o.value)}>
-                  {tCrmClient(`crm.opportunities.status.${o.value}`)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("status"))}
+              onValueChange={(value) =>
+                form.setValue("status", Number(value), { shouldDirty: true, shouldValidate: true })
+              }
+            >
+              <SelectTrigger id="opportunity-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {opportunityStatusOptions.map((o) => (
+                  <SelectItem key={`opportunity-status-${o.value}`} value={String(o.value)}>
+                    {tCrmClient(`crm.opportunities.status.${o.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.status?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -207,13 +232,26 @@ export function OpportunityForm({
             {tCrmClient("crm.opportunities.fields.priority")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="opportunity-priority" {...form.register("priority")}>
-              {priorityOptions.map((o) => (
-                <NativeSelectOption key={`opportunity-priority-${o.value}`} value={String(o.value)}>
-                  {tCrmClient(`crm.common.priority.${o.value}`)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("priority"))}
+              onValueChange={(value) =>
+                form.setValue("priority", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="opportunity-priority">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((o) => (
+                  <SelectItem key={`opportunity-priority-${o.value}`} value={String(o.value)}>
+                    {tCrmClient(`crm.common.priority.${o.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.priority?.message}</FieldError>
           </FieldContent>
         </Field>

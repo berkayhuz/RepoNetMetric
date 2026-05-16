@@ -18,21 +18,23 @@ describe("token/css smoke", () => {
   it("tokens.css contains critical variables", () => {
     const tokensCss = readStyleFile("tokens.css");
 
-    expect(tokensCss).toContain("--nm-background");
-    expect(tokensCss).toContain("--nm-foreground");
-    expect(tokensCss).toContain("--nm-focus-ring");
-    expect(tokensCss).toContain("--nm-overlay-backdrop");
-    expect(tokensCss).toContain("--nm-state-focus-ring-width");
+    expect(tokensCss).toContain("--background");
+    expect(tokensCss).toContain("--foreground");
+    expect(tokensCss).toContain("--ring");
+    expect(tokensCss).toContain("--sidebar-ring");
+    expect(tokensCss).toContain("--chart-1");
+    expect(tokensCss).toContain("--chart-5");
+    expect(tokensCss).toContain(".dark");
   });
 
   it("theme.css exposes semantic aliases", () => {
     const themeCss = readStyleFile("theme.css");
 
     expect(themeCss).toContain("--color-background");
-    expect(themeCss).toContain("--color-focus-ring");
-    expect(themeCss).toContain("--color-overlay-backdrop");
-    expect(themeCss).toContain("--leading-normal");
-    expect(themeCss).toContain("--font-weight-medium");
-    expect(themeCss).toContain("--tracking-normal");
+    expect(themeCss).toContain("--color-foreground");
+    expect(themeCss).toContain("--color-ring");
+    expect(themeCss).toContain("--color-sidebar-ring");
+    expect(themeCss).toContain("--radius-lg");
+    expect(themeCss).toContain("--radius-2xl");
   });
 });

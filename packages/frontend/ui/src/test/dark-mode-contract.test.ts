@@ -15,8 +15,9 @@ describe("dark mode contract", () => {
   it("defines dark token overrides", () => {
     const tokensCss = fs.readFileSync(tokensPath, "utf8");
     expect(tokensCss).toContain(".dark");
-    expect(tokensCss).toContain("--nm-background");
-    expect(tokensCss).toContain("--nm-foreground");
+    expect(tokensCss).toContain("--background");
+    expect(tokensCss).toContain("--foreground");
+    expect(tokensCss).toContain("--sidebar");
   });
 
   it("uses class-based dark mode toggling in ThemeProvider", () => {

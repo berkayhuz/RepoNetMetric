@@ -68,19 +68,20 @@ function Combobox({
 
   return (
     <Popover open={currentOpen} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={currentOpen}
-          disabled={disabled}
-          className={cn("w-full justify-between", className)}
-        >
-          <span className="truncate">{selectedOption?.label ?? placeholder}</span>
-
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={currentOpen}
+            disabled={disabled}
+            className={cn("w-full justify-between", className)}
+          />
+        }
+      >
+        <span className="truncate">{selectedOption?.label ?? placeholder}</span>
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
 
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">

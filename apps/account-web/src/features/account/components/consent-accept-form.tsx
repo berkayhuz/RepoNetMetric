@@ -7,6 +7,7 @@ import { Button, Text } from "@netmetric/ui";
 import { acceptConsentAction } from "../actions/consent-actions";
 import { initialMutationState } from "../actions/mutation-state";
 import { ConsentActionResult } from "./consent-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type ConsentAcceptFormProps = {
   consentType: string;
@@ -30,7 +31,9 @@ export function ConsentAcceptForm({ consentType, version }: ConsentAcceptFormPro
       <input type="hidden" name="confirm" value="accept-consent" />
       <input type="hidden" name="consentType" value={consentType} />
       <input type="hidden" name="version" value={version} />
-      <Text className="text-xs text-muted-foreground">Confirm to accept this consent version.</Text>
+      <Text className="text-xs text-muted-foreground">
+        {tAccountClient("account.privacy.confirmConsent")}
+      </Text>
       <SubmitButton />
       <ConsentActionResult state={state} />
     </form>

@@ -5,6 +5,7 @@ import { PipelineStageMoveForm } from "@/features/pipeline/components/pipeline-s
 import { opportunityStageOptions } from "@/features/shared/forms/options";
 import type { PipelineBoardDto } from "@/lib/crm-api";
 import { isGuid } from "@/features/shared/data/guid";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 
 function normalizeLabel(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, "");
@@ -18,13 +19,18 @@ function mapColumnNameToStageValue(columnName: string): number | undefined {
   return matched?.value;
 }
 
-export function PipelineBoard({ board }: Readonly<{ board: PipelineBoardDto }>) {
+type PipelineBoardProps = Readonly<{
+  board: PipelineBoardDto;
+  locale?: string | null;
+}>;
+
+export function PipelineBoard({ board, locale }: PipelineBoardProps) {
   return (
-    <section className="space-y-4" aria-label="Pipeline board">
+    <section className="space-y-4" aria-label={tCrm("crm.pipeline.board.ariaLabel", locale)}>
       <header className="space-y-1">
         <h2 className="text-xl font-semibold tracking-tight">{board.pipelineName}</h2>
         <p className="text-sm text-muted-foreground">
-          Read-only board with server-validated stage movement.
+          {tCrm("crm.pipeline.board.description", locale)}
         </p>
       </header>
 
@@ -37,13 +43,16 @@ export function PipelineBoard({ board }: Readonly<{ board: PipelineBoardDto }>) 
               <CardHeader>
                 <CardTitle className="text-base">{column.name}</CardTitle>
                 <CardDescription>
-                  {column.opportunityCount} items - Total {column.totalValue}
+                  {tCrm("crm.pipeline.board.columnSummary", locale, {
+                    count: column.opportunityCount,
+                    total: column.totalValue,
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {column.opportunities.length === 0 ? (
                   <Text className="text-sm text-muted-foreground">
-                    No opportunities in this stage.
+                    {tCrm("crm.pipeline.board.emptyStage", locale)}
                   </Text>
                 ) : (
                   <ul className="space-y-3">
@@ -53,9 +62,14 @@ export function PipelineBoard({ board }: Readonly<{ board: PipelineBoardDto }>) 
                         <p className="text-xs text-muted-foreground">
                           {opportunity.opportunityCode}
                         </p>
-                        <p className="text-sm">Amount: {opportunity.amount}</p>
+                        <p className="text-sm">
+                          {tCrm("crm.pipeline.board.amount", locale, {
+                            amount: opportunity.amount,
+                          })}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {opportunity.customerName ?? "No customer linked"}
+                          {opportunity.customerName ??
+                            tCrm("crm.pipeline.board.noCustomer", locale)}
                         </p>
                         {defaultStageValue !== undefined && isGuid(opportunity.id) ? (
                           <PipelineStageMoveForm
@@ -65,7 +79,7 @@ export function PipelineBoard({ board }: Readonly<{ board: PipelineBoardDto }>) 
                           />
                         ) : (
                           <Text className="text-xs text-muted-foreground">
-                            Stage movement unavailable for this card mapping.
+                            {tCrm("crm.pipeline.board.stageMovementUnavailable", locale)}
                           </Text>
                         )}
                       </li>

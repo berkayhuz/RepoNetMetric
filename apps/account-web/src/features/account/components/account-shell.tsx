@@ -1,5 +1,6 @@
 import { AccountFooter } from "@/features/account/components/account-footer";
 import { AccountHeader } from "@/features/account/components/account-header";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type AccountShellProps = {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ export async function AccountShell({ children, localeName }: AccountShellProps) 
         href="#main-content"
         className="sr-only left-4 top-4 z-50 rounded-md bg-background px-3 py-2 focus:not-sr-only focus:absolute"
       >
-        Skip to content
+        {tAccountClient("account.a11y.skipToContent")}
       </a>
       <AccountHeader localeName={localeName} />
       <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">

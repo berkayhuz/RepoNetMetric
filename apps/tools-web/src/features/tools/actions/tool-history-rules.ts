@@ -1,3 +1,5 @@
+import { tTools } from "@/lib/i18n/tools-i18n";
+
 export const saveAllowedSlugs = new Set(["qr-generator", "png-to-jpg", "jpg-to-png"]);
 
 const saveAllowedMimeTypesBySlug: Record<string, ReadonlySet<string>> = {
@@ -41,26 +43,27 @@ export function ensureSaveFileConstraints(params: {
   toolSlug: string;
   mimeType: string;
   fileSize: number;
+  locale?: string | null | undefined;
 }): { ok: true } | { ok: false; message: string } {
   if (!saveAllowedSlugs.has(params.toolSlug)) {
-    return { ok: false, message: "This tool cannot be saved to history yet." };
+    return { ok: false, message: tTools("tools.history.errors.unsupportedTool", params.locale) };
   }
 
   if (params.fileSize <= 0) {
-    return { ok: false, message: "Generated output is empty." };
+    return { ok: false, message: tTools("tools.history.errors.emptyOutput", params.locale) };
   }
 
   if (params.fileSize > AUTHENTICATED_SAVE_MAX_BYTES) {
-    return { ok: false, message: "Generated output exceeds the 10 MB save limit." };
+    return { ok: false, message: tTools("tools.history.errors.saveLimit", params.locale) };
   }
 
   const allowedMimeTypes = saveAllowedMimeTypesBySlug[params.toolSlug];
   if (!allowedMimeTypes?.has(params.mimeType)) {
-    return { ok: false, message: "Unsupported output type for this tool." };
+    return { ok: false, message: tTools("tools.history.errors.unsupportedOutput", params.locale) };
   }
 
   if (params.mimeType === "image/svg+xml") {
-    return { ok: false, message: "SVG output is not supported for history save." };
+    return { ok: false, message: tTools("tools.history.errors.svgUnsupported", params.locale) };
   }
 
   return { ok: true };

@@ -11,16 +11,22 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
 import { CrmMutationResult } from "@/components/forms/crm-mutation-result";
 import { initialCrmMutationState } from "@/features/shared/actions/mutation-state";
 import { priorityOptions } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createWorkTaskAction } from "../actions/work-management-create-actions";
 import { taskFormSchema, type TaskFormInput } from "./task-form-schema";
@@ -70,7 +76,7 @@ export function TaskForm() {
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="task-title">Title</FieldLabel>
+          <FieldLabel htmlFor="task-title">{tCrmClient("crm.tasks.fields.title")}</FieldLabel>
           <FieldContent>
             <Input id="task-title" {...form.register("title")} />
             <FieldError>{form.formState.errors.title?.message}</FieldError>
@@ -78,7 +84,9 @@ export function TaskForm() {
         </Field>
 
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="task-description">Description</FieldLabel>
+          <FieldLabel htmlFor="task-description">
+            {tCrmClient("crm.tasks.fields.description")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="task-description" rows={4} {...form.register("description")} />
             <FieldError>{form.formState.errors.description?.message}</FieldError>
@@ -86,7 +94,9 @@ export function TaskForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="task-ownerUserId">Owner user ID</FieldLabel>
+          <FieldLabel htmlFor="task-ownerUserId">
+            {tCrmClient("crm.tasks.fields.ownerUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="task-ownerUserId" {...form.register("ownerUserId")} />
             <FieldError>{form.formState.errors.ownerUserId?.message}</FieldError>
@@ -94,7 +104,7 @@ export function TaskForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="task-dueAtUtc">Due at (UTC)</FieldLabel>
+          <FieldLabel htmlFor="task-dueAtUtc">{tCrmClient("crm.tasks.fields.dueAtUtc")}</FieldLabel>
           <FieldContent>
             <Input id="task-dueAtUtc" type="datetime-local" {...form.register("dueAtUtc")} />
             <FieldError>{form.formState.errors.dueAtUtc?.message}</FieldError>
@@ -102,15 +112,28 @@ export function TaskForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="task-priority">Priority</FieldLabel>
+          <FieldLabel htmlFor="task-priority">{tCrmClient("crm.tasks.fields.priority")}</FieldLabel>
           <FieldContent>
-            <NativeSelect id="task-priority" {...form.register("priority")}>
-              {priorityOptions.map((o) => (
-                <NativeSelectOption key={`task-priority-${o.value}`} value={String(o.value)}>
-                  {o.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("priority"))}
+              onValueChange={(value) =>
+                form.setValue("priority", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="task-priority">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((o) => (
+                  <SelectItem key={`task-priority-${o.value}`} value={String(o.value)}>
+                    {tCrmClient(`crm.common.priority.${o.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.priority?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -118,10 +141,12 @@ export function TaskForm() {
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Creating..." : "Create task"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.creating")
+            : tCrmClient("crm.tasks.actions.create")}
         </Button>
       </div>
     </form>

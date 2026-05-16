@@ -11,10 +11,15 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
@@ -192,13 +197,23 @@ export function CustomerForm({ mode, customerId, initialValues }: Readonly<Custo
             {tCrmClient("crm.customers.fields.gender")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="customer-gender" {...form.register("gender")}>
-              {genderOptions.map((option) => (
-                <NativeSelectOption key={`gender-${option.value}`} value={String(option.value)}>
-                  {genderLabelByValue[option.value] ?? option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("gender"))}
+              onValueChange={(value) =>
+                form.setValue("gender", Number(value), { shouldDirty: true, shouldValidate: true })
+              }
+            >
+              <SelectTrigger id="customer-gender">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {genderOptions.map((option) => (
+                  <SelectItem key={`gender-${option.value}`} value={String(option.value)}>
+                    {genderLabelByValue[option.value] ?? option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FieldContent>
         </Field>
 
@@ -207,23 +222,49 @@ export function CustomerForm({ mode, customerId, initialValues }: Readonly<Custo
             {tCrmClient("crm.customers.fields.customerType")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id="customer-customerType" {...form.register("customerType")}>
-              {customerTypeOptions.map((option) => (
-                <NativeSelectOption key={`type-${option.value}`} value={String(option.value)}>
-                  {customerTypeLabelByValue[option.value] ?? option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("customerType"))}
+              onValueChange={(value) =>
+                form.setValue("customerType", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="customer-customerType">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {customerTypeOptions.map((option) => (
+                  <SelectItem key={`type-${option.value}`} value={String(option.value)}>
+                    {customerTypeLabelByValue[option.value] ?? option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FieldContent>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="customer-vip">{tCrmClient("crm.customers.fields.vip")}</FieldLabel>
           <FieldContent>
-            <NativeSelect id="customer-vip" {...form.register("isVip")}>
-              <NativeSelectOption value="false">{tCrmClient("crm.common.no")}</NativeSelectOption>
-              <NativeSelectOption value="true">{tCrmClient("crm.common.yes")}</NativeSelectOption>
-            </NativeSelect>
+            <Select
+              value={String(form.watch("isVip"))}
+              onValueChange={(value) =>
+                form.setValue("isVip", value === "true", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="customer-vip">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">{tCrmClient("crm.common.no")}</SelectItem>
+                <SelectItem value="true">{tCrmClient("crm.common.yes")}</SelectItem>
+              </SelectContent>
+            </Select>
           </FieldContent>
         </Field>
         <Field>

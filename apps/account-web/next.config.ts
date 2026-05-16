@@ -1,21 +1,10 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import { getNetMetricImageRemotePatterns } from "../next-image-remote-patterns";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "5301",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.netmetric.net",
-        pathname: "/**",
-      },
-    ],
+    remotePatterns: getNetMetricImageRemotePatterns(),
   },
   turbopack: {
     root: path.resolve(__dirname, "../.."),

@@ -16,6 +16,7 @@ import {
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type EmailChangeConfirmPanelProps = {
   action: (state: MutationState, formData: FormData) => Promise<MutationState>;
@@ -26,7 +27,9 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Confirming..." : "Confirm email change"}
+      {pending
+        ? tAccountClient("account.security.email.confirming")
+        : tAccountClient("account.security.email.confirmSubmit")}
     </Button>
   );
 }
@@ -37,19 +40,19 @@ export function EmailChangeConfirmPanel({ action, tokenFromQuery }: EmailChangeC
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Confirm email change</CardTitle>
+        <CardTitle>{tAccountClient("account.security.email.confirmTitle")}</CardTitle>
         <CardDescription>
-          Complete email change after receiving your confirmation token.
+          {tAccountClient("account.security.email.confirmDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Text className="text-sm text-muted-foreground">
-          Use the token from your verification link to complete this action.
+          {tAccountClient("account.security.email.confirmHelp")}
         </Text>
         <SecurityActionResult
           state={state}
-          successTitle="Email confirmed"
-          errorTitle="Email confirmation failed"
+          successTitle={tAccountClient("account.security.email.confirmed")}
+          errorTitle={tAccountClient("account.security.email.confirmFailed")}
         />
 
         <form action={formAction} className="space-y-4" noValidate>
@@ -58,7 +61,7 @@ export function EmailChangeConfirmPanel({ action, tokenFromQuery }: EmailChangeC
             <>
               <Input
                 name="token"
-                aria-label="Email confirmation token"
+                aria-label={tAccountClient("account.security.email.confirmToken")}
                 aria-invalid={Boolean(state.fieldErrors?.token?.[0])}
                 aria-describedby={state.fieldErrors?.token?.[0] ? "token-error" : undefined}
               />

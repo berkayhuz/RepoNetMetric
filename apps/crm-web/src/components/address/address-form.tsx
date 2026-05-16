@@ -10,9 +10,14 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { AddressActionResult } from "@/components/address/address-action-result";
@@ -157,16 +162,26 @@ export function AddressForm({
             {tCrmClient("crm.address.fields.addressType")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id={`${mode}-address-addressType`} {...form.register("addressType")}>
-              {addressTypeOptions.map((option) => (
-                <NativeSelectOption
-                  key={`address-type-${option.value}`}
-                  value={String(option.value)}
-                >
-                  {option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("addressType"))}
+              onValueChange={(value) =>
+                form.setValue("addressType", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id={`${mode}-address-addressType`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {addressTypeOptions.map((option) => (
+                  <SelectItem key={`address-type-${option.value}`} value={String(option.value)}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.addressType?.message}</FieldError>
           </FieldContent>
         </Field>
@@ -175,13 +190,26 @@ export function AddressForm({
             {tCrmClient("crm.address.fields.defaultAddress")}
           </FieldLabel>
           <FieldContent>
-            <NativeSelect id={`${mode}-address-isDefault`} {...form.register("isDefault")}>
-              {booleanOptions.map((option) => (
-                <NativeSelectOption key={`address-default-${option.value}`} value={option.value}>
-                  {option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("isDefault"))}
+              onValueChange={(value) =>
+                form.setValue("isDefault", value === "true", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id={`${mode}-address-isDefault`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {booleanOptions.map((option) => (
+                  <SelectItem key={`address-default-${option.value}`} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.isDefault?.message}</FieldError>
           </FieldContent>
         </Field>

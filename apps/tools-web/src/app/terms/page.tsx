@@ -2,25 +2,30 @@ import type { Metadata } from "next";
 import { Heading, Text } from "@netmetric/ui";
 
 import { ToolsShell } from "@/features/tools/components/tools-shell";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { tTools } from "@/lib/i18n/tools-i18n";
 import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = createPageMetadata(
-  "Terms",
-  "Terms of use for NetMetric Tools.",
-  "/terms",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
 
-export default function TermsPage() {
+  return createPageMetadata(
+    tTools("tools.terms.metaTitle", locale),
+    tTools("tools.terms.metaDescription", locale),
+    "/terms",
+  );
+}
+
+export default async function TermsPage() {
+  const locale = await getRequestLocale();
+
   return (
     <ToolsShell>
       <section aria-labelledby="terms-heading" className="space-y-4">
         <Heading id="terms-heading" level={1}>
-          Terms
+          {tTools("tools.terms.title", locale)}
         </Heading>
-        <Text className="text-muted-foreground">
-          Tool-specific terms and service limits will be refined as production features are
-          released.
-        </Text>
+        <Text className="text-muted-foreground">{tTools("tools.terms.description", locale)}</Text>
       </section>
     </ToolsShell>
   );

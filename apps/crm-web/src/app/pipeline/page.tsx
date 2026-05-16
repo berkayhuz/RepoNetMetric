@@ -4,6 +4,8 @@ import { PipelineBoard } from "@/features/pipeline/components/pipeline-board";
 import { getPipelineBoardData, getPipelinesData } from "@/features/pipeline/data/pipeline-data";
 import { isGuid } from "@/features/shared/data/guid";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { tCrm } from "@/lib/i18n/crm-i18n";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function PipelinePage({
   searchParams,
@@ -11,6 +13,7 @@ export default async function PipelinePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireCrmSession("/pipeline");
+  const locale = await getRequestLocale();
 
   const params = await searchParams;
   const selectedPipelineIdRaw =
@@ -32,12 +35,12 @@ export default async function PipelinePage({
     return (
       <section className="space-y-6">
         <CrmPageHeader
-          title="Pipeline"
-          description="Read-only pipeline overview from consolidated CRM API."
+          title={tCrm("crm.pipeline.title", locale)}
+          description={tCrm("crm.pipeline.description", locale)}
         />
         <CrmEmptyState
-          title="No pipeline configuration found"
-          description="Create or import pipeline definitions from backend administration first."
+          title={tCrm("crm.pipeline.emptyConfigurationTitle", locale)}
+          description={tCrm("crm.pipeline.emptyConfigurationDescription", locale)}
         />
       </section>
     );
@@ -52,12 +55,12 @@ export default async function PipelinePage({
     return (
       <section className="space-y-6">
         <CrmPageHeader
-          title="Pipeline"
-          description="Read-only pipeline overview from consolidated CRM API."
+          title={tCrm("crm.pipeline.title", locale)}
+          description={tCrm("crm.pipeline.description", locale)}
         />
         <CrmEmptyState
-          title="No selectable pipeline found"
-          description="Pipeline list response did not include a usable pipeline item."
+          title={tCrm("crm.pipeline.noSelectableTitle", locale)}
+          description={tCrm("crm.pipeline.noSelectableDescription", locale)}
         />
       </section>
     );
@@ -69,10 +72,10 @@ export default async function PipelinePage({
   return (
     <section className="space-y-6">
       <CrmPageHeader
-        title="Pipeline"
-        description="Read-only pipeline board using real stage and opportunity data."
+        title={tCrm("crm.pipeline.title", locale)}
+        description={tCrm("crm.pipeline.boardPageDescription", locale)}
       />
-      <PipelineBoard board={board} />
+      <PipelineBoard board={board} locale={locale} />
     </section>
   );
 }

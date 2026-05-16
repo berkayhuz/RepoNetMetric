@@ -9,6 +9,7 @@ import {
 } from "@netmetric/ui";
 
 import type { AccountInvitationSummaryResponse } from "@/lib/account-api";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 import { resendInvitationAction, revokeInvitationAction } from "../actions/invitation-actions";
 import { InvitationConfirmActionForm } from "./invitation-confirm-action-form";
@@ -18,13 +19,13 @@ type InvitationManagementPanelProps = {
   invitations: AccountInvitationSummaryResponse[];
 };
 
-function formatDate(value: string | null | undefined): string {
+function formatDate(value: string | null | undefined, emptyLabel: string): string {
   if (!value) {
-    return "Not available";
+    return emptyLabel;
   }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return emptyLabel;
   }
   return date.toLocaleString();
 }
@@ -38,16 +39,16 @@ export function InvitationManagementPanel({ invitations }: InvitationManagementP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invitations</CardTitle>
-        <CardDescription>
-          Manage workspace invitations. Member and role changes are not available in this phase.
-        </CardDescription>
+        <CardTitle>{tAccountClient("account.invitations.title")}</CardTitle>
+        <CardDescription>{tAccountClient("account.invitations.manageDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <InvitationCreateForm />
 
         {invitations.length === 0 ? (
-          <Text className="text-sm text-muted-foreground">No invitations available.</Text>
+          <Text className="text-sm text-muted-foreground">
+            {tAccountClient("account.invitations.emptyTitle")}
+          </Text>
         ) : (
           invitations.map((invitation) => (
             <div
@@ -59,10 +60,12 @@ export function InvitationManagementPanel({ invitations }: InvitationManagementP
                 <Badge variant="outline">{invitation.status}</Badge>
               </div>
               <Text className="text-xs text-muted-foreground">
-                Created: {formatDate(invitation.createdAtUtc)}
+                {tAccountClient("account.invitations.createdLabel")}:{" "}
+                {formatDate(invitation.createdAtUtc, tAccountClient("account.common.notAvailable"))}
               </Text>
               <Text className="text-xs text-muted-foreground">
-                Expires: {formatDate(invitation.expiresAtUtc)}
+                {tAccountClient("account.invitations.expiresLabel")}:{" "}
+                {formatDate(invitation.expiresAtUtc, tAccountClient("account.common.notAvailable"))}
               </Text>
 
               {isPendingStatus(invitation.status) ? (
@@ -70,27 +73,27 @@ export function InvitationManagementPanel({ invitations }: InvitationManagementP
                   <InvitationConfirmActionForm
                     invitationId={invitation.invitationId}
                     confirmValue="resend-invitation"
-                    label="Resend invitation"
-                    pendingLabel="Resending..."
+                    label={tAccountClient("account.invitations.resend")}
+                    pendingLabel={tAccountClient("account.invitations.resending")}
                     variant="outline"
-                    successTitle="Invitation resent"
-                    errorTitle="Resend failed"
+                    successTitle={tAccountClient("account.invitations.resent")}
+                    errorTitle={tAccountClient("account.invitations.resendFailed")}
                     action={resendInvitationAction}
                   />
                   <InvitationConfirmActionForm
                     invitationId={invitation.invitationId}
                     confirmValue="revoke-invitation"
-                    label="Revoke invitation"
-                    pendingLabel="Revoking..."
+                    label={tAccountClient("account.invitations.revoke")}
+                    pendingLabel={tAccountClient("account.common.revoking")}
                     variant="destructive"
-                    successTitle="Invitation revoked"
-                    errorTitle="Revoke failed"
+                    successTitle={tAccountClient("account.invitations.revoked")}
+                    errorTitle={tAccountClient("account.invitations.revokeFailed")}
                     action={revokeInvitationAction}
                   />
                 </div>
               ) : (
                 <Text className="text-xs text-muted-foreground">
-                  Invitation actions are unavailable for this status.
+                  {tAccountClient("account.invitations.actionsUnavailable")}
                 </Text>
               )}
             </div>

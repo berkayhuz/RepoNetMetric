@@ -18,9 +18,16 @@ import {
   FieldLabel,
   FieldSet,
   Heading,
-  NativeSelect,
   Text,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
+import { useState } from "react";
 
 import type {
   AccountOptionsResponse,
@@ -30,6 +37,7 @@ import type {
 
 import { initialMutationState, type MutationState } from "../actions/mutation-state";
 import { ReadOnlyValue } from "./read-only-value";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type PreferencesEditFormProps = {
   preferences: UserPreferenceResponse;
@@ -43,7 +51,9 @@ function SubmitButton() {
 
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : "Save preferences"}
+      {pending
+        ? tAccountClient("account.common.saving")
+        : tAccountClient("account.preferences.save")}
     </Button>
   );
 }
@@ -55,35 +65,38 @@ export function PreferencesEditForm({
   action,
 }: PreferencesEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
+  const noDefaultOrganization = "__none__";
+  const [defaultOrganizationId, setDefaultOrganizationId] = useState(
+    preferences.defaultOrganizationId ?? noDefaultOrganization,
+  );
 
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Preferences</Heading>
+        <Heading level={2}>{tAccountClient("account.preferences.title")}</Heading>
         <Text className="text-muted-foreground">
-          Update account preferences. Security and notification workflows are handled in later
-          phases.
+          {tAccountClient("account.preferences.description")}
         </Text>
       </div>
 
       {state.status === "success" ? (
         <Alert>
-          <AlertTitle>Preferences updated</AlertTitle>
+          <AlertTitle>{tAccountClient("account.preferences.updatedTitle")}</AlertTitle>
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
 
       {state.status === "error" && state.message ? (
         <Alert variant="destructive">
-          <AlertTitle>Update failed</AlertTitle>
+          <AlertTitle>{tAccountClient("account.common.updateFailed")}</AlertTitle>
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit preferences</CardTitle>
-          <CardDescription>Changes are saved to your account preferences.</CardDescription>
+          <CardTitle>{tAccountClient("account.preferences.editTitle")}</CardTitle>
+          <CardDescription>{tAccountClient("account.preferences.editDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-4" noValidate>
@@ -92,7 +105,7 @@ export function PreferencesEditForm({
               <SelectField
                 id="language"
                 name="language"
-                label="Language"
+                label={tAccountClient("account.profile.fields.language")}
                 defaultValue={preferences.language}
                 error={state.fieldErrors?.language?.[0]}
                 options={options.languages}
@@ -100,7 +113,7 @@ export function PreferencesEditForm({
               <SelectField
                 id="timeZone"
                 name="timeZone"
-                label="Time zone"
+                label={tAccountClient("account.profile.fields.timeZone")}
                 defaultValue={preferences.timeZone}
                 error={state.fieldErrors?.timeZone?.[0]}
                 options={options.timeZones}
@@ -108,7 +121,7 @@ export function PreferencesEditForm({
               <SelectField
                 id="theme"
                 name="theme"
-                label="Theme"
+                label={tAccountClient("account.preferences.theme")}
                 defaultValue={preferences.theme}
                 error={state.fieldErrors?.theme?.[0]}
                 options={options.themes}
@@ -116,26 +129,46 @@ export function PreferencesEditForm({
               <SelectField
                 id="dateFormat"
                 name="dateFormat"
-                label="Date format"
+                label={tAccountClient("account.preferences.dateFormat")}
                 defaultValue={preferences.dateFormat}
                 error={state.fieldErrors?.dateFormat?.[0]}
                 options={options.dateFormats}
               />
               <Field>
-                <FieldLabel htmlFor="defaultOrganizationId">Default organization</FieldLabel>
+                <FieldLabel htmlFor="defaultOrganizationId">
+                  {tAccountClient("account.preferences.defaultOrganization")}
+                </FieldLabel>
                 <FieldContent>
-                  <NativeSelect
+                  <input
+                    type="hidden"
                     id="defaultOrganizationId"
                     name="defaultOrganizationId"
-                    defaultValue={preferences.defaultOrganizationId ?? ""}
+                    value={
+                      defaultOrganizationId === noDefaultOrganization ? "" : defaultOrganizationId
+                    }
+                  />
+                  <Select
+                    value={defaultOrganizationId}
+                    onValueChange={(nextValue) =>
+                      setDefaultOrganizationId(nextValue ?? noDefaultOrganization)
+                    }
                   >
-                    <option value="">No default organization</option>
-                    {organizations.map((org) => (
-                      <option key={org.organizationId} value={org.organizationId}>
-                        {org.organizationName}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={tAccountClient("account.preferences.noDefaultOrganization")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={noDefaultOrganization}>
+                        {tAccountClient("account.preferences.noDefaultOrganization")}
+                      </SelectItem>
+                      {organizations.map((org) => (
+                        <SelectItem key={org.organizationId} value={org.organizationId}>
+                          {org.organizationName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FieldError id="defaultOrganizationId-error">
                     {state.fieldErrors?.defaultOrganizationId?.[0]}
                   </FieldError>
@@ -146,7 +179,7 @@ export function PreferencesEditForm({
             <div className="flex flex-wrap items-center gap-2">
               <SubmitButton />
               <Button type="reset" variant="outline">
-                Reset
+                {tAccountClient("account.common.reset")}
               </Button>
             </div>
           </form>
@@ -155,11 +188,17 @@ export function PreferencesEditForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Read-only metadata</CardTitle>
+          <CardTitle>{tAccountClient("account.common.readOnlyMetadata")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
-          <MetaField label="Preference ID" value={preferences.id} />
-          <MetaField label="Current version" value={preferences.version} />
+          <MetaField
+            label={tAccountClient("account.preferences.preferenceId")}
+            value={preferences.id}
+          />
+          <MetaField
+            label={tAccountClient("account.fields.currentVersion")}
+            value={preferences.version}
+          />
         </CardContent>
       </Card>
     </section>
@@ -181,17 +220,27 @@ function SelectField({
   error: string | undefined;
   options: { value: string; label: string }[];
 }) {
+  const [value, setValue] = useState(defaultValue);
+
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <FieldContent>
-        <NativeSelect id={id} name={name} defaultValue={defaultValue} aria-invalid={Boolean(error)}>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </NativeSelect>
+        <input type="hidden" id={id} name={name} value={value} />
+        <Select value={value} onValueChange={(nextValue) => setValue(nextValue ?? defaultValue)}>
+          <SelectTrigger aria-invalid={Boolean(error)}>
+            <SelectValue
+              placeholder={tAccountClient("account.common.selectPlaceholder", { label })}
+            />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <FieldError id={`${id}-error`}>{error}</FieldError>
       </FieldContent>
     </Field>

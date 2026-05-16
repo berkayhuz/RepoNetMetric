@@ -1,24 +1,25 @@
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@netmetric/ui";
 
+import { tTools } from "@/lib/i18n/tools-i18n";
+
 type QrPreviewPanelProps = {
   previewDataUrl: string | null;
+  locale?: string | null | undefined;
 };
 
-export function QrPreviewPanel({ previewDataUrl }: QrPreviewPanelProps) {
+export function QrPreviewPanel({ previewDataUrl, locale }: QrPreviewPanelProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>QR Preview</CardTitle>
-        <CardDescription>
-          The QR preview updates in your browser only. Nothing is uploaded.
-        </CardDescription>
+        <CardTitle>{tTools("tools.qr.preview.title", locale)}</CardTitle>
+        <CardDescription>{tTools("tools.qr.preview.description", locale)}</CardDescription>
       </CardHeader>
       <CardContent>
         {previewDataUrl ? (
           <Image
             src={previewDataUrl}
-            alt="Generated QR code preview"
+            alt={tTools("tools.qr.preview.alt", locale)}
             width={256}
             height={256}
             unoptimized
@@ -26,7 +27,7 @@ export function QrPreviewPanel({ previewDataUrl }: QrPreviewPanelProps) {
           />
         ) : (
           <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-            Enter text or a URL to generate a preview.
+            {tTools("tools.qr.preview.empty", locale)}
           </p>
         )}
       </CardContent>

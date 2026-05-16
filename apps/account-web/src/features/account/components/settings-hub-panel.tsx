@@ -9,6 +9,8 @@ import {
   Text,
 } from "@netmetric/ui";
 
+import { tAccountClient } from "@/lib/i18n/account-i18n";
+
 type SettingsHubPanelProps = {
   displayName?: string | null;
   language?: string | null;
@@ -19,23 +21,23 @@ export function SettingsHubPanel({ displayName, language, timeZone }: SettingsHu
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Settings</Heading>
+        <Heading level={2}>{tAccountClient("account.settings.title")}</Heading>
         <Text className="text-muted-foreground">
-          Manage account configuration from focused settings sections.
+          {tAccountClient("account.settings.description")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Current context</CardTitle>
+          <CardTitle>{tAccountClient("account.settings.currentContextTitle")}</CardTitle>
           <CardDescription>
-            Read-only snapshot from your account profile and preferences.
+            {tAccountClient("account.settings.currentContextDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-3">
-          <Stat label="Display name" value={displayName} />
-          <Stat label="Language" value={language} />
-          <Stat label="Time zone" value={timeZone} />
+          <Stat label={tAccountClient("account.fields.displayName")} value={displayName} />
+          <Stat label={tAccountClient("account.profile.fields.language")} value={language} />
+          <Stat label={tAccountClient("account.profile.fields.timeZone")} value={timeZone} />
         </CardContent>
       </Card>
 
@@ -43,33 +45,33 @@ export function SettingsHubPanel({ displayName, language, timeZone }: SettingsHu
         {[
           {
             href: "/profile",
-            title: "Profile",
-            description: "View identity and contact information.",
+            title: tAccountClient("account.nav.profile"),
+            description: tAccountClient("account.settings.cards.profileDescription"),
           },
           {
             href: "/preferences",
-            title: "Preferences",
-            description: "View language, timezone, and display defaults.",
+            title: tAccountClient("account.nav.preferences"),
+            description: tAccountClient("account.settings.cards.preferencesDescription"),
           },
           {
             href: "/security",
-            title: "Security",
-            description: "Review password, MFA, and session posture.",
+            title: tAccountClient("account.nav.security"),
+            description: tAccountClient("account.settings.cards.securityDescription"),
           },
           {
             href: "/notifications",
-            title: "Notifications",
-            description: "Review notification center and channels.",
+            title: tAccountClient("account.nav.notifications"),
+            description: tAccountClient("account.settings.cards.notificationsDescription"),
           },
           {
             href: "/privacy",
-            title: "Privacy",
-            description: "Review consent and privacy details.",
+            title: tAccountClient("account.nav.privacy"),
+            description: tAccountClient("account.settings.cards.privacyDescription"),
           },
           {
             href: "/settings/team",
-            title: "Team",
-            description: "View members, roles, and invitations in read-only mode.",
+            title: tAccountClient("account.nav.team"),
+            description: tAccountClient("account.settings.cards.teamDescription"),
           },
         ].map((item) => (
           <Card key={item.href}>
@@ -82,7 +84,7 @@ export function SettingsHubPanel({ displayName, language, timeZone }: SettingsHu
                 href={item.href}
                 className="inline-flex rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                Open {item.title}
+                {tAccountClient("account.settings.openSection", { title: item.title })}
               </Link>
             </CardContent>
           </Card>
@@ -96,7 +98,9 @@ function Stat({ label, value }: { label: string; value: string | null | undefine
   return (
     <div className="space-y-1 rounded-md border border-border p-3">
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Text>{value && value.length > 0 ? value : "Not available"}</Text>
+      <Text>
+        {value && value.length > 0 ? value : tAccountClient("account.common.notAvailable")}
+      </Text>
     </div>
   );
 }

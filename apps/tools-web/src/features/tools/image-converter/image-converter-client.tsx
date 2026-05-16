@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@netmetric/ui";
 
 import { SaveToHistoryPanel } from "@/features/tools/history/save-to-history-panel";
+import { tTools } from "@/lib/i18n/tools-i18n";
 
 import { convertImageWithCanvas } from "./canvas-conversion";
 import { ImageDownloadActions } from "./image-download-actions";
@@ -20,9 +21,10 @@ type ConvertedOutput = {
 type ImageConverterClientProps = {
   mode: ImageConverterMode;
   isAuthenticated: boolean;
+  locale?: string | null | undefined;
 };
 
-export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterClientProps) {
+export function ImageConverterClient({ mode, isAuthenticated, locale }: ImageConverterClientProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [jpgQuality, setJpgQuality] = useState(75);
   const [isPending, setIsPending] = useState(false);
@@ -32,7 +34,10 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
   const [convertedOutput, setConvertedOutput] = useState<ConvertedOutput | null>(null);
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
 
-  const validation = useMemo(() => validateInputFile(selectedFile, mode), [mode, selectedFile]);
+  const validation = useMemo(
+    () => validateInputFile(selectedFile, mode, locale),
+    [mode, selectedFile, locale],
+  );
 
   const accept = mode === "png-to-jpg" ? "image/png" : "image/jpeg";
 
@@ -49,7 +54,7 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
   }, [convertedPreviewUrl, previewUrl]);
 
   function handleFileChange(file: File | null): void {
-    const nextValidation = validateInputFile(file, mode);
+    const nextValidation = validateInputFile(file, mode, locale);
     const nextPreviewUrl = file && nextValidation.isValid ? URL.createObjectURL(file) : null;
 
     if (previewUrl) {
@@ -81,7 +86,11 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
 
   async function handleConvert(): Promise<void> {
     if (!selectedFile || !validation.isValid) {
-      setErrorMessage(validation.isValid ? "Select a valid file first." : validation.errorMessage);
+      setErrorMessage(
+        validation.isValid
+          ? tTools("tools.image.validation.selectValidFirst", locale)
+          : validation.errorMessage,
+      );
       return;
     }
 
@@ -93,7 +102,7 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
 
       if (bitmap.width * bitmap.height > MAX_IMAGE_PIXELS) {
         bitmap.close();
-        setErrorMessage("Image dimensions are too large to process safely in the browser.");
+        setErrorMessage(tTools("tools.image.validation.tooLargeDimensions", locale));
         setIsPending(false);
         return;
       }
@@ -119,7 +128,7 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
       });
       setConvertedPreviewUrl(outputPreviewUrl);
     } catch {
-      setErrorMessage("Conversion failed. Try a different image file.");
+      setErrorMessage(tTools("tools.image.validation.conversionFailed", locale));
     } finally {
       setIsPending(false);
     }
@@ -146,12 +155,18 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
           onFileChange={handleFileChange}
           jpgQuality={jpgQuality}
           onJpgQualityChange={setJpgQuality}
+          locale={locale}
         />
         <ImagePreviewPanel
           previewUrl={convertedPreviewUrl ?? previewUrl}
           width={dimensions?.width ?? null}
           height={dimensions?.height ?? null}
-          altText={convertedPreviewUrl ? "Converted image preview" : "Source image preview"}
+          altText={
+            convertedPreviewUrl
+              ? tTools("tools.image.preview.convertedAlt", locale)
+              : tTools("tools.image.preview.sourceAlt", locale)
+          }
+          locale={locale}
         />
       </div>
 
@@ -163,21 +178,21 @@ export function ImageConverterClient({ mode, isAuthenticated }: ImageConverterCl
           convertedOutput?.fileName ??
           (validation.isValid ? validation.sanitizedFileName : "netmetric-converted")
         }
+        locale={locale}
         onConvert={() => void handleConvert()}
         onDownload={handleDownload}
       />
 
       <Alert className="mt-6">
-        <AlertTitle>Browser-only conversion</AlertTitle>
-        <AlertDescription>
-          Your image is processed locally in your browser and is not uploaded to NetMetric servers.
-        </AlertDescription>
+        <AlertTitle>{tTools("tools.image.browserOnly.title", locale)}</AlertTitle>
+        <AlertDescription>{tTools("tools.image.browserOnly.description", locale)}</AlertDescription>
       </Alert>
 
       <SaveToHistoryPanel
         toolSlug={mode}
         isAuthenticated={isAuthenticated}
         canSave={convertedOutput !== null}
+        locale={locale}
         getPayload={async () => {
           if (!convertedOutput || !validation.isValid) {
             return null;

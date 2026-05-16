@@ -11,10 +11,15 @@ import {
   FieldLabel,
   FieldSet,
   Input,
-  NativeSelect,
-  NativeSelectOption,
   Textarea,
 } from "@netmetric/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@netmetric/ui/client";
 import { useForm } from "react-hook-form";
 
 import { CrmFormErrorSummary } from "@/components/forms/crm-form-error-summary";
@@ -25,6 +30,7 @@ import {
   ticketChannelOptions,
   ticketTypeOptions,
 } from "@/features/shared/forms/options";
+import { tCrmClient } from "@/lib/i18n/crm-i18n";
 
 import { createTicketAction, updateTicketAction } from "../actions/ticket-mutation-actions";
 import { ticketFormSchema, type TicketFormInput } from "./ticket-form-schema";
@@ -95,97 +101,142 @@ export function TicketForm({ mode, ticketId, initialValues }: Readonly<TicketFor
 
       <FieldSet className="grid gap-4 sm:grid-cols-2">
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="ticket-subject">Subject</FieldLabel>
+          <FieldLabel htmlFor="ticket-subject">
+            {tCrmClient("crm.tickets.fields.subject")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-subject" {...form.register("subject")} />
             <FieldError>{form.formState.errors.subject?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-type">Type</FieldLabel>
+          <FieldLabel htmlFor="ticket-type">{tCrmClient("crm.tickets.fields.type")}</FieldLabel>
           <FieldContent>
-            <NativeSelect id="ticket-type" {...form.register("ticketType")}>
-              {ticketTypeOptions.map((option) => (
-                <NativeSelectOption
-                  key={`ticket-type-${option.value}`}
-                  value={String(option.value)}
-                >
-                  {option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("ticketType"))}
+              onValueChange={(value) =>
+                form.setValue("ticketType", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="ticket-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ticketTypeOptions.map((option) => (
+                  <SelectItem key={`ticket-type-${option.value}`} value={String(option.value)}>
+                    {tCrmClient(`crm.tickets.type.${option.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.ticketType?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-channel">Channel</FieldLabel>
+          <FieldLabel htmlFor="ticket-channel">
+            {tCrmClient("crm.tickets.fields.channel")}
+          </FieldLabel>
           <FieldContent>
-            <NativeSelect id="ticket-channel" {...form.register("channel")}>
-              {ticketChannelOptions.map((option) => (
-                <NativeSelectOption
-                  key={`ticket-channel-${option.value}`}
-                  value={String(option.value)}
-                >
-                  {option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("channel"))}
+              onValueChange={(value) =>
+                form.setValue("channel", Number(value), { shouldDirty: true, shouldValidate: true })
+              }
+            >
+              <SelectTrigger id="ticket-channel">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ticketChannelOptions.map((option) => (
+                  <SelectItem key={`ticket-channel-${option.value}`} value={String(option.value)}>
+                    {tCrmClient(`crm.tickets.channel.${option.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.channel?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-priority">Priority</FieldLabel>
+          <FieldLabel htmlFor="ticket-priority">
+            {tCrmClient("crm.tickets.fields.priority")}
+          </FieldLabel>
           <FieldContent>
-            <NativeSelect id="ticket-priority" {...form.register("priority")}>
-              {priorityOptions.map((option) => (
-                <NativeSelectOption
-                  key={`ticket-priority-${option.value}`}
-                  value={String(option.value)}
-                >
-                  {option.label}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select
+              value={String(form.watch("priority"))}
+              onValueChange={(value) =>
+                form.setValue("priority", Number(value), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="ticket-priority">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((option) => (
+                  <SelectItem key={`ticket-priority-${option.value}`} value={String(option.value)}>
+                    {tCrmClient(`crm.common.priority.${option.value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{form.formState.errors.priority?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-assignedUserId">Assigned user ID</FieldLabel>
+          <FieldLabel htmlFor="ticket-assignedUserId">
+            {tCrmClient("crm.tickets.fields.assignedUserId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-assignedUserId" {...form.register("assignedUserId")} />
             <FieldError>{form.formState.errors.assignedUserId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-customerId">Customer ID</FieldLabel>
+          <FieldLabel htmlFor="ticket-customerId">
+            {tCrmClient("crm.tickets.fields.customerId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-customerId" {...form.register("customerId")} />
             <FieldError>{form.formState.errors.customerId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-contactId">Contact ID</FieldLabel>
+          <FieldLabel htmlFor="ticket-contactId">
+            {tCrmClient("crm.tickets.fields.contactId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-contactId" {...form.register("contactId")} />
             <FieldError>{form.formState.errors.contactId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-ticketCategoryId">Ticket category ID</FieldLabel>
+          <FieldLabel htmlFor="ticket-ticketCategoryId">
+            {tCrmClient("crm.tickets.fields.ticketCategoryId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-ticketCategoryId" {...form.register("ticketCategoryId")} />
             <FieldError>{form.formState.errors.ticketCategoryId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-slaPolicyId">SLA policy ID</FieldLabel>
+          <FieldLabel htmlFor="ticket-slaPolicyId">
+            {tCrmClient("crm.tickets.fields.slaPolicyId")}
+          </FieldLabel>
           <FieldContent>
             <Input id="ticket-slaPolicyId" {...form.register("slaPolicyId")} />
             <FieldError>{form.formState.errors.slaPolicyId?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-firstResponseDueAt">First response due</FieldLabel>
+          <FieldLabel htmlFor="ticket-firstResponseDueAt">
+            {tCrmClient("crm.tickets.fields.firstResponseDueAt")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="ticket-firstResponseDueAt"
@@ -196,7 +247,9 @@ export function TicketForm({ mode, ticketId, initialValues }: Readonly<TicketFor
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-resolveDueAt">Resolve due</FieldLabel>
+          <FieldLabel htmlFor="ticket-resolveDueAt">
+            {tCrmClient("crm.tickets.fields.resolveDueAt")}
+          </FieldLabel>
           <FieldContent>
             <Input
               id="ticket-resolveDueAt"
@@ -210,14 +263,16 @@ export function TicketForm({ mode, ticketId, initialValues }: Readonly<TicketFor
 
       <FieldSet className="grid gap-4">
         <Field>
-          <FieldLabel htmlFor="ticket-description">Description</FieldLabel>
+          <FieldLabel htmlFor="ticket-description">
+            {tCrmClient("crm.tickets.fields.description")}
+          </FieldLabel>
           <FieldContent>
             <Textarea id="ticket-description" rows={4} {...form.register("description")} />
             <FieldError>{form.formState.errors.description?.message}</FieldError>
           </FieldContent>
         </Field>
         <Field>
-          <FieldLabel htmlFor="ticket-notes">Notes</FieldLabel>
+          <FieldLabel htmlFor="ticket-notes">{tCrmClient("crm.tickets.fields.notes")}</FieldLabel>
           <FieldContent>
             <Textarea id="ticket-notes" rows={4} {...form.register("notes")} />
             <FieldError>{form.formState.errors.notes?.message}</FieldError>
@@ -229,10 +284,14 @@ export function TicketForm({ mode, ticketId, initialValues }: Readonly<TicketFor
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {tCrmClient("crm.forms.actions.cancel")}
         </Button>
         <Button type="submit" disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Saving..." : mode === "create" ? "Create ticket" : "Save ticket"}
+          {isPending
+            ? tCrmClient("crm.forms.actions.saving")
+            : mode === "create"
+              ? tCrmClient("crm.tickets.actions.create")
+              : tCrmClient("crm.tickets.actions.save")}
         </Button>
       </div>
     </form>

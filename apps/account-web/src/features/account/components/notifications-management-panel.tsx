@@ -25,6 +25,7 @@ import { initialMutationState } from "../actions/mutation-state";
 import { NotificationList } from "./notification-list";
 import { NotificationPreferencesPanel } from "./notification-preferences-panel";
 import { SecurityActionResult } from "./security-action-result";
+import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 type NotificationsManagementPanelProps = {
   notifications: AccountNotificationsResponse;
@@ -37,7 +38,9 @@ function MarkAllButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} variant="outline">
-      {pending ? "Updating..." : "Mark all as read"}
+      {pending
+        ? tAccountClient("account.common.updating")
+        : tAccountClient("account.notifications.markAllRead")}
     </Button>
   );
 }
@@ -53,24 +56,26 @@ export function NotificationsManagementPanel({
     initialMutationState,
   );
   const filterLabels: Record<"all" | "unread" | "read", string> = {
-    all: "All",
-    unread: "Unread",
-    read: "Read",
+    all: tAccountClient("account.common.all"),
+    unread: tAccountClient("account.notifications.unreadLabel"),
+    read: tAccountClient("account.notifications.readLabel"),
   };
 
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <Heading level={2}>Notifications</Heading>
+        <Heading level={2}>{tAccountClient("account.notifications.title")}</Heading>
         <Text className="text-muted-foreground">
-          Review account events, manage read state, and update notification preferences.
+          {tAccountClient("account.notifications.managementDescription")}
         </Text>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Filters and bulk actions</CardTitle>
-          <CardDescription>Choose a filter and apply bulk actions when needed.</CardDescription>
+          <CardTitle>{tAccountClient("account.notifications.filtersTitle")}</CardTitle>
+          <CardDescription>
+            {tAccountClient("account.notifications.filtersDescription")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -87,8 +92,8 @@ export function NotificationsManagementPanel({
           </div>
           <SecurityActionResult
             state={markAllState}
-            successTitle="Notifications updated"
-            errorTitle="Bulk action failed"
+            successTitle={tAccountClient("account.notifications.updated")}
+            errorTitle={tAccountClient("account.notifications.bulkActionFailed")}
           />
           <form action={markAllAction}>
             <input type="hidden" name="confirm" value="mark-all-read" />
