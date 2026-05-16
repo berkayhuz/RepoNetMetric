@@ -41,7 +41,7 @@ public sealed class UpdateMyProfileCommandValidator : AbstractValidator<UpdateMy
             .NotEmpty()
             .MaximumLength(20)
             .Must(NetMetricCultures.IsSupportedCulture)
-            .WithMessage($"Culture must be one of: {string.Join(", ", NetMetricCultures.SupportedCultureNames)}.");
+            .WithMessage("Culture must be a valid BCP-47 culture tag (example: en, en-US, tr, zh-CN).");
     }
 }
 

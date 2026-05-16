@@ -9,13 +9,17 @@ function extractLocaleFromAcceptLanguage(value: string | null): Locale {
     return defaultLocale;
   }
 
-  const lower = value.toLowerCase();
-  if (lower.includes("en")) {
-    return "en";
-  }
+  const parts = value.split(",");
+  for (const part of parts) {
+    const candidate = part.split(";")[0]?.trim();
+    if (!candidate) {
+      continue;
+    }
 
-  if (lower.includes("tr")) {
-    return "tr";
+    const resolved = resolveLocale(candidate);
+    if (resolved !== defaultLocale || candidate.toLowerCase().startsWith(defaultLocale)) {
+      return resolved;
+    }
   }
 
   return defaultLocale;

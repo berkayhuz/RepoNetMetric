@@ -1,4 +1,4 @@
-﻿import { defaultLocale, isLocale, type Locale } from "./locales";
+import { canonicalizeLocale, defaultLocale, isLocale, type Locale } from "./locales";
 import { getFallbackMessages, getMessages, type MessageKey } from "./messages";
 
 export type TranslateParams = Record<string, string | number>;
@@ -17,7 +17,12 @@ function format(template: string, params?: TranslateParams): string {
 }
 
 export function resolveLocale(value: string | null | undefined): Locale {
-  return isLocale(value) ? value : defaultLocale;
+  const canonical = canonicalizeLocale(value);
+  if (!canonical || !isLocale(canonical)) {
+    return defaultLocale;
+  }
+
+  return canonical;
 }
 
 export function createTranslator(locale: Locale): Translate {

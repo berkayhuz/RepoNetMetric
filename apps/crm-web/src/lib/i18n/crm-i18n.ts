@@ -1,4 +1,4 @@
-import { type Locale, resolveLocale } from "@netmetric/i18n";
+import { resolveLocale } from "@netmetric/i18n";
 
 type CrmShellKey =
   | "nav.dashboard"
@@ -12,7 +12,7 @@ type CrmShellKey =
   | "nav.activities"
   | "nav.settings";
 
-const messages: Record<Locale, Record<CrmShellKey, string>> = {
+const messages: Record<"en" | "tr", Record<CrmShellKey, string>> = {
   en: {
     "nav.dashboard": "Dashboard",
     "nav.customers": "Customers",
@@ -41,5 +41,6 @@ const messages: Record<Locale, Record<CrmShellKey, string>> = {
 
 export function tCrmShell(key: CrmShellKey, localeInput?: string | null): string {
   const locale = resolveLocale(localeInput);
-  return messages[locale][key] ?? messages.en[key];
+  const dictionary = locale.toLowerCase().startsWith("tr") ? messages.tr : messages.en;
+  return dictionary[key] ?? messages.en[key];
 }

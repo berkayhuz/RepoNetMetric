@@ -13,11 +13,14 @@ namespace NetMetric.Account.Application.Common;
 
 internal static class AccountOptionsCatalog
 {
-    private static readonly IReadOnlyCollection<AccountOptionItem> LanguageOptions = NetMetricCultures.SupportedCultureNames
+    private static readonly IReadOnlyCollection<AccountOptionItem> LanguageOptions = CultureInfo
+        .GetCultures(CultureTypes.NeutralCultures)
+        .Where(culture => !string.IsNullOrWhiteSpace(culture.Name))
+        .OrderBy(culture => culture.Name, StringComparer.OrdinalIgnoreCase)
         .Select(culture =>
         {
-            var info = CultureInfo.GetCultureInfo(culture);
-            return new AccountOptionItem(info.Name, $"{info.NativeName} ({info.Name})");
+            var info = CultureInfo.GetCultureInfo(culture.Name);
+            return new AccountOptionItem(info.Name, $"{info.EnglishName} ({info.Name})");
         })
         .ToArray();
 

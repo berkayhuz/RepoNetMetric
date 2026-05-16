@@ -5,16 +5,7 @@ export function mapAccountLanguageToLocale(language: string | null | undefined):
     return "en";
   }
 
-  const normalized = language.trim().toLowerCase();
-  if (normalized.startsWith("tr")) {
-    return "tr";
-  }
-
-  if (normalized.startsWith("en")) {
-    return "en";
-  }
-
-  return resolveLocale(normalized);
+  return resolveLocale(language);
 }
 
 export function mapAccountThemeToUiTheme(

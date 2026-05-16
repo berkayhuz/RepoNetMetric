@@ -9,7 +9,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "generate:messages": "node ./scripts/generate-message-registry.mjs",
+    "typecheck": "pnpm run generate:messages && tsc --noEmit",
     "build": "pnpm run typecheck"
   },
   "devDependencies": {

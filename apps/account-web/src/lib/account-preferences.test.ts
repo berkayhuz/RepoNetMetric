@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getThemeInitScript } from "@netmetric/ui";
+import { getAvailableMessageLocales, getMessages, translate } from "@netmetric/i18n";
 
 import { formatAccountDateTime } from "./account-date";
 import { mapAccountLanguageToLocale, mapAccountThemeToUiTheme } from "./account-locale";
@@ -27,9 +28,10 @@ describe("account date and ui preference mapping", () => {
   });
 
   it("maps language/culture to i18n locale with fallback", () => {
-    expect(mapAccountLanguageToLocale("tr-TR")).toBe("tr");
-    expect(mapAccountLanguageToLocale("en-US")).toBe("en");
-    expect(mapAccountLanguageToLocale("deprecated")).toBeTypeOf("string");
+    expect(mapAccountLanguageToLocale("tr-TR")).toBe("tr-TR");
+    expect(mapAccountLanguageToLocale("en-US")).toBe("en-US");
+    expect(mapAccountLanguageToLocale("zh-CN")).toBe("zh-CN");
+    expect(mapAccountLanguageToLocale("deprecated")).toBe("en");
   });
 
   it("maps theme values to ui themes", () => {
@@ -47,5 +49,16 @@ describe("account date and ui preference mapping", () => {
     expect(script).toContain("stored==='light'||stored==='dark'||stored==='system'");
     expect(script).toContain("matchMedia('(prefers-color-scheme: dark)'");
     expect(script).toContain("classList.toggle('dark'");
+  });
+
+  it("loads base messages and falls back to english for unknown locales", () => {
+    expect(getMessages("en")["locale.name"]).toBe("English");
+    expect(getMessages("tr")["locale.name"]).toBe("Turkish");
+    expect(translate("locale.name", { locale: "zh-CN" })).toBe("English");
+  });
+
+  it("exposes available message locales from the i18n registry", () => {
+    expect(getAvailableMessageLocales()).toContain("en");
+    expect(getAvailableMessageLocales()).toContain("tr");
   });
 });

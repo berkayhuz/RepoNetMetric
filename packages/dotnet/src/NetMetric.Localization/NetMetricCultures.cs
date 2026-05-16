@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 namespace NetMetric.Localization;
 
@@ -31,22 +32,25 @@ public static class NetMetricCultures
             return null;
         }
 
-        var value = culture.Trim();
-        if (value.Equals("tr", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("tr-", StringComparison.OrdinalIgnoreCase))
+        var value = culture.Trim().Replace('_', '-');
+        if (value.Equals("tr", StringComparison.OrdinalIgnoreCase))
         {
             return TurkishCulture;
         }
 
-        if (value.Equals("en", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("en-", StringComparison.OrdinalIgnoreCase))
+        if (value.Equals("en", StringComparison.OrdinalIgnoreCase))
         {
             return EnglishCulture;
         }
 
-        return SupportedCultureNames.Contains(value, StringComparer.OrdinalIgnoreCase)
-            ? SupportedCultureNames.First(x => x.Equals(value, StringComparison.OrdinalIgnoreCase))
-            : null;
+        try
+        {
+            return CultureInfo.GetCultureInfo(value).Name;
+        }
+        catch (CultureNotFoundException)
+        {
+            return null;
+        }
     }
 
     public static void AppendCultureCookie(HttpResponse response, string? culture, string? domain = null)

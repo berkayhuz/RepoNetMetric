@@ -207,6 +207,11 @@ public sealed class ProfileAndPreferencesCommandTests
             "System", "tr", "UTC", "yyyy-MM-dd", null, null)));
 
         valid.IsValid.Should().BeTrue();
+
+        var validBcp47 = validator.Validate(new UpdateMyPreferencesCommand(new UpdateUserPreferenceRequest(
+            "System", "zh-CN", "UTC", "yyyy-MM-dd", null, null)));
+
+        validBcp47.IsValid.Should().BeTrue();
     }
 
     private static CurrentUser CreateCurrentUser() =>

@@ -46,8 +46,29 @@ Set via `account-web-configmap.yaml`:
 - `NEXT_PUBLIC_API_BASE_URL`
 - `ACCOUNT_API_BASE_URL=http://account-api` (server-only internal endpoint)
 - `ACCOUNT_ACCESS_COOKIE_NAME=__Secure-netmetric-access`
+- `NETMETRIC_COOKIE_DOMAIN=.netmetric.net` (recommended for production/staging shared locale cookie scope)
 
 Do not publish `ACCOUNT_API_BASE_URL` as a public URL.
+
+### `nm_locale` cookie scope
+
+`account-web` sets `nm_locale` when users change language preferences. For cross-subdomain locale reuse (`account.netmetric.net` -> `auth.netmetric.net` / `crm.netmetric.net`), configure:
+
+- `NETMETRIC_COOKIE_DOMAIN=.netmetric.net`
+
+Expected production/staging cookie attributes:
+
+- `secure=true`
+- `sameSite=lax`
+- `path=/`
+- `domain=.netmetric.net`
+- Do **not** use `__Host-` prefix for this cookie; `__Host-` cookies cannot include `Domain`.
+
+Local development requirements:
+
+- Leave `NETMETRIC_COOKIE_DOMAIN` empty/unset.
+- Do not set a cookie `Domain` attribute on `localhost`, `127.0.0.1`, or `::1`.
+- Local cookie behavior continues host-local without subdomain sharing.
 
 ## Image build and publish
 

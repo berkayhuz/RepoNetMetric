@@ -32,7 +32,7 @@ public sealed class UpdateMyPreferencesCommandValidator : AbstractValidator<Upda
             .NotEmpty()
             .MaximumLength(20)
             .Must(NetMetricCultures.IsSupportedCulture)
-            .WithMessage($"Language must be one of: {string.Join(", ", NetMetricCultures.SupportedCultureNames)}.");
+            .WithMessage("Language must be a valid BCP-47 culture tag (example: en, en-US, tr, zh-CN).");
         RuleFor(x => x.Request.TimeZone).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Request.TimeZone)
             .Must(TimeZoneNormalizer.IsValid)
