@@ -87,7 +87,13 @@
     "release:k8s:context": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-KubernetesContext.ps1",
     "release:k8s:dry-run": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-KubernetesManifests.ps1 -DryRunOnly -ValidateFalse",
     "release:smoke:staging": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\Test-StagingDomains.ps1",
-    "release:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\New-ReleaseGateReport.ps1"
+    "release:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\release\\New-ReleaseGateReport.ps1",
+    "coverage:threshold": "node ./scripts/quality/check-coverage-thresholds.mjs",
+    "dotnet:coverage": "node ./scripts/quality/run-dotnet-coverage.mjs",
+    "scan:images": "node ./scripts/security/scan-images.mjs",
+    "scan:k8s": "node ./scripts/security/scan-k8s-manifests.mjs",
+    "validate:prod-config": "node ./scripts/release/validate-production-config.mjs",
+    "test:e2e:smoke": "node ./scripts/e2e/run-smoke.mjs"
   },
   "workspaces": [
     "apps/*",
@@ -107,7 +113,8 @@
     "sonarqube-scanner": "^4.3.6",
     "tailwindcss": "^4.2.4",
     "turbo": "^2.9.12",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@playwright/test": "^1.56.1"
   },
   "lint-staged": {
     "*.{md,json,yml,yaml,css,ts,tsx,js,mjs,cjs}": [

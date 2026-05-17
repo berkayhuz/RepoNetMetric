@@ -8,11 +8,15 @@
     "build": "next build",
     "start": "next start -p 7003",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage --coverage.provider=v8 --coverage.reporter=text-summary --coverage.reporter=json-summary --coverage.reporter=lcov",
+    "test:ci": "pnpm run typecheck && pnpm run lint && pnpm run test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@netmetric/i18n": "workspace:*",
+    "@netmetric/observability": "workspace:*",
     "@netmetric/ui": "workspace:*",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",
@@ -34,6 +38,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.3",
+    "@vitest/coverage-v8": "^4.0.3"
   }
 }

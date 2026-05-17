@@ -3,6 +3,7 @@ import path from "node:path";
 import { getNetMetricImageRemotePatterns } from "../next-image-remote-patterns";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: getNetMetricImageRemotePatterns(),
   },

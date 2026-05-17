@@ -16,6 +16,7 @@ import { accountApiClient } from "@/lib/account-api";
 import { mapAccountLanguageToLocale, mapAccountThemeToUiTheme } from "@/lib/account-locale";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
 import { getCurrentAccountSession } from "@/lib/auth/account-session";
+import { AccountErrorMonitoring } from "@/lib/error-monitoring";
 
 import "./globals.css";
 
@@ -101,6 +102,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ThemeProvider defaultTheme={uiPreferences.theme}>
+          <AccountErrorMonitoring />
           <AccountShell localeName={uiPreferences.localeName}>{children}</AccountShell>
         </ThemeProvider>
       </body>

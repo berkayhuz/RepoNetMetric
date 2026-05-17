@@ -6,6 +6,7 @@ import { getThemeInitScript } from "@netmetric/ui";
 import { ThemeProvider, Toaster } from "@netmetric/ui/client";
 
 import { getRequestLocale, getTranslator } from "@/features/auth/i18n/auth-i18n.server";
+import { AuthErrorMonitoring } from "@/lib/error-monitoring";
 
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default async function RootLayout({
     locale: cookieStore.get(UI_LOCALE_COOKIE_NAME)?.value,
   });
   const locale = resolved.locale;
+  const t = getTranslator(locale);
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
@@ -55,7 +57,14 @@ export default async function RootLayout({
       </head>
       <body>
         <ThemeProvider defaultTheme={resolved.theme}>
-          {children}
+          <AuthErrorMonitoring />
+          <a
+            href="#main-content"
+            className="sr-only left-4 top-4 z-modal rounded-md bg-background px-3 py-2 focus:not-sr-only focus:absolute"
+          >
+            {t("common.skipToContent")}
+          </a>
+          <main id="main-content">{children}</main>
           <Toaster richColors closeButton />
         </ThemeProvider>
       </body>

@@ -130,10 +130,15 @@ builder.Services.AddRateLimiter(options =>
     {
         var correlationId = RequestContextSupport.GetOrCreateCorrelationId(context.HttpContext);
         var path = context.HttpContext.Request.Path.Value;
+        var environment = builder.Environment.EnvironmentName.ToLowerInvariant();
 
         GatewayMetrics.RateLimitRejected.Add(
             1,
-            new KeyValuePair<string, object?>("path", path));
+            new KeyValuePair<string, object?>("endpoint", path),
+            new KeyValuePair<string, object?>("policy", ProxyRateLimitPolicyName),
+            new KeyValuePair<string, object?>("reason", "rejected"),
+            new KeyValuePair<string, object?>("environment", environment),
+            new KeyValuePair<string, object?>("tenant_hash", "anonymous"));
 
         context.HttpContext.RequestServices
             .GetRequiredService<ILoggerFactory>()

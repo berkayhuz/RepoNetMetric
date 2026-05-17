@@ -12,6 +12,7 @@ namespace NetMetric.Tools.Infrastructure.Storage;
 public sealed class LocalToolArtifactStorage(IOptions<ToolsArtifactStorageOptions> options) : IToolArtifactStorage
 {
     private readonly string _rootPath = Path.GetFullPath(options.Value.RootPath);
+    private const string MetadataExtension = ".meta";
 
     public async Task PutAsync(ToolArtifactWriteRequest request)
     {
@@ -21,6 +22,8 @@ public sealed class LocalToolArtifactStorage(IOptions<ToolsArtifactStorageOption
         request.Content.Position = 0;
         await using var destination = File.Create(fullPath);
         await request.Content.CopyToAsync(destination, request.CancellationToken);
+        var metadataPath = fullPath + MetadataExtension;
+        await File.WriteAllTextAsync(metadataPath, $"{request.MimeType}\n{request.FileName}\n{request.ChecksumSha256}", request.CancellationToken);
     }
 
     public async Task<ToolArtifactReadResult?> GetAsync(string storageKey, CancellationToken cancellationToken)
@@ -32,8 +35,18 @@ public sealed class LocalToolArtifactStorage(IOptions<ToolsArtifactStorageOption
         }
 
         var stream = File.OpenRead(fullPath);
+        var mimeType = "application/octet-stream";
+        var metadataPath = fullPath + MetadataExtension;
+        if (File.Exists(metadataPath))
+        {
+            var lines = await File.ReadAllLinesAsync(metadataPath, cancellationToken);
+            if (lines.Length > 0 && !string.IsNullOrWhiteSpace(lines[0]))
+            {
+                mimeType = lines[0].Trim();
+            }
+        }
         await Task.CompletedTask;
-        return new ToolArtifactReadResult(stream, "application/octet-stream", stream.Length);
+        return new ToolArtifactReadResult(stream, mimeType, stream.Length);
     }
 
     public Task<bool> ExistsAsync(string storageKey, CancellationToken cancellationToken)
@@ -48,6 +61,11 @@ public sealed class LocalToolArtifactStorage(IOptions<ToolsArtifactStorageOption
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);
+        }
+        var metadataPath = fullPath + MetadataExtension;
+        if (File.Exists(metadataPath))
+        {
+            File.Delete(metadataPath);
         }
 
         return Task.CompletedTask;

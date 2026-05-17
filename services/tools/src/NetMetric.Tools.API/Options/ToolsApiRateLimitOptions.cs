@@ -10,4 +10,6 @@ public sealed class ToolsApiRateLimitOptions
     public const string SectionName = "Tools:RateLimiting";
     public int HistoryWritePermitLimit { get; init; } = 20;
     public int HistoryWriteWindowSeconds { get; init; } = 60;
+    public int PublicCatalogPermitLimit { get; init; } = 100;
+    public int PublicCatalogWindowSeconds { get; init; } = 60;
 }

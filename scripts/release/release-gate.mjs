@@ -892,6 +892,14 @@ if (shouldStopAfterFailure()) {
 }
 runConfigValidation();
 runRequiredCommandStep({
+  step: "deployment surface validation",
+  command: "node",
+  args: ["scripts/release/validate-deployment-surface.mjs"],
+});
+if (shouldStopAfterFailure()) {
+  writeSummaryAndExit();
+}
+runRequiredCommandStep({
   step: "path and docs validation",
   command: "node",
   args: ["scripts/workspace/validate-path-references.mjs"],

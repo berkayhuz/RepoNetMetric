@@ -40,7 +40,7 @@ $targets = @(
   "deploy/kubernetes/public",
   "deploy/kubernetes/account-web",
   "deploy/kubernetes/tools",
-  "deploy/kubernetes/crm-web"
+  "deploy/kubernetes/crm-web",`n  "deploy/kubernetes/core"
 )
 
 $optionalTargets = @(
@@ -111,3 +111,4 @@ if ($Apply -and $ConfirmApply) {
 }
 
 exit 0
+

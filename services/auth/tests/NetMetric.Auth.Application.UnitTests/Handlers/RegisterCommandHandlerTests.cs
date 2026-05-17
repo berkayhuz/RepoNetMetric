@@ -155,6 +155,33 @@ public sealed class RegisterCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_Should_Normalize_Whitespace_And_Case_For_Duplicate_Email_Check()
+    {
+        var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
+        var command = new RegisterCommand(
+            "Acme Workspace",
+            "berkay",
+            "  User@Example.com  ",
+            "Str0ng!Pass123",
+            "Berkay",
+            "Test",
+            "en-US",
+            "127.0.0.1",
+            "unit-test");
+
+        var fixture = new Fixture(utcNow);
+        fixture.UserRepository
+            .Setup(repository => repository.ExistsByEmailAsync("USER@EXAMPLE.COM", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var sut = fixture.CreateSut();
+
+        var action = async () => await sut.Handle(command, CancellationToken.None);
+
+        var exception = await action.Should().ThrowAsync<AuthApplicationException>();
+        exception.Which.ErrorCode.Should().Be("duplicate_email");
+    }
+
+    [Fact]
     public async Task Handle_When_EmailConfirmation_Is_Not_Required_Should_Issue_Authenticated_Tokens()
     {
         var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);

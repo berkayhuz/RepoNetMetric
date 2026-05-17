@@ -69,7 +69,8 @@ public sealed class ToolsHistoryController(IMediator mediator) : ControllerBase
             return NotFound();
         }
 
-        Response.Headers.ContentDisposition = $"attachment; filename=\"{response.Value.FileName}\"";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        Response.Headers["Cache-Control"] = "private, max-age=300";
         return File(response.Value.Content, response.Value.MimeType, response.Value.FileName);
     }
 

@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle, Heading, Text } from "@netmetric/ui";
+import { AccessDeniedState, Heading, Text } from "@netmetric/ui";
 
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tCrm } from "@/lib/i18n/crm-i18n";
@@ -12,12 +12,10 @@ export default async function AccessDeniedPage() {
       <Text className="text-muted-foreground">
         {tCrm("crm.statusPages.accessDenied.description", locale)}
       </Text>
-      <Alert variant="destructive">
-        <AlertTitle>{tCrm("crm.statusPages.accessDenied.alertTitle", locale)}</AlertTitle>
-        <AlertDescription>
-          {tCrm("crm.statusPages.accessDenied.alertDescription", locale)}
-        </AlertDescription>
-      </Alert>
+      <AccessDeniedState
+        title={tCrm("crm.statusPages.accessDenied.alertTitle", locale)}
+        description={tCrm("crm.statusPages.accessDenied.alertDescription", locale)}
+      />
     </section>
   );
 }

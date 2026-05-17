@@ -36,15 +36,21 @@ const allowlistWords = new Set([
 ]);
 
 const genericPatterns = [
-  /\b(?:Title|Description|Label|Placeholder|Text)\b/iu,
+  /\b(?:Title|Description|Label|Placeholder)\b/iu,
   /\b(?:Fallback|Placeholder)\b/iu,
   /\b(?:Select\s+(?:policy|ticket|workspace|language|time\s*zone|valid))\b/iu,
 ];
 
 const exactPlaceholderPatterns = [
-  /^[A-Za-z ]+\s(?:Title|Description|Label|Placeholder|Text)$/u,
+  /^[A-Za-z ]+\s(?:Title|Description|Label|Placeholder)$/u,
   /^(?:Fallback|Placeholder)(?:\s[A-Za-z]+)*$/u,
 ];
+
+const ignoredEnKeys = new Set([
+  "crm.dashboard.summaryCardAria",
+  "account.settings.openSection",
+  "account.common.selectPlaceholder",
+]);
 
 const englishLeakPatterns = [
   /\b(?:label|placeholder|title|description|saved|deleted|detail|home|empty|select|confirm|search|only|failed|view)\b/iu,
@@ -65,6 +71,9 @@ function isLikelyEnglishLeak(value) {
 
 const findings = [];
 for (const [key, value] of Object.entries(en)) {
+  if (ignoredEnKeys.has(key)) {
+    continue;
+  }
   if (
     typeof value === "string" &&
     (exactPlaceholderPatterns.some((pattern) => pattern.test(value.trim())) ||

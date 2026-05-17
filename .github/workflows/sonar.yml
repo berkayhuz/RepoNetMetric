@@ -35,8 +35,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate coverage
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Generate frontend coverage
         run: pnpm run frontend:coverage
+
+      - name: Generate dotnet coverage summary
+        run: pnpm run dotnet:coverage
+
+      - name: Enforce coverage thresholds
+        run: pnpm run coverage:threshold
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5.3.1

@@ -4,6 +4,8 @@
 // </copyright>
 
 using System.Threading.RateLimiting;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -143,8 +145,18 @@ builder.Services.AddRateLimiter(options =>
     {
         var correlationId = RequestContextSupport.GetOrCreateCorrelationId(context.HttpContext);
         var path = context.HttpContext.Request.Path.Value;
+        var tenant = context.HttpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault()
+            ?? context.HttpContext.Request.Headers["X-Tenant-Slug"].FirstOrDefault();
+        var tenantHash = HashForTag(tenant);
+        var environment = builder.Environment.EnvironmentName.ToLowerInvariant();
 
-        AuthMetrics.RateLimitRejected.Add(1, new KeyValuePair<string, object?>("path", path));
+        AuthMetrics.RateLimitRejected.Add(
+            1,
+            new KeyValuePair<string, object?>("endpoint", path),
+            new KeyValuePair<string, object?>("policy", "auth-global"),
+            new KeyValuePair<string, object?>("reason", "rejected"),
+            new KeyValuePair<string, object?>("tenant_hash", tenantHash),
+            new KeyValuePair<string, object?>("environment", environment));
 
         await context.HttpContext.RequestServices.GetRequiredService<ISecurityAlertPublisher>().PublishAsync(
             new NetMetric.Auth.Application.Records.SecurityAlert(
@@ -367,5 +379,16 @@ static string BuildAuthRateLimitPartitionKey(HttpContext httpContext, string pol
 
 static AuthRateLimitingOptions GetAuthRateLimitingOptions(HttpContext httpContext) =>
     httpContext.RequestServices.GetRequiredService<IOptions<AuthRateLimitingOptions>>().Value;
+
+static string HashForTag(string? value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return "anonymous";
+    }
+
+    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+    return Convert.ToHexString(bytes[..6]).ToLowerInvariant();
+}
 
 public partial class Program;

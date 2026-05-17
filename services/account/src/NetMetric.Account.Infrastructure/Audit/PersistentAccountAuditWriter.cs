@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Persistence;
@@ -19,7 +20,8 @@ public sealed class PersistentAccountAuditWriter(
     IAccountDbContext dbContext,
     IClock clock,
     IAuditMetadataSanitizer metadataSanitizer,
-    IOptions<AccountAuditOptions> options)
+    IOptions<AccountAuditOptions> options,
+    ILogger<PersistentAccountAuditWriter> logger)
     : IAccountAuditWriter
 {
     public async Task WriteAsync(AccountAuditWriteRequest request, CancellationToken cancellationToken = default)
@@ -51,5 +53,12 @@ public sealed class PersistentAccountAuditWriter(
 
         await auditEntries.AddAsync(entry, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+        logger.LogInformation(
+            "AUDIT_EVENT EventType={EventType} Severity={Severity} TenantId={TenantId} UserId={UserId} CorrelationId={CorrelationId}",
+            request.EventType,
+            request.Severity,
+            request.TenantId,
+            request.UserId,
+            request.CorrelationId);
     }
 }

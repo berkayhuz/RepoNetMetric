@@ -3,6 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { CrmApiError } from "@/lib/crm-api";
+import { resolveActionErrorMessage } from "@netmetric/i18n";
 import { buildAuthLoginRedirectUrl } from "@/lib/crm-auth/safe-return-url";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 
@@ -28,6 +29,8 @@ function mapFieldErrors(error: CrmApiError): Record<string, string[]> | undefine
 }
 
 export function mapCrmMutationErrorToState(error: unknown, returnPath: string): CrmMutationState {
+  const tContract = (key: string) => tCrm(key);
+
   if (error instanceof CrmApiError) {
     if (error.kind === "unauthorized") {
       redirect(buildAuthLoginRedirectUrl(returnPath));
@@ -50,39 +53,61 @@ export function mapCrmMutationErrorToState(error: unknown, returnPath: string): 
       if (fieldErrors) {
         return {
           status: "error",
-          message: error.problem?.detail ?? tCrm("crm.forms.errors.reviewTitle"),
+          message:
+            error.problem?.detail ??
+            resolveActionErrorMessage(
+              tContract,
+              "validation",
+              tCrm("crm.forms.errors.reviewTitle"),
+            ),
           fieldErrors,
         };
       }
 
       return {
         status: "error",
-        message: error.problem?.detail ?? tCrm("crm.forms.errors.reviewTitle"),
+        message:
+          error.problem?.detail ??
+          resolveActionErrorMessage(tContract, "validation", tCrm("crm.forms.errors.reviewTitle")),
       };
     }
 
     if (error.kind === "conflict") {
       return {
         status: "error",
-        message: error.problem?.detail ?? tCrm("crm.forms.errors.conflict"),
+        message:
+          error.problem?.detail ??
+          resolveActionErrorMessage(tContract, "conflict", tCrm("crm.forms.errors.conflict")),
       };
     }
 
     if (error.kind === "not_found") {
       return {
         status: "error",
-        message: tCrm("crm.forms.errors.notFound"),
+        message: resolveActionErrorMessage(
+          tContract,
+          "not_found",
+          tCrm("crm.forms.errors.notFound"),
+        ),
       };
     }
 
     return {
       status: "error",
-      message: tCrm("crm.forms.errors.saveFailed"),
+      message: resolveActionErrorMessage(
+        tContract,
+        "server_error",
+        tCrm("crm.forms.errors.saveFailed"),
+      ),
     };
   }
 
   return {
     status: "error",
-    message: tCrm("crm.forms.errors.unexpectedSave"),
+    message: resolveActionErrorMessage(
+      tContract,
+      "unknown",
+      tCrm("crm.forms.errors.unexpectedSave"),
+    ),
   };
 }

@@ -61,3 +61,12 @@ Run `pnpm run frontend:health` to execute:
 - unused export detection
 - circular dependency detection
 - dependency version consistency checks
+
+## CI / Test / Quality hardening
+
+- `docs/ci-test-quality-standards.md` documents P1-64 through P1-74 standards.
+- Coverage gate command: `pnpm run coverage:threshold`
+- Production config gate command: `pnpm run validate:prod-config`
+- Image scan command: `pnpm run scan:images`
+- Kubernetes manifest scan command: `pnpm run scan:k8s`
+- E2E smoke command: `pnpm run test:e2e:smoke`

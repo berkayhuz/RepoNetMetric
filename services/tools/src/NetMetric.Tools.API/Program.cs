@@ -5,10 +5,14 @@
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 using NetMetric.AspNetCore.Health;
 using NetMetric.Tools.API.DependencyInjection;
 using NetMetric.Tools.API.Health;
+using NetMetric.Tools.API.Jobs;
+using NetMetric.Tools.API.Options;
 using NetMetric.Tools.Application.DependencyInjection;
 using NetMetric.Tools.Infrastructure.DependencyInjection;
 using NetMetric.Tools.Persistence;
@@ -26,10 +30,27 @@ builder.Services.AddExceptionHandler<DefaultExceptionHandler>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+var rateLimitOptions = builder.Configuration.GetSection(ToolsApiRateLimitOptions.SectionName).Get<ToolsApiRateLimitOptions>() ?? new ToolsApiRateLimitOptions();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("tools-public-catalog", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = rateLimitOptions.PublicCatalogPermitLimit,
+                Window = TimeSpan.FromSeconds(rateLimitOptions.PublicCatalogWindowSeconds),
+                QueueLimit = 0
+            }));
+});
 
 builder.Services.AddToolsApiAuthorization(builder.Configuration);
 builder.Services.AddToolsApplication();
 builder.Services.AddToolsInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<InMemoryToolJobQueue>();
+builder.Services.AddSingleton<IToolJobQueue>(sp => sp.GetRequiredService<InMemoryToolJobQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<InMemoryToolJobQueue>());
 
 var connectionString = builder.Configuration.GetConnectionString("ToolsDb");
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -61,6 +82,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 

@@ -9,11 +9,15 @@
     "start": "next start -p 7006",
     "lint": "eslint",
     "test": "vitest run",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "coverage": "vitest run --coverage --coverage.provider=v8 --coverage.reporter=text-summary --coverage.reporter=json-summary --coverage.reporter=lcov",
+    "test:ci": "pnpm run typecheck && pnpm run lint && pnpm run test",
+    "smoke:e2e": "node ../../scripts/e2e/run-smoke.mjs crm-web"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@netmetric/i18n": "workspace:*",
+    "@netmetric/observability": "workspace:*",
     "@netmetric/ui": "workspace:*",
     "next": "16.2.6",
     "react": "19.2.4",
@@ -34,6 +38,7 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.3",
+    "@vitest/coverage-v8": "^4.0.3"
   }
 }

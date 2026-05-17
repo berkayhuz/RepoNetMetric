@@ -18,7 +18,9 @@ describe("dark mode contract", () => {
     expect(tokensCss).toContain(".dark");
     expect(tokensCss).toContain("--background");
     expect(tokensCss).toContain("--foreground");
+    expect(tokensCss).toContain("--destructive-foreground");
     expect(tokensCss).toContain("--sidebar");
+    expect(tokensCss).toContain("--sidebar-primary: oklch(0.922 0 0);");
   });
 
   it("uses class-based dark mode toggling in ThemeProvider", () => {

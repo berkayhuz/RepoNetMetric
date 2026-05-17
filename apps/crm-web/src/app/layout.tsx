@@ -9,6 +9,7 @@ import { CrmShell } from "@/components/shell/crm-shell";
 import { crmEnv } from "@/lib/crm-env";
 import { isPublicCrmPath } from "@/lib/crm-auth/crm-session";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { CrmErrorMonitoring } from "@/lib/error-monitoring";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <ThemeProvider defaultTheme={resolved.theme}>
+          <CrmErrorMonitoring />
           <CrmShell locale={locale} {...(session ? { capabilities: session.capabilities } : {})}>
             {children}
           </CrmShell>

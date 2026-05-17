@@ -10,7 +10,7 @@ using NetMetric.Tools.Contracts.Catalog;
 
 namespace NetMetric.Tools.Application.Catalog.Queries;
 
-public sealed record GetToolsCatalogQuery(string? Category = null, string? Search = null) : IRequest<ToolCatalogResponse>;
+public sealed record GetToolsCatalogQuery(string? Category = null, string? Search = null, bool PublicOnly = false) : IRequest<ToolCatalogResponse>;
 
 public sealed class GetToolsCatalogQueryHandler(IToolsDbContext dbContext) : IRequestHandler<GetToolsCatalogQuery, ToolCatalogResponse>
 {
@@ -23,6 +23,10 @@ public sealed class GetToolsCatalogQueryHandler(IToolsDbContext dbContext) : IRe
             .ToListAsync(cancellationToken);
 
         var toolsQuery = dbContext.ToolDefinitions.AsNoTracking().AsQueryable();
+        if (request.PublicOnly)
+        {
+            toolsQuery = toolsQuery.Where(x => x.IsEnabled);
+        }
 
         if (!string.IsNullOrWhiteSpace(request.Category))
         {

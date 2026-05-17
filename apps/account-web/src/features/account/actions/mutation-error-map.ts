@@ -3,6 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { AccountApiError } from "@/lib/account-api";
+import { resolveActionErrorMessage } from "@netmetric/i18n";
 import { buildAuthLoginRedirectUrl } from "@/lib/auth/safe-return-url";
 import { tAccount } from "@/lib/i18n/account-i18n";
 
@@ -28,6 +29,8 @@ function mapFieldErrors(error: AccountApiError): Record<string, string[]> | unde
 }
 
 export function mapMutationErrorToState(error: unknown, returnPath: string): MutationState {
+  const tContract = (key: string) => tAccount(key as never);
+
   if (error instanceof AccountApiError) {
     if (error.kind === "unauthorized") {
       redirect(buildAuthLoginRedirectUrl(returnPath));
@@ -48,7 +51,9 @@ export function mapMutationErrorToState(error: unknown, returnPath: string): Mut
     if (error.kind === "validation" || error.status === 400 || error.status === 422) {
       const validationState: MutationState = {
         status: "error",
-        message: error.problem?.detail ?? tAccount("account.errors.validation"),
+        message:
+          error.problem?.detail ??
+          resolveActionErrorMessage(tContract, "validation", tAccount("account.errors.validation")),
       };
       const fieldErrors = mapFieldErrors(error);
       if (fieldErrors) {
@@ -61,18 +66,24 @@ export function mapMutationErrorToState(error: unknown, returnPath: string): Mut
       return {
         status: "error",
         code: "conflict",
-        message: error.problem?.detail ?? tAccount("account.errors.conflict"),
+        message:
+          error.problem?.detail ??
+          resolveActionErrorMessage(tContract, "conflict", tAccount("account.errors.conflict")),
       };
     }
 
     return {
       status: "error",
-      message: tAccount("account.errors.saveFailed"),
+      message: resolveActionErrorMessage(
+        tContract,
+        "server_error",
+        tAccount("account.errors.saveFailed"),
+      ),
     };
   }
 
   return {
     status: "error",
-    message: tAccount("account.errors.unexpected"),
+    message: resolveActionErrorMessage(tContract, "unknown", tAccount("account.errors.unexpected")),
   };
 }

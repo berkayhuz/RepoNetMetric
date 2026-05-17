@@ -4,31 +4,42 @@
 // </copyright>
 
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using NetMetric.AspNetCore.RequestContext;
 
 namespace NetMetric.Account.Api.Middleware;
 
 public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
-    public const string HeaderName = "X-Correlation-Id";
+    private static readonly Histogram<double> RequestDuration = AccountApiDiagnosticsMeter.Instance.CreateHistogram<double>(
+        "account.request.duration",
+        unit: "ms",
+        description: "Account API request latency");
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var correlationId = context.Request.Headers.TryGetValue(HeaderName, out var header) &&
-            !string.IsNullOrWhiteSpace(header)
-            ? header.ToString()
-            : context.TraceIdentifier;
-
-        context.Items[HeaderName] = correlationId;
-        context.Response.Headers[HeaderName] = correlationId;
-
-        using var scope = context.RequestServices
-            .GetRequiredService<ILogger<CorrelationIdMiddleware>>()
-            .BeginScope(new Dictionary<string, object?>
-            {
-                ["CorrelationId"] = correlationId,
-                ["TraceId"] = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier
-            });
-
-        await next(context);
+        var logger = context.RequestServices.GetRequiredService<ILogger<CorrelationIdMiddleware>>();
+        using var scope = RequestContextSupport.BeginScope(context, logger);
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            await next(context);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            RequestContextSupport.RecordCompletion(
+                context,
+                logger,
+                RequestDuration,
+                "unmatched",
+                stopwatch.Elapsed.TotalMilliseconds,
+                "account");
+        }
     }
+}
+
+internal static class AccountApiDiagnosticsMeter
+{
+    public static readonly Meter Instance = new("NetMetric.Account.API.Requests");
 }

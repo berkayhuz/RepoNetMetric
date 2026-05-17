@@ -4,6 +4,8 @@
 // </copyright>
 
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -28,6 +30,8 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+var crmRateLimitCounter = new System.Diagnostics.Metrics.Meter("NetMetric.CRM.API")
+    .CreateCounter<long>("crm.rate_limit.rejected", description: "Number of requests rejected by CRM rate limiting.");
 
 CrmProductionConfigurationValidator.Validate(builder.Configuration, builder.Environment);
 
@@ -161,6 +165,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = (context, _) =>
+    {
+        var endpoint = context.HttpContext.Request.Path.Value;
+        var tenant = context.HttpContext.User.FindFirst("tenant_id")?.Value ??
+            context.HttpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+        crmRateLimitCounter.Add(
+            1,
+            new KeyValuePair<string, object?>("endpoint", endpoint),
+            new KeyValuePair<string, object?>("policy", "crm-global"),
+            new KeyValuePair<string, object?>("reason", "rejected"),
+            new KeyValuePair<string, object?>("tenant_hash", HashForTag(tenant)),
+            new KeyValuePair<string, object?>("environment", builder.Environment.EnvironmentName.ToLowerInvariant()));
+
+        return ValueTask.CompletedTask;
+    };
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
         var partitionKey =
@@ -334,4 +353,15 @@ static string BuildPublicRateLimitPartitionKey(HttpContext context, string polic
         ? tenantValue?.ToString()
         : context.Request.Headers["X-Tenant-Id"].FirstOrDefault();
     return string.Join(':', policy, tenant ?? "anonymous", ip);
+}
+
+static string HashForTag(string? value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return "anonymous";
+    }
+
+    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+    return Convert.ToHexString(bytes[..6]).ToLowerInvariant();
 }

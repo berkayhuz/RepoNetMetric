@@ -7,6 +7,7 @@ import { resolveUiPreferences, UI_LOCALE_COOKIE_NAME, UI_THEME_COOKIE_NAME } fro
 
 import { ToolsFooter } from "@/features/tools/components/tools-footer";
 import { ToolsHeader } from "@/features/tools/components/tools-header";
+import { ToolsErrorMonitoring } from "@/lib/error-monitoring";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { tTools } from "@/lib/i18n/tools-i18n";
 import { toolsEnv } from "@/lib/tools-env";
@@ -70,6 +71,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-foreground">
         <ThemeProvider defaultTheme={resolved.theme}>
+          <ToolsErrorMonitoring />
           <div className="flex min-h-screen flex-col">
             <a
               href="#main-content"

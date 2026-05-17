@@ -119,6 +119,26 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Register_Should_Return_ProblemDetails_For_Duplicate_Email_Without_Enumeration_Details()
+    {
+        _factory.SenderMock.Reset();
+        _factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AuthApplicationException(
+                "Registration could not be completed",
+                "An account with this email address already exists.",
+                StatusCodes.Status409Conflict,
+                errorCode: "duplicate_email"));
+
+        var response = await _client.PostAsync(
+            "/api/auth/register",
+            JsonSerializationHelper.ToJsonContent(AuthTestDataBuilder.RegisterRequest().Build()));
+
+        var problem = await response.ShouldBeProblemDetailsAsync(StatusCodes.Status409Conflict, "duplicate_email");
+        problem["title"]!.GetValue<string>().Should().Be("Registration could not be completed");
+    }
+
+    [Fact]
     public async Task ConfirmEmail_Should_Return_NoContent_On_Success()
     {
         _factory.SenderMock.Reset();
