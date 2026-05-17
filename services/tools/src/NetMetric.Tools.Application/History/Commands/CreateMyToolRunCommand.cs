@@ -23,7 +23,9 @@ public sealed record CreateMyToolRunCommand(
 public sealed class CreateMyToolRunCommandHandler(
     IToolsDbContext dbContext,
     ICurrentUserAccessor currentUserAccessor,
-    IToolArtifactStorage artifactStorage) : IRequestHandler<CreateMyToolRunCommand, CreateToolRunResponse>
+    IToolArtifactStorage artifactStorage,
+    IToolsUploadSecurityValidator uploadSecurityValidator,
+    IToolsFileSecurityScanner fileSecurityScanner) : IRequestHandler<CreateMyToolRunCommand, CreateToolRunResponse>
 {
     public async Task<CreateToolRunResponse> Handle(CreateMyToolRunCommand request, CancellationToken cancellationToken)
     {
@@ -34,23 +36,35 @@ public sealed class CreateMyToolRunCommandHandler(
             ?? throw new InvalidOperationException("Tool definition not found.");
 
         ArtifactRules.EnsureSaveAllowed(tool, request.Request.ArtifactMimeType, request.ArtifactLength);
+        var validation = await uploadSecurityValidator.ValidateAsync(
+            new ToolsUploadValidationRequest(
+                request.Request.ArtifactMimeType,
+                request.Request.ArtifactFileName,
+                request.ArtifactLength,
+                tool.AcceptedMimeTypes.ToArray(),
+                request.ArtifactStream),
+            cancellationToken);
+        var scanResult = await fileSecurityScanner.ScanAsync(validation.SafeFileName, validation.DetectedMimeType, request.ArtifactStream, cancellationToken);
+        if (!scanResult.IsSafe)
+        {
+            throw new InvalidOperationException($"Upload rejected by security scanner: {scanResult.Reason ?? "unknown"}");
+        }
 
-        var safeName = SafeFileName.Normalize(request.Request.ArtifactFileName);
+        var safeName = validation.SafeFileName;
         var storageKey = new StorageKey($"tools/{user.UserId:D}/{DateTimeOffset.UtcNow:yyyy/MM/dd}/{Guid.NewGuid():N}-{safeName}");
-
-        var checksum = await ArtifactRules.ComputeSha256Async(request.ArtifactStream, cancellationToken);
+        var checksum = validation.ChecksumSha256;
 
         var run = new ToolRun(OwnerUserId.From(user.UserId), slug, request.Request.InputSummaryJson);
         var artifact = new ToolArtifact(
             run.Id,
             OwnerUserId.From(user.UserId),
-            new MimeType(request.Request.ArtifactMimeType),
+            new MimeType(validation.DetectedMimeType),
             new FileSizeBytes(request.ArtifactLength),
             storageKey,
             safeName,
             checksum);
 
-        await artifactStorage.PutAsync(new ToolArtifactWriteRequest(storageKey.Value, artifact.MimeType, request.ArtifactStream, cancellationToken));
+        await artifactStorage.PutAsync(new ToolArtifactWriteRequest(storageKey.Value, artifact.MimeType, safeName, checksum, request.ArtifactStream, cancellationToken));
 
         await dbContext.ToolRuns.AddAsync(run, cancellationToken);
         await dbContext.ToolArtifacts.AddAsync(artifact, cancellationToken);

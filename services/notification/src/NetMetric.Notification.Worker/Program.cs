@@ -9,6 +9,7 @@ using NetMetric.Notification.Infrastructure.DependencyInjection;
 using NetMetric.Notification.Worker;
 using NetMetric.Notification.Worker.Health;
 using NetMetric.Notification.Worker.Workers;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -24,7 +25,9 @@ builder.Services
 builder.Services.AddNotificationApplication();
 builder.Services.AddNotificationInfrastructure(builder.Configuration);
 builder.Services.AddHostedService<NotificationQueueConsumerService>();
+builder.Services.AddSingleton<NotificationWorkerMetrics>();
 builder.Services.AddHealthChecks()
+    .AddCheck("notification-worker-live", () => HealthCheckResult.Healthy("Notification worker process is running."), tags: ["live"])
     .AddCheck<NotificationRabbitMqHealthCheck>("notification-rabbitmq", tags: ["ready", "notification"]);
 
 AddOpenTelemetry(builder.Services, builder.Configuration, "NetMetric.Notification.Worker");
@@ -42,6 +45,7 @@ static void AddOpenTelemetry(IServiceCollection services, IConfiguration configu
     telemetry.WithMetrics(metrics =>
     {
         metrics.AddMeter(NotificationMetrics.MeterName);
+        metrics.AddMeter(NotificationWorkerMetrics.MeterName);
 
         if (!string.IsNullOrWhiteSpace(otlpEndpoint))
         {

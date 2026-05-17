@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Connectors;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Persistence;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Processing;
@@ -43,6 +44,11 @@ public static class IntegrationHubModuleServiceCollectionExtensions
         services.AddScoped<IIntegrationJobProcessor, IntegrationJobProcessor>();
         services.AddSingleton<IIntegrationConnectorRegistry, ServiceCollectionIntegrationConnectorRegistry>();
         services.AddSingleton<IIntegrationWebhookSecurityService, HmacIntegrationWebhookSecurityService>();
+        services
+            .AddOptions<IntegrationProviderCatalogOptions>()
+            .Bind(configuration.GetSection(IntegrationProviderCatalogOptions.SectionName))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<IntegrationProviderCatalogOptions>, IntegrationProviderCatalogOptionsValidation>();
         services.AddSingleton<IIntegrationProviderCatalog, DefaultIntegrationProviderCatalog>();
         services.Configure<WhatsAppProviderOptions>(configuration.GetSection(WhatsAppProviderOptions.SectionName));
         services.AddScoped<WhatsAppCloudAdapter>(sp =>

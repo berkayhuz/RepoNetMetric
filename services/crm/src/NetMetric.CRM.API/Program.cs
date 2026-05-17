@@ -4,10 +4,13 @@
 // </copyright>
 
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using NetMetric.AspNetCore.Health;
 using NetMetric.AspNetCore.ProblemDetails;
@@ -27,6 +30,8 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+var crmRateLimitCounter = new System.Diagnostics.Metrics.Meter("NetMetric.CRM.API")
+    .CreateCounter<long>("crm.rate_limit.rejected", description: "Number of requests rejected by CRM rate limiting.");
 
 CrmProductionConfigurationValidator.Validate(builder.Configuration, builder.Environment);
 
@@ -39,6 +44,7 @@ builder.Services.AddNetMetricProblemDetails();
 builder.Services.AddResponseCompression();
 builder.Services.AddScoped<TenantRouteGuardFilter>();
 builder.Services.AddScoped<IntegrationHubControllerServices>();
+builder.Services.AddSingleton<IPublicCaptureChallengeVerifier, NoopPublicCaptureChallengeVerifier>();
 builder.Services.AddControllers(options => options.Filters.Add<TenantRouteGuardFilter>());
 builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
@@ -159,6 +165,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = (context, _) =>
+    {
+        var endpoint = context.HttpContext.Request.Path.Value;
+        var tenant = context.HttpContext.User.FindFirst("tenant_id")?.Value ??
+            context.HttpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+        crmRateLimitCounter.Add(
+            1,
+            new KeyValuePair<string, object?>("endpoint", endpoint),
+            new KeyValuePair<string, object?>("policy", "crm-global"),
+            new KeyValuePair<string, object?>("reason", "rejected"),
+            new KeyValuePair<string, object?>("tenant_hash", HashForTag(tenant)),
+            new KeyValuePair<string, object?>("environment", builder.Environment.EnvironmentName.ToLowerInvariant()));
+
+        return ValueTask.CompletedTask;
+    };
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
         var partitionKey =
@@ -178,6 +199,36 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(1)
             });
     });
+    options.AddPolicy("crm-public-capture", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            BuildPublicRateLimitPartitionKey(context, "capture"),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:PublicCapture:PermitLimit", 20),
+                QueueLimit = 0,
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:PublicCapture:WindowSeconds", 60))
+            }));
+    options.AddPolicy("crm-marketing-consent", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            BuildPublicRateLimitPartitionKey(context, "marketing-consent"),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:MarketingConsent:PermitLimit", 30),
+                QueueLimit = 0,
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:MarketingConsent:WindowSeconds", 300))
+            }));
+    options.AddPolicy("crm-webhook", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            BuildPublicRateLimitPartitionKey(context, "webhook"),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Webhooks:PermitLimit", 120),
+                QueueLimit = 0,
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Webhooks:WindowSeconds", 60))
+            }));
 });
 
 builder.Services
@@ -294,3 +345,23 @@ else
 }
 
 await app.RunAsync();
+
+static string BuildPublicRateLimitPartitionKey(HttpContext context, string policy)
+{
+    var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
+    var tenant = context.Request.RouteValues.TryGetValue("tenantId", out var tenantValue)
+        ? tenantValue?.ToString()
+        : context.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+    return string.Join(':', policy, tenant ?? "anonymous", ip);
+}
+
+static string HashForTag(string? value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return "anonymous";
+    }
+
+    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+    return Convert.ToHexString(bytes[..6]).ToLowerInvariant();
+}

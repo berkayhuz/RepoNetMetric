@@ -16,6 +16,8 @@ public sealed class AuthRateLimitingOptions
     public const string LogoutPolicyName = "auth-logout";
     public const string InvitePolicyName = "auth-invite";
     public const string RoleManagementPolicyName = "auth-role-management";
+    public const string PasswordRecoveryPolicyName = "auth-password-recovery";
+    public const string EmailConfirmationPolicyName = "auth-email-confirmation";
 
     public FixedWindowRuleOptions Global { get; set; } = new(PermitLimit: 120, WindowSeconds: 60, QueueLimit: 0);
 
@@ -30,10 +32,31 @@ public sealed class AuthRateLimitingOptions
     public FixedWindowRuleOptions Invite { get; set; } = new(PermitLimit: 10, WindowSeconds: 300, QueueLimit: 0);
 
     public FixedWindowRuleOptions RoleManagement { get; set; } = new(PermitLimit: 20, WindowSeconds: 300, QueueLimit: 0);
+
+    public FixedWindowRuleOptions PasswordRecovery { get; set; } = new(PermitLimit: 3, WindowSeconds: 300, QueueLimit: 0);
+
+    public FixedWindowRuleOptions EmailConfirmation { get; set; } = new(PermitLimit: 5, WindowSeconds: 300, QueueLimit: 0);
 }
 
-public sealed record FixedWindowRuleOptions(int PermitLimit, int WindowSeconds, int QueueLimit)
+public sealed class FixedWindowRuleOptions
 {
+    public FixedWindowRuleOptions()
+    {
+    }
+
+    public FixedWindowRuleOptions(int PermitLimit, int WindowSeconds, int QueueLimit)
+    {
+        this.PermitLimit = PermitLimit;
+        this.WindowSeconds = WindowSeconds;
+        this.QueueLimit = QueueLimit;
+    }
+
+    public int PermitLimit { get; set; }
+
+    public int WindowSeconds { get; set; }
+
+    public int QueueLimit { get; set; }
+
     public FixedWindowRateLimiterOptions ToLimiterOptions() => new()
     {
         PermitLimit = PermitLimit,

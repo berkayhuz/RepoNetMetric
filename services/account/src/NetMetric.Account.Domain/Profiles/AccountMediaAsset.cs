@@ -99,6 +99,13 @@ public sealed class AccountMediaAsset
         UpdatedAtUtc = utcNow;
     }
 
+    public void MarkPendingCleanup(DateTimeOffset utcNow)
+    {
+        DeletedAtUtc = utcNow;
+        Status = "cleanup_pending";
+        UpdatedAtUtc = utcNow;
+    }
+
     private static string NormalizeRequired(string value, int max)
     {
         var normalized = value.Trim();

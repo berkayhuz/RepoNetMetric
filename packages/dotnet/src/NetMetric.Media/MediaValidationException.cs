@@ -5,4 +5,15 @@
 
 namespace NetMetric.Media;
 
-public sealed class MediaValidationException(string message) : Exception(message);
+public sealed class MediaValidationException : Exception
+{
+    public MediaValidationException(string message)
+        : base(message)
+    {
+    }
+
+    public MediaValidationException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
+}

@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle, Heading, Text } from "@netmetric/ui";
+import { AccessDeniedState, Heading, Text } from "@netmetric/ui";
 import { tAccountClient } from "@/lib/i18n/account-i18n";
 
 export default function AccessDeniedPage() {
@@ -8,12 +8,10 @@ export default function AccessDeniedPage() {
       <Text className="text-muted-foreground">
         {tAccountClient("account.statusPages.accessDenied.description")}
       </Text>
-      <Alert variant="destructive">
-        <AlertTitle>{tAccountClient("account.statusPages.accessDenied.alertTitle")}</AlertTitle>
-        <AlertDescription>
-          {tAccountClient("account.statusPages.accessDenied.alertDescription")}
-        </AlertDescription>
-      </Alert>
+      <AccessDeniedState
+        title={tAccountClient("account.statusPages.accessDenied.alertTitle")}
+        description={tAccountClient("account.statusPages.accessDenied.alertDescription")}
+      />
     </section>
   );
 }

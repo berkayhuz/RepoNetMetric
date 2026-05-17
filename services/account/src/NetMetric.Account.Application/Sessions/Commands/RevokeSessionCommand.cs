@@ -6,6 +6,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Audit;
+using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Common;
@@ -22,7 +23,8 @@ public sealed class RevokeSessionCommandHandler(
     IClock clock,
     IRepository<IAccountDbContext, UserSession> sessions,
     IAccountDbContext dbContext,
-    IAccountAuditWriter auditWriter)
+    IAccountAuditWriter auditWriter,
+    IAccountOutboxWriter outboxWriter)
     : IRequestHandler<RevokeSessionCommand, Result>
 {
     public async Task<Result> Handle(RevokeSessionCommand command, CancellationToken cancellationToken)
@@ -53,6 +55,20 @@ public sealed class RevokeSessionCommandHandler(
 
         session.Revoke(currentUser.SessionId == command.SessionId ? "self_revoked" : "user_revoked", clock.UtcNow);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await outboxWriter.EnqueueAsync(
+            currentUser.TenantId,
+            AccountOutboxEventTypes.SessionRevoked,
+            new AccountSessionRevokedEvent(
+                1,
+                currentUser.TenantId,
+                currentUser.UserId,
+                currentUser.CorrelationId,
+                clock.UtcNow,
+                command.SessionId,
+                "user_revoked"),
+            currentUser.CorrelationId,
+            cancellationToken);
 
         await auditWriter.WriteAsync(
             new AccountAuditWriteRequest(

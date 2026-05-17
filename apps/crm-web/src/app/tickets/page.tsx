@@ -4,12 +4,13 @@ import { getTicketsData } from "@/features/tickets/data/tickets-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { TicketListItemDto } from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { formatCrmDate, type CrmDateSettings } from "@/lib/date-time/crm-date-time";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 
-function getColumns(locale: string): CrmEntityTableColumn<TicketListItemDto>[] {
+function getColumns(dateSettings: CrmDateSettings): CrmEntityTableColumn<TicketListItemDto>[] {
+  const locale = dateSettings.locale;
   return [
     {
       key: "ticketNumber",
@@ -36,7 +37,7 @@ function getColumns(locale: string): CrmEntityTableColumn<TicketListItemDto>[] {
     {
       key: "openedAt",
       header: tCrm("crm.tickets.fields.opened", locale),
-      render: (item) => new Date(item.openedAt).toLocaleDateString(locale),
+      render: (item) => formatCrmDate(item.openedAt, dateSettings),
     },
     {
       key: "assignedUserId",
@@ -57,9 +58,10 @@ export default async function TicketsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireCrmSession("/tickets");
-  const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const session = await requireCrmSession("/tickets");
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
+  const capabilities = session.capabilities;
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -82,7 +84,7 @@ export default async function TicketsPage({
       createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.tickets.caption", locale)}
-      columns={getColumns(locale)}
+      columns={getColumns(dateSettings)}
       paged={data}
       detailBasePath="/tickets"
       currentQuery={currentQuery}

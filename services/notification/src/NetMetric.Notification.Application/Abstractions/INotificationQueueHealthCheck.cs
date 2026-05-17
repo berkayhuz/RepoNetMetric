@@ -8,4 +8,6 @@ namespace NetMetric.Notification.Application.Abstractions;
 public interface INotificationQueueHealthCheck
 {
     Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
+
+    Task<NotificationQueueSnapshot?> GetSnapshotAsync(CancellationToken cancellationToken = default);
 }

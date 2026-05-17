@@ -1,4 +1,4 @@
-// <copyright file="NoopSecurityNotificationPublisher.cs" company="NetMetric">
+// <copyright file="OutboxSecurityNotificationPublisher.cs" company="NetMetric">
 // Copyright (c) 2026 NetMetric. All rights reserved.
 // NetMetric is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
@@ -9,7 +9,7 @@ using NetMetric.Account.Infrastructure.Outbox;
 
 namespace NetMetric.Account.Infrastructure.Security;
 
-public sealed class NoopSecurityNotificationPublisher(IAccountOutboxWriter outboxWriter) : ISecurityNotificationPublisher
+public sealed class OutboxSecurityNotificationPublisher(IAccountOutboxWriter outboxWriter) : ISecurityNotificationPublisher
 {
     public Task PublishAsync(SecurityNotificationRequest request, CancellationToken cancellationToken = default)
         => outboxWriter.EnqueueAsync(

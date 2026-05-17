@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.CRM.API.Compatibility;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Persistence;
@@ -85,6 +86,8 @@ public sealed class IntegrationWebhookIngestionController(
 
     [HttpPost("meta/{endpointKey}")]
     [AllowAnonymous]
+    [EnableRateLimiting("crm-webhook")]
+    [RequestSizeLimit(262_144)]
     public async Task<IActionResult> ReceiveMetaWebhook(
         string endpointKey,
         [FromBody] JsonElement payload,
@@ -178,6 +181,8 @@ public sealed class IntegrationWebhookIngestionController(
 
     [HttpPost("mock/{endpointKey}")]
     [AllowAnonymous]
+    [EnableRateLimiting("crm-webhook")]
+    [RequestSizeLimit(262_144)]
     public async Task<IActionResult> ReceiveMockWebhook(
         string endpointKey,
         [FromBody] JsonElement payload,

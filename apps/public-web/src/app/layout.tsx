@@ -13,6 +13,7 @@ import {
   getPrimaryNavLinks,
 } from "@/features/public/content/navigation";
 import { tPublic } from "@/lib/i18n/public-i18n";
+import { PublicErrorMonitoring } from "@/lib/error-monitoring";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { defaultSiteDescription, siteTitle } from "@/lib/metadata";
 import { publicEnv } from "@/lib/public-env";
@@ -78,6 +79,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-foreground">
         <ThemeProvider defaultTheme={resolved.theme}>
+          <PublicErrorMonitoring />
           <div className="flex min-h-screen flex-col">
             <a
               href="#main-content"

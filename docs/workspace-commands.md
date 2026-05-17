@@ -84,6 +84,26 @@ Root script growth rule:
 4. `pnpm run guard:prepush`  
    Runs pre-push sequence manually.
 
+## CI quality and security commands
+
+1. `pnpm run dotnet:coverage`  
+   Produces deterministic .NET coverage artifacts for Sonar and threshold gating.
+
+2. `pnpm run coverage:threshold`  
+   Fails when frontend/.NET coverage reports are missing or below minimum thresholds.
+
+3. `pnpm run scan:images`  
+   Builds and scans all release images with Trivy (high/critical policy).
+
+4. `pnpm run scan:k8s`  
+   Runs kube-linter and Checkov against Kubernetes manifests.
+
+5. `pnpm run validate:prod-config`  
+   Validates production config safety contract (no localhost/unsafe fallbacks).
+
+6. `pnpm run test:e2e:smoke`  
+   Executes Playwright smoke flow when `RUN_E2E_SMOKE=1` is set.
+
 ## Contract and governance validation
 
 1. `pnpm run contract:validate`  

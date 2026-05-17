@@ -4,7 +4,8 @@ import { CrmPageHeader } from "@/components/shell/crm-page-header";
 import { CrmPagination } from "@/components/shell/crm-pagination";
 import { getSupportInboxData } from "@/features/support-inbox/data/support-inbox-data";
 import { SupportInboxFilterForm } from "@/features/support-inbox/components/support-inbox-filter-form";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { formatCrmDateTime } from "@/lib/date-time/crm-date-time";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Badge,
@@ -48,7 +49,8 @@ export default async function SupportInboxPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const locale = await getRequestLocale();
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
   const params = await searchParams;
   const connectionId = toSingleValue(params.connectionId);
   const linkedToTicketValue = toSingleValue(params.linkedToTicket);
@@ -171,7 +173,7 @@ export default async function SupportInboxPage({
               <TableBody>
                 {messages.items.map((message) => (
                   <TableRow key={message.id}>
-                    <TableCell>{new Date(message.receivedAtUtc).toLocaleString(locale)}</TableCell>
+                    <TableCell>{formatCrmDateTime(message.receivedAtUtc, dateSettings)}</TableCell>
                     <TableCell>{message.fromAddress}</TableCell>
                     <TableCell>{message.subject}</TableCell>
                     <TableCell>

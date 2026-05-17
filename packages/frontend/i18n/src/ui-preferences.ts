@@ -5,6 +5,8 @@ export type UiThemePreference = "light" | "dark" | "system";
 
 export const UI_THEME_COOKIE_NAME = "netmetric-theme";
 export const UI_LOCALE_COOKIE_NAME = "netmetric-locale";
+export const UI_TIME_ZONE_COOKIE_NAME = "netmetric-time-zone";
+export const UI_DATE_FORMAT_COOKIE_NAME = "netmetric-date-format";
 
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
@@ -35,13 +37,45 @@ export function resolveLocalePreference(value: string | null | undefined): Local
   return resolveLocale(value);
 }
 
+export function resolveTimeZonePreference(value: string | null | undefined): string {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return "UTC";
+  }
+
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: normalized }).format(new Date(0));
+    return normalized;
+  } catch {
+    return "UTC";
+  }
+}
+
+export function resolveDateFormatPreference(value: string | null | undefined): string {
+  const normalized = value?.trim();
+  switch (normalized) {
+    case "yyyy-MM-dd":
+    case "dd/MM/yyyy":
+    case "MM/dd/yyyy":
+    case "dd.MM.yyyy":
+    case "d MMM yyyy":
+      return normalized;
+    default:
+      return "yyyy-MM-dd";
+  }
+}
+
 export function resolveUiPreferences(options?: {
   theme?: string | null | undefined;
   locale?: string | null | undefined;
-}): { theme: UiThemePreference; locale: Locale } {
+  timeZone?: string | null | undefined;
+  dateFormat?: string | null | undefined;
+}): { theme: UiThemePreference; locale: Locale; timeZone: string; dateFormat: string } {
   return {
     theme: resolveThemePreference(options?.theme),
     locale: resolveLocalePreference(options?.locale),
+    timeZone: resolveTimeZonePreference(options?.timeZone),
+    dateFormat: resolveDateFormatPreference(options?.dateFormat),
   };
 }
 

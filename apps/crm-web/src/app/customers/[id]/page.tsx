@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Button } from "@netmetric/ui";
+import { Alert, AlertDescription, AlertTitle, Button } from "@netmetric/ui";
 
 import { AddressSection } from "@/components/address/address-section";
 import { CrmDeleteConfirmForm } from "@/components/delete/crm-delete-confirm-form";
@@ -9,9 +9,16 @@ import { CrmContractPending } from "@/components/shell/crm-contract-pending";
 import { CrmEntityDetailPanel } from "@/components/shell/crm-entity-detail-panel";
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
 import { deleteCustomerAction } from "@/features/customers/actions/customer-mutation-actions";
-import { getCustomerDetailData } from "@/features/customers/data/customers-data";
+import {
+  getCustomerDetailData,
+  getCustomerDuplicateWarnings,
+} from "@/features/customers/data/customers-data";
 import { isGuid } from "@/features/shared/data/guid";
-import { CrmApiError, type CustomerDetailDto } from "@/lib/crm-api";
+import {
+  CrmApiError,
+  type CustomerDetailDto,
+  type CustomerDuplicateWarningDto,
+} from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { handleCrmApiPageError } from "@/lib/crm-auth/handle-crm-api-page-error";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
@@ -24,15 +31,24 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const locale = await getRequestLocale();
   const canEdit = crmCapabilityAllows(session.capabilities, "customers.edit");
   const canDelete = crmCapabilityAllows(session.capabilities, "customers.delete");
+  const canReviewDuplicates = crmCapabilityAllows(
+    session.capabilities,
+    "customers.duplicates.review",
+  );
 
   if (!isGuid(resolved.id)) {
     notFound();
   }
 
   let customer: CustomerDetailDto;
+  let duplicateWarnings: CustomerDuplicateWarningDto[] = [];
 
   try {
     customer = await getCustomerDetailData(resolved.id, `/customers/${resolved.id}`);
+    if (canReviewDuplicates) {
+      duplicateWarnings =
+        (await getCustomerDuplicateWarnings(resolved.id, `/customers/${resolved.id}`)) ?? [];
+    }
   } catch (error) {
     if (error instanceof CrmApiError && error.kind === "not_found") {
       notFound();
@@ -83,6 +99,32 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           },
         ]}
       />
+      {canReviewDuplicates && duplicateWarnings.length > 0 ? (
+        <Alert>
+          <AlertTitle>{tCrm("crm.customers.duplicates.title", locale)}</AlertTitle>
+          <AlertDescription>
+            <div className="space-y-3">
+              <p>{tCrm("crm.customers.duplicates.description", locale)}</p>
+              <ul className="space-y-2">
+                {duplicateWarnings.map((warning) => (
+                  <li key={warning.candidateId} className="rounded-md border p-3">
+                    <div className="font-medium">
+                      {tCrm("crm.customers.duplicates.candidate", locale)} {warning.candidateId}
+                    </div>
+                    <div>
+                      {tCrm("crm.customers.duplicates.confidence", locale)} {warning.score}
+                    </div>
+                    <div>
+                      {tCrm("crm.customers.duplicates.reason", locale)} {warning.reasons.join(", ")}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p>{tCrm("crm.customers.duplicates.manualResolution", locale)}</p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      ) : null}
       <AddressSection
         entityType="customer"
         entityId={resolved.id}

@@ -21,6 +21,7 @@ export type {
   CrmPagedResult,
   CrmNormalizedListQuery,
   CustomerDetailDto,
+  CustomerDuplicateWarningDto,
   CustomerListItemDto,
   CustomerUpsertRequest,
   HttpMethod,

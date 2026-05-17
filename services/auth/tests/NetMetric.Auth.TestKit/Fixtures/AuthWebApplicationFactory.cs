@@ -137,9 +137,13 @@ public sealed class AuthWebApplicationFactory : WebApplicationFactory<Program>
             {
                 new Claim("tenant_id", tenantId.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, "tester@example.test"),
                 new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sid, sessionId.ToString()),
-                new Claim(ClaimTypes.Role, "tenant-user")
+                new Claim(ClaimTypes.Role, "tenant-user"),
+                new Claim("permission", "customers.read"),
+                new Claim("permission", "customers.write"),
+                new Claim("permission", "customer-intelligence.duplicates.read")
             };
 
             var identity = new ClaimsIdentity(claims, SchemeName);

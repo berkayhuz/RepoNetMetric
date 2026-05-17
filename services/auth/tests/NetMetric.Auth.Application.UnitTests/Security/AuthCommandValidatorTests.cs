@@ -4,9 +4,13 @@
 // </copyright>
 
 using FluentAssertions;
+using Microsoft.Extensions.Options;
+using Moq;
+using NetMetric.Auth.Application.Abstractions;
 using NetMetric.Auth.Application.Features.Commands;
 using NetMetric.Auth.Application.Options;
 using NetMetric.Auth.Application.Validators;
+using OptionsFactory = Microsoft.Extensions.Options.Options;
 
 namespace NetMetric.Auth.Application.UnitTests.Security;
 
@@ -99,12 +103,62 @@ public sealed class AuthCommandValidatorTests
     [Fact]
     public void ResetPasswordCommandValidator_When_TokenIsMissing_Should_Reject()
     {
-        var validator = new ResetPasswordCommandValidator(Microsoft.Extensions.Options.Options.Create(new PasswordPolicyOptions()));
+        var validator = new ResetPasswordCommandValidator(OptionsFactory.Create(new PasswordPolicyOptions()));
         var command = new ResetPasswordCommand(Guid.NewGuid(), Guid.NewGuid(), string.Empty, "Str0ng!Pass123", null, null, null, null);
 
         var result = validator.Validate(command);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.PropertyName == nameof(ResetPasswordCommand.Token));
+    }
+
+    [Fact]
+    public async Task RegisterCommandValidator_When_NormalizedEmailAlreadyExists_Should_Reject()
+    {
+        var users = new Mock<IUserRepository>();
+        users
+            .Setup(repository => repository.ExistsByEmailAsync("ADA@EXAMPLE.COM", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var validator = new RegisterCommandValidator(OptionsFactory.Create(new PasswordPolicyOptions()), users.Object);
+
+        var result = await validator.ValidateAsync(new RegisterCommand(
+            "Acme",
+            "ada",
+            "  Ada@Example.com  ",
+            "Str0ng!Pass123",
+            "Ada",
+            "Lovelace",
+            "en-US",
+            null,
+            null));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(error =>
+            error.PropertyName == nameof(RegisterCommand.Email) &&
+            error.ErrorMessage == "Registration could not be completed with the supplied identity.");
+    }
+
+    [Fact]
+    public async Task RegisterCommandValidator_When_EmailDiffersOnlyByCase_Should_QueryCaseInsensitiveKey()
+    {
+        var users = new Mock<IUserRepository>();
+        users
+            .Setup(repository => repository.ExistsByEmailAsync("GRACE@EXAMPLE.COM", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        var validator = new RegisterCommandValidator(OptionsFactory.Create(new PasswordPolicyOptions()), users.Object);
+
+        var result = await validator.ValidateAsync(new RegisterCommand(
+            "Acme",
+            "grace",
+            "Grace@Example.com",
+            "Str0ng!Pass123",
+            "Grace",
+            "Hopper",
+            "en-US",
+            null,
+            null));
+
+        result.IsValid.Should().BeTrue();
+        users.Verify(repository => repository.ExistsByEmailAsync("GRACE@EXAMPLE.COM", It.IsAny<CancellationToken>()), Times.Once);
     }
 }

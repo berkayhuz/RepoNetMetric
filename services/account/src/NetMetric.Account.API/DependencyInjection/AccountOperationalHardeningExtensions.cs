@@ -4,6 +4,9 @@
 // </copyright>
 
 using System.Net;
+using System.Security.Cryptography;
+using System.Diagnostics.Metrics;
+using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -144,6 +147,7 @@ public static class AccountOperationalHardeningExtensions
     private static IServiceCollection AddAccountRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
         var options = configuration.GetSection(AccountRateLimitingOptions.SectionName).Get<AccountRateLimitingOptions>() ?? new AccountRateLimitingOptions();
+        var environmentName = configuration["ASPNETCORE_ENVIRONMENT"]?.ToLowerInvariant() ?? "unknown";
 
         services.AddRateLimiter(rateLimiter =>
         {
@@ -151,6 +155,16 @@ public static class AccountOperationalHardeningExtensions
             rateLimiter.OnRejected = async (context, cancellationToken) =>
             {
                 var httpContext = context.HttpContext;
+                var policy = context.Lease?.TryGetMetadata(MetadataName.RetryAfter, out _) == true ? CriticalRateLimitPolicy : GlobalRateLimitPolicy;
+                var tenantHash = HashForTag(httpContext.User.FindFirst("tenant_id")?.Value ?? httpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault());
+                AccountRateLimitMetrics.Rejected.Add(
+                    1,
+                    new KeyValuePair<string, object?>("endpoint", httpContext.Request.Path.Value),
+                    new KeyValuePair<string, object?>("policy", policy),
+                    new KeyValuePair<string, object?>("reason", "rejected"),
+                    new KeyValuePair<string, object?>("tenant_hash", tenantHash),
+                    new KeyValuePair<string, object?>("environment", environmentName));
+
                 httpContext.Response.Headers.RetryAfter = options.Critical.WindowSeconds.ToString();
                 httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
 
@@ -232,4 +246,23 @@ public static class AccountOperationalHardeningExtensions
 
         return services;
     }
+
+    private static string HashForTag(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "anonymous";
+        }
+
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        return Convert.ToHexString(bytes[..6]).ToLowerInvariant();
+    }
+}
+
+internal static class AccountRateLimitMetrics
+{
+    private static readonly Meter Meter = new("NetMetric.Account.Api");
+    public static readonly Counter<long> Rejected = Meter.CreateCounter<long>(
+        "account.rate_limit.rejected",
+        description: "Number of requests rejected by account rate limiting.");
 }

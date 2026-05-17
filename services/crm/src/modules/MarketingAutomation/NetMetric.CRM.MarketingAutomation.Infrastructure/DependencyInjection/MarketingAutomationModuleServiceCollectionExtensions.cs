@@ -14,6 +14,7 @@ using NetMetric.CRM.MarketingAutomation.Application.Features.Campaigns.Commands.
 using NetMetric.CRM.MarketingAutomation.Infrastructure.Health;
 using NetMetric.CRM.MarketingAutomation.Infrastructure.Persistence;
 using NetMetric.CRM.MarketingAutomation.Infrastructure.Processing;
+using NetMetric.CRM.MarketingAutomation.Infrastructure.Security;
 
 namespace NetMetric.CRM.MarketingAutomation.Infrastructure.DependencyInjection;
 
@@ -32,13 +33,16 @@ public static class MarketingAutomationModuleServiceCollectionExtensions
 
         services.AddScoped<IMarketingAutomationDbContext>(sp => sp.GetRequiredService<MarketingAutomationDbContext>());
         services.Configure<MarketingAutomationOptions>(configuration.GetSection(MarketingAutomationOptions.SectionName));
+        services.Configure<MarketingConsentTokenOptions>(configuration.GetSection(MarketingConsentTokenOptions.SectionName));
         services.PostConfigure<MarketingAutomationOptions>(options =>
         {
             options.EngineEnabled = configuration.GetValue("Crm:Features:MarketingAutomationEngineEnabled", options.EngineEnabled);
             options.WorkerEnabled = configuration.GetValue("Crm:Features:MarketingAutomationWorkerEnabled", options.WorkerEnabled);
             options.EmailDeliveryEnabled = configuration.GetValue("Crm:Features:MarketingEmailDeliveryEnabled", options.EmailDeliveryEnabled);
         });
+        services.AddSingleton(TimeProvider.System);
         services.AddScoped<IMarketingAutomationService, MarketingAutomationService>();
+        services.AddScoped<IMarketingConsentTokenService, MarketingConsentTokenService>();
         services.AddScoped<IMarketingSegmentEvaluator, MarketingSegmentEvaluator>();
         services.AddScoped<IMarketingConsentEnforcementService, MarketingConsentEnforcementService>();
         services.AddScoped<IMarketingTemplateRenderer, MarketingTemplateRenderer>();

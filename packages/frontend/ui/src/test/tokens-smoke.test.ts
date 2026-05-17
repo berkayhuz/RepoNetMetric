@@ -21,6 +21,7 @@ describe("token/css smoke", () => {
     expect(tokensCss).toContain("--background");
     expect(tokensCss).toContain("--foreground");
     expect(tokensCss).toContain("--ring");
+    expect(tokensCss).toContain("--destructive-foreground");
     expect(tokensCss).toContain("--sidebar-ring");
     expect(tokensCss).toContain("--chart-1");
     expect(tokensCss).toContain("--chart-5");
@@ -33,6 +34,7 @@ describe("token/css smoke", () => {
     expect(themeCss).toContain("--color-background");
     expect(themeCss).toContain("--color-foreground");
     expect(themeCss).toContain("--color-ring");
+    expect(themeCss).toContain("--color-destructive-foreground");
     expect(themeCss).toContain("--color-sidebar-ring");
     expect(themeCss).toContain("--radius-lg");
     expect(themeCss).toContain("--radius-2xl");

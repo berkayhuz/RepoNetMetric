@@ -12,6 +12,7 @@ namespace NetMetric.Notification.Worker.Workers;
 public sealed class NotificationQueueConsumerService(
     IServiceScopeFactory scopeFactory,
     INotificationQueue queue,
+    NotificationWorkerMetrics workerMetrics,
     IOptions<NotificationWorkerOptions> options,
     ILogger<NotificationQueueConsumerService> logger) : BackgroundService
 {
@@ -63,6 +64,7 @@ public sealed class NotificationQueueConsumerService(
                 var processor = scope.ServiceProvider.GetRequiredService<INotificationProcessor>();
                 await processor.ProcessAsync(message, stoppingToken);
                 await queue.CompleteAsync(message, stoppingToken);
+                workerMetrics.RecordDeliveryLatency(DateTime.UtcNow - message.CreatedAtUtc);
 
                 logger.LogInformation(
                     "Notification processing completed. NotificationId={NotificationId}",
@@ -84,6 +86,14 @@ public sealed class NotificationQueueConsumerService(
                     message,
                     requeue: !workerOptions.DeadLetterUnexpectedFailures,
                     stoppingToken);
+                if (workerOptions.DeadLetterUnexpectedFailures)
+                {
+                    workerMetrics.RecordDeadLetter();
+                }
+                else
+                {
+                    workerMetrics.RecordRetry();
+                }
             }
         }
         finally

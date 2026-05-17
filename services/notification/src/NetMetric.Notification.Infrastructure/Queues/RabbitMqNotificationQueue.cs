@@ -129,6 +129,30 @@ public sealed class RabbitMqNotificationQueue(
         }
     }
 
+    public async Task<NotificationQueueSnapshot?> GetSnapshotAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var connectionValue = await GetConnectionAsync(cancellationToken);
+            await using var channel = await connectionValue.CreateChannelAsync(cancellationToken: cancellationToken);
+            await DeclareQueueAsync(channel, cancellationToken);
+
+            var queue = await channel.QueueDeclarePassiveAsync(options.Value.QueueName, cancellationToken);
+            var deadLetter = await channel.QueueDeclarePassiveAsync(options.Value.DeadLetterQueueName, cancellationToken);
+
+            return new NotificationQueueSnapshot(
+                queue.MessageCount,
+                deadLetter.MessageCount,
+                queue.ConsumerCount,
+                DateTimeOffset.UtcNow);
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "RabbitMQ queue snapshot collection failed.");
+            return null;
+        }
+    }
+
     private async Task<IConnection> GetConnectionAsync(CancellationToken cancellationToken)
     {
         if (connection?.IsOpen == true)

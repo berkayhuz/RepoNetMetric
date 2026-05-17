@@ -33,3 +33,18 @@ export async function getCustomerDetailData(customerId: string, returnPath: stri
     handleCrmApiPageError(error, returnPath);
   }
 }
+
+export async function getCustomerDuplicateWarnings(customerId: string, returnPath: string) {
+  try {
+    const authContext = await getCrmApiAuthContext();
+    const correlationId = await getRequestCorrelationId();
+    const options = {
+      ...(authContext ? { authContext } : {}),
+      ...(correlationId ? { correlationId } : {}),
+    };
+
+    return await crmApiClient.findCustomerDuplicates(customerId, options);
+  } catch (error) {
+    handleCrmApiPageError(error, returnPath);
+  }
+}

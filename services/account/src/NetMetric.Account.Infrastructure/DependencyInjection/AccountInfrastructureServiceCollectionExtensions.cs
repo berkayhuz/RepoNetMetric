@@ -14,6 +14,7 @@ using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Infrastructure.Audit;
 using NetMetric.Account.Infrastructure.Identity;
 using NetMetric.Account.Infrastructure.IntegrationEvents;
+using NetMetric.Account.Infrastructure.Media;
 using NetMetric.Account.Infrastructure.Membership;
 using NetMetric.Account.Infrastructure.Outbox;
 using NetMetric.Account.Infrastructure.Security;
@@ -33,7 +34,7 @@ public static class AccountInfrastructureServiceCollectionExtensions
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<IAccountAuditWriter, PersistentAccountAuditWriter>();
         services.AddScoped<ISecurityEventWriter, PersistentSecurityEventWriter>();
-        services.AddScoped<ISecurityNotificationPublisher, NoopSecurityNotificationPublisher>();
+        services.AddScoped<ISecurityNotificationPublisher, OutboxSecurityNotificationPublisher>();
         services.AddScoped<NetMetric.Account.Application.Abstractions.Outbox.IAccountOutboxWriter, AccountOutboxWriter>();
         services.AddSingleton<IAuditMetadataSanitizer, AuditMetadataSanitizer>();
 
@@ -73,6 +74,12 @@ public static class AccountInfrastructureServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<AccountOutboxOptions>, AccountOutboxOptionsValidation>();
 
         services
+            .AddOptions<AccountMediaCleanupOptions>()
+            .Bind(configuration.GetSection(AccountMediaCleanupOptions.SectionName))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<AccountMediaCleanupOptions>, AccountMediaCleanupOptionsValidation>();
+
+        services
             .AddOptions<AuthProfileBootstrapOptions>()
             .Bind(configuration.GetSection(AuthProfileBootstrapOptions.SectionName))
             .ValidateOnStart();
@@ -82,7 +89,9 @@ public static class AccountInfrastructureServiceCollectionExtensions
         services.AddAccountInfrastructureCore();
         services.AddRabbitMqMessaging(configuration);
         services.AddScoped<IAccountIntegrationEventPublisher, RabbitMqAccountIntegrationEventPublisher>();
+        services.AddScoped<AccountMediaCleanupService>();
         services.AddHostedService<AccountOutboxProcessor>();
+        services.AddHostedService<AccountMediaCleanupWorker>();
         services.AddHostedService<AuthUserRegisteredProfileBootstrapConsumer>();
         services.AddTransient<IdentityInternalRequestSigningHandler>();
         services.AddTransient<IdentityResilienceHandler>();

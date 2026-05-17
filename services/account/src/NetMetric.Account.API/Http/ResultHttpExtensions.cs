@@ -7,6 +7,7 @@ using System.Diagnostics;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NetMetric.AspNetCore.RequestContext;
 using NetMetric.Account.Application.Abstractions.Identity;
 using NetMetric.Account.Application.Common;
 
@@ -83,13 +84,13 @@ public static class ResultHttpExtensions
                 };
 
                 problem.Extensions["traceId"] = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
-                if (context.Items.TryGetValue("X-Correlation-Id", out var correlationId) &&
+                if (context.Items.TryGetValue(RequestContextSupport.CorrelationIdHeaderName, out var correlationId) &&
                     correlationId is string correlationIdValue &&
                     !string.IsNullOrWhiteSpace(correlationIdValue))
                 {
                     problem.Extensions["correlationId"] = correlationIdValue;
                 }
-                else if (context.Request.Headers.TryGetValue("X-Correlation-Id", out var correlationIdHeader) &&
+                else if (context.Request.Headers.TryGetValue(RequestContextSupport.CorrelationIdHeaderName, out var correlationIdHeader) &&
                          !string.IsNullOrWhiteSpace(correlationIdHeader))
                 {
                     problem.Extensions["correlationId"] = correlationIdHeader.ToString();

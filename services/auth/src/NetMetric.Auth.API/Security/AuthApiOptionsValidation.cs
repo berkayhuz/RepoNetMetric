@@ -172,6 +172,8 @@ public sealed class AuthRateLimitingOptionsValidation : IValidateOptions<AuthRat
         ValidateRule(options.Logout, "Security:RateLimiting:Logout", failures);
         ValidateRule(options.Invite, "Security:RateLimiting:Invite", failures);
         ValidateRule(options.RoleManagement, "Security:RateLimiting:RoleManagement", failures);
+        ValidateRule(options.PasswordRecovery, "Security:RateLimiting:PasswordRecovery", failures);
+        ValidateRule(options.EmailConfirmation, "Security:RateLimiting:EmailConfirmation", failures);
         return failures.Count > 0 ? ValidateOptionsResult.Fail(failures) : ValidateOptionsResult.Success;
     }
 

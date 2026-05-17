@@ -14,9 +14,19 @@ export type CrmApiErrorKind =
   | "upstream_unavailable"
   | "unknown";
 
-function sanitizeProblem(problem: ProblemDetails | undefined): ProblemDetails | undefined {
+function sanitizeProblem(
+  problem: ProblemDetails | undefined,
+  status: number,
+): ProblemDetails | undefined {
   if (!problem) {
     return undefined;
+  }
+
+  if (status >= 500) {
+    return {
+      title: "CRM service unavailable.",
+      detail: "Please try again later.",
+    };
   }
 
   const output: ProblemDetails = { ...problem };
@@ -69,7 +79,7 @@ export class CrmApiError extends Error {
     this.name = "CrmApiError";
     this.status = params.status;
     this.kind = params.kind ?? statusToCrmApiErrorKind(params.status);
-    this.problem = sanitizeProblem(params.problem);
+    this.problem = sanitizeProblem(params.problem, params.status);
     this.correlationId = sanitizeText(params.correlationId);
   }
 }

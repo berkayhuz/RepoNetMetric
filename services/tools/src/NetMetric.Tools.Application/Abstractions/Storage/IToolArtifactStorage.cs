@@ -5,7 +5,7 @@
 
 namespace NetMetric.Tools.Application.Abstractions.Storage;
 
-public sealed record ToolArtifactWriteRequest(string StorageKey, string MimeType, Stream Content, CancellationToken CancellationToken);
+public sealed record ToolArtifactWriteRequest(string StorageKey, string MimeType, string FileName, string ChecksumSha256, Stream Content, CancellationToken CancellationToken);
 
 public sealed record ToolArtifactReadResult(Stream Content, string MimeType, long Length);
 

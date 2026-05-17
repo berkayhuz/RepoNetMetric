@@ -6,6 +6,7 @@
 using FluentValidation;
 using MediatR;
 using NetMetric.Account.Application.Abstractions.Audit;
+using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Common;
@@ -51,7 +52,8 @@ public sealed class UpdateMyProfileCommandHandler(
     IRepository<IAccountDbContext, UserProfile> profiles,
     IAccountDbContext dbContext,
     IConcurrencyTokenWriter concurrencyTokenWriter,
-    IAccountAuditWriter auditWriter)
+    IAccountAuditWriter auditWriter,
+    IAccountOutboxWriter outboxWriter)
     : IRequestHandler<UpdateMyProfileCommand, Result<MyProfileResponse>>
 {
     public async Task<Result<MyProfileResponse>> Handle(UpdateMyProfileCommand command, CancellationToken cancellationToken)
@@ -94,6 +96,19 @@ public sealed class UpdateMyProfileCommandHandler(
             clock.UtcNow);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await outboxWriter.EnqueueAsync(
+            currentUser.TenantId,
+            AccountOutboxEventTypes.ProfileUpdated,
+            new AccountProfileUpdatedEvent(
+                1,
+                currentUser.TenantId,
+                currentUser.UserId,
+                currentUser.CorrelationId,
+                clock.UtcNow,
+                ["firstName", "lastName", "phoneNumber", "jobTitle", "department", "timeZone", "culture"]),
+            currentUser.CorrelationId,
+            cancellationToken);
 
         await auditWriter.WriteAsync(
             new AccountAuditWriteRequest(

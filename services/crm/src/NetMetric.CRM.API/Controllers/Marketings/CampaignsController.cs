@@ -6,15 +6,20 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NetMetric.CRM.API.Compatibility;
 using NetMetric.CRM.MarketingAutomation.Application.Abstractions;
+using NetMetric.CRM.MarketingAutomation.Domain.Entities.Consents;
+using NetMetric.CRM.MarketingAutomation.Infrastructure.Security;
 
 namespace NetMetric.CRM.API.Controllers.Marketings;
 
 [ApiController]
 [Route("api/marketing/tenants/{tenantId:guid}")]
 [Authorize(Policy = AuthorizationPolicies.CampaignsRead)]
-public sealed class CampaignsController(IMarketingAutomationService marketing) : ControllerBase
+public sealed class CampaignsController(
+    IMarketingAutomationService marketing,
+    IMarketingConsentTokenService consentTokens) : ControllerBase
 {
     [HttpGet("campaigns")]
     public Task<IActionResult> ListCampaigns(Guid tenantId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? status = null, CancellationToken cancellationToken = default)
@@ -132,13 +137,51 @@ public sealed class CampaignsController(IMarketingAutomationService marketing) :
 
     [HttpPost("consent")]
     [AllowAnonymous]
-    public Task<IActionResult> UpsertConsent(Guid tenantId, [FromBody] MarketingConsentRequest request, CancellationToken cancellationToken)
-        => OkAsync(marketing.UpsertConsentAsync(tenantId, request, cancellationToken));
+    [EnableRateLimiting("crm-marketing-consent")]
+    [RequestSizeLimit(16_384)]
+    public async Task<IActionResult> UpsertConsent(Guid tenantId, [FromBody] SignedMarketingConsentRequest request, CancellationToken cancellationToken)
+    {
+        var token = await consentTokens.ValidateAndConsumeAsync(
+            tenantId,
+            request.Token,
+            MarketingConsentTokenPurposes.Consent,
+            cancellationToken);
+        if (!token.IsValid || string.IsNullOrWhiteSpace(token.EmailAddress) || string.IsNullOrWhiteSpace(token.Source))
+        {
+            return BadRequest(new { message = "Consent request could not be completed." });
+        }
+
+        return Ok(await marketing.UpsertConsentAsync(
+            tenantId,
+            new MarketingConsentRequest(
+                token.EmailAddress,
+                string.IsNullOrWhiteSpace(token.Status) ? MarketingConsentStatuses.Granted : token.Status,
+                token.Source,
+                token.DoubleOptInRequired),
+            cancellationToken));
+    }
 
     [HttpPost("unsubscribe")]
     [AllowAnonymous]
-    public Task<IActionResult> Unsubscribe(Guid tenantId, [FromBody] MarketingUnsubscribeRequest request, CancellationToken cancellationToken)
-        => OkAsync(marketing.UnsubscribeAsync(tenantId, request, cancellationToken));
+    [EnableRateLimiting("crm-marketing-consent")]
+    [RequestSizeLimit(16_384)]
+    public async Task<IActionResult> Unsubscribe(Guid tenantId, [FromBody] SignedMarketingUnsubscribeRequest request, CancellationToken cancellationToken)
+    {
+        var token = await consentTokens.ValidateAndConsumeAsync(
+            tenantId,
+            request.Token,
+            MarketingConsentTokenPurposes.Unsubscribe,
+            cancellationToken);
+        if (!token.IsValid || string.IsNullOrWhiteSpace(token.EmailAddress) || string.IsNullOrWhiteSpace(token.Source))
+        {
+            return BadRequest(new { message = "Unsubscribe request could not be completed." });
+        }
+
+        return Ok(await marketing.UnsubscribeAsync(
+            tenantId,
+            new MarketingUnsubscribeRequest(token.EmailAddress, token.Source),
+            cancellationToken));
+    }
 
     [HttpGet("worker-status")]
     public Task<IActionResult> GetWorkerStatus(Guid tenantId, CancellationToken cancellationToken)
@@ -150,3 +193,5 @@ public sealed class CampaignsController(IMarketingAutomationService marketing) :
 public sealed record MarketingScheduleRequest([property: JsonRequired] DateTime ScheduledAtUtc);
 public sealed record MarketingAudienceRequest(IReadOnlyCollection<MarketingAudienceMemberInput> Audience);
 public sealed record MarketingTemplatePreviewRequest(string PayloadJson);
+public sealed record SignedMarketingConsentRequest([property: JsonRequired] string Token);
+public sealed record SignedMarketingUnsubscribeRequest([property: JsonRequired] string Token);

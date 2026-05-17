@@ -21,7 +21,7 @@ spec:
       serviceAccountName: tools-api
       containers:
         - name: tools-api
-          image: ghcr.io/netmetric/tools-api:REPLACE_WITH_GIT_SHA
+          image: ghcr.io/netmetric/tools-api:${IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -31,6 +31,11 @@ spec:
                 name: tools-api-env
             - secretRef:
                 name: tools-api-secrets
+          volumeMounts:
+            - name: artifacts
+              mountPath: /var/lib/netmetric/tools-artifacts
+            - name: tmp
+              mountPath: /tmp
           readinessProbe:
             httpGet:
               path: /health/ready
@@ -47,6 +52,14 @@ spec:
             periodSeconds: 20
             timeoutSeconds: 3
             failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           resources:
             requests:
               cpu: 150m
@@ -54,3 +67,9 @@ spec:
             limits:
               cpu: 750m
               memory: 768Mi
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim:
+            claimName: tools-api-artifacts
+        - name: tmp
+          emptyDir: {}

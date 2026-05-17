@@ -45,6 +45,10 @@ $results["Local validation guidance"] = Invoke-Step -Title "Local validation gui
   Write-Host "  pnpm run repo:format:check"
 }
 
+$results["Production config validation"] = Invoke-Step -Title "Production config validation" -Action {
+  node ".\\scripts\\release\\validate-production-config.mjs"
+}
+
 $results["Kubernetes context"] = Invoke-Step -Title "Kubernetes context" -Action {
   powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\release\Test-KubernetesContext.ps1"
 }

@@ -14,6 +14,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@netmetric/i18n": "workspace:*",
+    "@netmetric/observability": "workspace:*",
     "@netmetric/ui": "workspace:*",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",

@@ -3,6 +3,7 @@
 // NetMetric is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
+using System.Net.Http.Json;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -118,6 +119,26 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Register_Should_Return_ProblemDetails_For_Duplicate_Email_Without_Enumeration_Details()
+    {
+        _factory.SenderMock.Reset();
+        _factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AuthApplicationException(
+                "Registration could not be completed",
+                "An account with this email address already exists.",
+                StatusCodes.Status409Conflict,
+                errorCode: "duplicate_email"));
+
+        var response = await _client.PostAsync(
+            "/api/auth/register",
+            JsonSerializationHelper.ToJsonContent(AuthTestDataBuilder.RegisterRequest().Build()));
+
+        var problem = await response.ShouldBeProblemDetailsAsync(StatusCodes.Status409Conflict, "duplicate_email");
+        problem["title"]!.GetValue<string>().Should().Be("Registration could not be completed");
+    }
+
+    [Fact]
     public async Task ConfirmEmail_Should_Return_NoContent_On_Success()
     {
         _factory.SenderMock.Reset();
@@ -201,6 +222,29 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
         var problem = await response.ShouldBeProblemDetailsAsync(StatusCodes.Status400BadRequest);
         problem["title"]!.GetValue<string>().Should().Be("Validation failed");
         problem["errors"]!["Email"]![0]!.GetValue<string>().Should().Be("Email is required.");
+    }
+
+    [Fact]
+    public async Task ForgotPassword_Should_Use_Dedicated_RateLimit_Window()
+    {
+        var overrides = TestConfiguration.CreateAuthApiDefaults();
+        overrides["Security:RateLimiting:Global:PermitLimit"] = "100";
+        overrides["Security:RateLimiting:PasswordRecovery:PermitLimit"] = "1";
+        overrides["Security:RateLimiting:PasswordRecovery:WindowSeconds"] = "60";
+
+        await using var factory = new AuthWebApplicationFactory(overrides);
+        using var client = factory.CreateClient();
+        factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<ForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var request = new ForgotPasswordRequest(Guid.NewGuid(), "jane@example.com");
+
+        var first = await client.PostAsync("/api/auth/forgot-password", JsonSerializationHelper.ToJsonContent(request));
+        var second = await client.PostAsync("/api/auth/forgot-password", JsonSerializationHelper.ToJsonContent(request));
+
+        first.StatusCode.Should().Be(System.Net.HttpStatusCode.Accepted);
+        await second.ShouldBeProblemDetailsAsync(StatusCodes.Status429TooManyRequests, "auth_rate_limit_exceeded");
     }
 
     [Fact]
@@ -319,6 +363,29 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Login_Should_Return_RateLimitProblem_When_Window_Is_Exceeded()
+    {
+        var overrides = TestConfiguration.CreateAuthApiDefaults();
+        overrides["Security:RateLimiting:Global:PermitLimit"] = "100";
+        overrides["Security:RateLimiting:Login:PermitLimit"] = "1";
+        overrides["Security:RateLimiting:Login:WindowSeconds"] = "60";
+
+        await using var factory = new AuthWebApplicationFactory(overrides);
+        using var client = factory.CreateClient();
+        factory.SenderMock
+            .Setup(sender => sender.Send(It.IsAny<LoginCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(AuthTestDataBuilder.TokenResponse());
+
+        var request = AuthTestDataBuilder.LoginRequest().Build();
+
+        var first = await client.PostAsync("/api/auth/login", JsonSerializationHelper.ToJsonContent(request));
+        var second = await client.PostAsync("/api/auth/login", JsonSerializationHelper.ToJsonContent(request));
+
+        first.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        await second.ShouldBeProblemDetailsAsync(StatusCodes.Status429TooManyRequests, "auth_rate_limit_exceeded");
+    }
+
+    [Fact]
     public async Task Refresh_Should_Return_ProblemDetails_With_ErrorCode_For_Invalid_RefreshToken()
     {
         _factory.SenderMock.Reset();
@@ -380,12 +447,25 @@ public sealed class AuthEndpointsFunctionalTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SessionStatus_Should_Return_NoContent_For_Authenticated_User()
+    public async Task SessionStatus_Should_Return_Context_For_Authenticated_User()
     {
-        using var authenticatedClient = _factory.CreateAuthenticatedClient();
+        var tenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+        using var authenticatedClient = _factory.CreateAuthenticatedClient(tenantId, userId, sessionId);
 
         var response = await authenticatedClient.GetAsync("/api/auth/session-status");
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<AuthSessionStatusResponse>();
+        payload.Should().NotBeNull();
+        payload!.TenantId.Should().Be(tenantId);
+        payload.UserId.Should().Be(userId);
+        payload.SessionId.Should().Be(sessionId);
+        payload!.Email.Should().Be("tester@example.test");
+        payload.Roles.Should().Contain("tenant-user");
+        payload.Permissions.Should().Contain(["customers.read", "customers.write"]);
+        payload.AccountStatus.Should().Be("active");
+        payload.EmailConfirmed.Should().BeTrue();
     }
 }

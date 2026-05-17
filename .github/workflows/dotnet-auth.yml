@@ -39,6 +39,9 @@ jobs:
       - name: Validate EF migration policy
         run: node ./scripts/release/validate-ef-migrations.mjs
 
+      - name: Validate production configuration contract
+        run: node ./scripts/release/validate-production-config.mjs
+
       - name: Upload test results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

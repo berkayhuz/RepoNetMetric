@@ -241,6 +241,46 @@ public static class CrmProductionConfigurationValidator
         {
             errors.Add("RateLimiting:PermitLimit must be configured between 1 and 10000 requests per minute in production.");
         }
+
+        ValidatePublicRateLimit(configuration, errors, "RateLimiting:PublicCapture", 1, 1_000);
+        ValidatePublicRateLimit(configuration, errors, "RateLimiting:MarketingConsent", 1, 1_000);
+        ValidatePublicRateLimit(configuration, errors, "RateLimiting:Webhooks", 1, 10_000);
+
+        var captureAllowedOrigins = configuration.GetSection("Crm:PublicCapture:AllowedOrigins").Get<string[]>() ?? [];
+        if (captureAllowedOrigins.Length == 0)
+        {
+            errors.Add("Crm:PublicCapture:AllowedOrigins must contain at least one trusted HTTPS origin in production.");
+        }
+        else if (captureAllowedOrigins.Any(origin => !IsHttpsUri(origin) || IsPlaceholderUri(origin)))
+        {
+            errors.Add("Crm:PublicCapture:AllowedOrigins must contain only trusted production HTTPS origins.");
+        }
+
+        var consentSigningKey = configuration["Crm:MarketingAutomation:ConsentTokens:SigningKey"];
+        if (string.IsNullOrWhiteSpace(consentSigningKey) || consentSigningKey.Length < 32)
+        {
+            errors.Add("Crm:MarketingAutomation:ConsentTokens:SigningKey must be configured with at least 32 characters in production.");
+        }
+    }
+
+    private static void ValidatePublicRateLimit(
+        IConfiguration configuration,
+        ICollection<string> errors,
+        string section,
+        int minimumPermitLimit,
+        int maximumPermitLimit)
+    {
+        var permitLimit = configuration.GetValue<int?>($"{section}:PermitLimit");
+        if (permitLimit is null || permitLimit < minimumPermitLimit || permitLimit > maximumPermitLimit)
+        {
+            errors.Add($"{section}:PermitLimit must be configured between {minimumPermitLimit} and {maximumPermitLimit} in production.");
+        }
+
+        var windowSeconds = configuration.GetValue<int?>($"{section}:WindowSeconds");
+        if (windowSeconds is null or <= 0 or > 3600)
+        {
+            errors.Add($"{section}:WindowSeconds must be configured between 1 and 3600 seconds in production.");
+        }
     }
 
     private static bool IsHttpsUri(string value) =>

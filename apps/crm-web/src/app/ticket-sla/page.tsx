@@ -14,7 +14,8 @@ import { TicketSlaMutationPanels } from "@/features/ticket-sla/forms/ticket-sla-
 import { TicketSlaReadFiltersForm } from "@/features/ticket-sla/components/ticket-sla-read-filters-form";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { formatCrmDateTime } from "@/lib/date-time/crm-date-time";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Badge,
@@ -48,7 +49,8 @@ export default async function TicketSlaPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await requireCrmSession("/ticket-sla");
-  const locale = await getRequestLocale();
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
   const canManageTicketSla = crmCapabilityAllows(session.capabilities, "ticketSla.manage");
   const params = await searchParams;
   const policyIdRaw = toSingleValue(params.policyId);
@@ -233,19 +235,19 @@ export default async function TicketSlaPage({
                 <TableRow>
                   <TableCell>{workspace.slaPolicyId}</TableCell>
                   <TableCell>
-                    {new Date(workspace.firstResponseDueAtUtc).toLocaleString(locale)}
+                    {formatCrmDateTime(workspace.firstResponseDueAtUtc, dateSettings)}
                   </TableCell>
                   <TableCell>
-                    {new Date(workspace.resolutionDueAtUtc).toLocaleString(locale)}
+                    {formatCrmDateTime(workspace.resolutionDueAtUtc, dateSettings)}
                   </TableCell>
                   <TableCell>
                     {workspace.firstRespondedAtUtc
-                      ? new Date(workspace.firstRespondedAtUtc).toLocaleString(locale)
+                      ? formatCrmDateTime(workspace.firstRespondedAtUtc, dateSettings)
                       : "-"}
                   </TableCell>
                   <TableCell>
                     {workspace.resolvedAtUtc
-                      ? new Date(workspace.resolvedAtUtc).toLocaleString(locale)
+                      ? formatCrmDateTime(workspace.resolvedAtUtc, dateSettings)
                       : "-"}
                   </TableCell>
                   <TableCell>
@@ -295,7 +297,7 @@ export default async function TicketSlaPage({
               <TableBody>
                 {escalationRuns.map((run) => (
                   <TableRow key={run.id}>
-                    <TableCell>{new Date(run.executedAtUtc).toLocaleString(locale)}</TableCell>
+                    <TableCell>{formatCrmDateTime(run.executedAtUtc, dateSettings)}</TableCell>
                     <TableCell>
                       {enumLabel("crm.ticketSla.metric", run.metricType, locale)}
                     </TableCell>

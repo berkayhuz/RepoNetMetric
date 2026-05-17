@@ -10,3 +10,11 @@ artifacts/
 **/keys/*.key
 **/data-protection-keys/*
 *.zip
+
+**/.turbo/
+**/.next/
+**/coverage/
+**/*.log
+docs/
+scripts/
+.runlogs/

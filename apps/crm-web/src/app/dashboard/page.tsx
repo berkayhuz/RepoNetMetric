@@ -5,13 +5,14 @@ import { DashboardSummaryCard } from "@/components/dashboard/dashboard-summary-c
 import { CrmPageHeader } from "@/components/shell/crm-page-header";
 import { getDashboardData } from "@/features/dashboard/data/dashboard-data";
 import { crmModuleRegistry } from "@/features/modules/module-registry";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
+import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export default async function DashboardPage() {
+  const session = await requireCrmSession("/dashboard");
   const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const capabilities = session.capabilities;
   const data = await getDashboardData("/dashboard");
 
   return (

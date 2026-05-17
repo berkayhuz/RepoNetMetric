@@ -7,9 +7,9 @@ import { getTasksData } from "@/features/tasks/data/tasks-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { WorkTaskDto } from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { formatCrmDate, type CrmDateSettings } from "@/lib/date-time/crm-date-time";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Table,
@@ -23,7 +23,8 @@ import {
 } from "@netmetric/ui";
 import Link from "next/link";
 
-function renderTaskRow(task: WorkTaskDto, locale: string) {
+function renderTaskRow(task: WorkTaskDto, dateSettings: CrmDateSettings) {
+  const locale = dateSettings.locale;
   return (
     <TableRow key={task.id}>
       <TableCell>{task.title}</TableCell>
@@ -34,7 +35,7 @@ function renderTaskRow(task: WorkTaskDto, locale: string) {
       <TableCell>
         {tCrmWithFallback(`crm.common.priority.${task.priority}`, String(task.priority), locale)}
       </TableCell>
-      <TableCell>{new Date(task.dueAtUtc).toLocaleDateString(locale)}</TableCell>
+      <TableCell>{formatCrmDate(task.dueAtUtc, dateSettings)}</TableCell>
       <TableCell>{task.ownerUserId || "-"}</TableCell>
     </TableRow>
   );
@@ -45,9 +46,10 @@ export default async function TasksPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireCrmSession("/tasks");
-  const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const session = await requireCrmSession("/tasks");
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
+  const capabilities = session.capabilities;
   const canCreateTasks = crmCapabilityAllows(capabilities, "tasks.create");
 
   const params = await searchParams;
@@ -109,7 +111,7 @@ export default async function TasksPage({
               <TableHead>{tCrm("crm.tasks.fields.owner", locale)}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>{paged.items.map((task) => renderTaskRow(task, locale))}</TableBody>
+          <TableBody>{paged.items.map((task) => renderTaskRow(task, dateSettings))}</TableBody>
         </Table>
       )}
       <CrmPagination

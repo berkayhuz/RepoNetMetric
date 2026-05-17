@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NetMetric.CRM.IntegrationHub.Application.Abstractions.Providers;
 using NetMetric.CRM.IntegrationHub.Domain.Entities;
@@ -85,10 +86,25 @@ public sealed class DefaultIntegrationProviderCatalog : IIntegrationProviderCata
             false)
     ];
 
-    public IReadOnlyCollection<ProviderCatalogItem> List() => Providers;
+    private readonly IHostEnvironment _environment;
+    private readonly IntegrationProviderCatalogOptions _options;
+
+    public DefaultIntegrationProviderCatalog(IHostEnvironment environment, IOptions<IntegrationProviderCatalogOptions> options)
+    {
+        _environment = environment;
+        _options = options.Value;
+    }
+
+    public IReadOnlyCollection<ProviderCatalogItem> List() =>
+        ShouldExposeMockProvider(_environment, _options)
+            ? Providers
+            : Providers.Where(provider => provider.ProviderKey != "mock").ToArray();
 
     public ProviderCatalogItem? Find(string providerKey) =>
-        Providers.FirstOrDefault(p => string.Equals(p.ProviderKey, providerKey?.Trim(), StringComparison.OrdinalIgnoreCase));
+        List().FirstOrDefault(p => string.Equals(p.ProviderKey, providerKey?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    internal static bool ShouldExposeMockProvider(IHostEnvironment environment, IntegrationProviderCatalogOptions options) =>
+        options.MockProviderEnabled && !environment.IsProduction();
 }
 
 public sealed class DefaultProviderCredentialValidator(IIntegrationProviderCatalog catalog) : IProviderCredentialValidator
@@ -162,10 +178,16 @@ public sealed class DefaultProviderConnectionTester(
     }
 }
 
-public sealed class ProviderAdapterRegistry(IEnumerable<IProviderAdapter> adapters) : IProviderAdapterRegistry
+public sealed class ProviderAdapterRegistry(
+    IEnumerable<IProviderAdapter> adapters,
+    IHostEnvironment environment,
+    IOptions<IntegrationProviderCatalogOptions> options) : IProviderAdapterRegistry
 {
     private readonly Dictionary<string, IProviderAdapter> _map =
-        adapters.ToDictionary(x => ((IProviderWebhookVerifier)x).ProviderKey, StringComparer.OrdinalIgnoreCase);
+        adapters
+            .Where(adapter => DefaultIntegrationProviderCatalog.ShouldExposeMockProvider(environment, options.Value) ||
+                              !string.Equals(((IProviderWebhookVerifier)adapter).ProviderKey, "mock", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(x => ((IProviderWebhookVerifier)x).ProviderKey, StringComparer.OrdinalIgnoreCase);
 
     public IProviderAdapter? Resolve(string providerKey)
     {
@@ -428,6 +450,26 @@ public sealed class WhatsAppProviderOptions
     public string GraphApiBaseUrl { get; set; } = "https://graph.facebook.com";
     public string GraphApiVersion { get; set; } = "v23.0";
     public int TimeoutSeconds { get; set; } = 10;
+}
+
+public sealed class IntegrationProviderCatalogOptions
+{
+    public const string SectionName = "Crm:IntegrationProviders";
+
+    public bool MockProviderEnabled { get; set; } = true;
+}
+
+public sealed class IntegrationProviderCatalogOptionsValidation(IHostEnvironment environment) : IValidateOptions<IntegrationProviderCatalogOptions>
+{
+    public ValidateOptionsResult Validate(string? name, IntegrationProviderCatalogOptions options)
+    {
+        if (environment.IsProduction() && options.MockProviderEnabled)
+        {
+            return ValidateOptionsResult.Fail("Crm:IntegrationProviders:MockProviderEnabled must be false in Production.");
+        }
+
+        return ValidateOptionsResult.Success;
+    }
 }
 
 internal static class ProviderConfigurationHelper

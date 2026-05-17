@@ -19,7 +19,16 @@ describe("CRM module registry", () => {
 
     expect(moduleItem).toBeDefined();
     expect(isCrmModuleNavigable(moduleItem!)).toBe(true);
+    expect(moduleItem?.endpointDiscoveryStatus).toBe("ready");
     expect(canNavigateCrmModule(moduleItem!, createCrmCapabilities(["customers.read"]))).toBe(true);
+  });
+
+  it("does not navigate modules when backend readiness is not ready", () => {
+    const moduleItem = getCrmModuleById("activities");
+
+    expect(moduleItem).toBeDefined();
+    expect(moduleItem?.endpointDiscoveryStatus).toBe("contract_pending");
+    expect(isCrmModuleNavigable(moduleItem!)).toBe(false);
   });
 
   it("denies ready modules when the capability map does not allow them", () => {

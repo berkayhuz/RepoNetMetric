@@ -8,6 +8,7 @@ import { isGuid } from "@/features/shared/data/guid";
 import { emptyToNull } from "@/features/shared/forms/schema-primitives";
 import { crmApiClient } from "@/lib/crm-api";
 import { getCrmApiRequestOptions } from "@/lib/crm-auth/crm-api-request-options";
+import { tCrm } from "@/lib/i18n/crm-i18n";
 import { assertSameOriginRequest } from "@/lib/security/csrf";
 
 import {
@@ -27,7 +28,7 @@ function revalidateTicketWorkflowPaths(ticketId?: string) {
 }
 
 function invalidConfirmationState(): CrmMutationState {
-  return { status: "error", message: "Action confirmation is invalid." };
+  return { status: "error", message: tCrm("crm.ticketWorkflows.actions.invalidConfirmation") };
 }
 
 export async function createTicketWorkflowQueueAction(
@@ -44,7 +45,7 @@ export async function createTicketWorkflowQueueAction(
     isDefault: formData.get("isDefault") === "true",
   });
 
-  if (!parsed.success) return { status: "error", message: "Please review the highlighted fields." };
+  if (!parsed.success) return { status: "error", message: tCrm("crm.forms.errors.reviewTitle") };
 
   try {
     const options = await getCrmApiRequestOptions();
@@ -59,7 +60,7 @@ export async function createTicketWorkflowQueueAction(
       options,
     );
     revalidateTicketWorkflowPaths();
-    return { status: "success", message: "Queue created." };
+    return { status: "success", message: tCrm("crm.ticketWorkflows.actions.queueCreated") };
   } catch (error) {
     return mapCrmMutationErrorToState(error, "/ticket-workflows");
   }
@@ -73,7 +74,7 @@ export async function updateTicketWorkflowQueueAction(
 
   const queueId = formData.get("queueId");
   if (typeof queueId !== "string" || !isGuid(queueId)) {
-    return { status: "error", message: "Invalid queue id." };
+    return { status: "error", message: tCrm("crm.ticketWorkflows.actions.invalidQueueId") };
   }
 
   const parsed = ticketWorkflowQueueUpdateFormSchema.safeParse({
@@ -84,7 +85,7 @@ export async function updateTicketWorkflowQueueAction(
     isDefault: formData.get("isDefault") === "true",
   });
 
-  if (!parsed.success) return { status: "error", message: "Please review the highlighted fields." };
+  if (!parsed.success) return { status: "error", message: tCrm("crm.forms.errors.reviewTitle") };
 
   try {
     const options = await getCrmApiRequestOptions();
@@ -99,7 +100,7 @@ export async function updateTicketWorkflowQueueAction(
       options,
     );
     revalidateTicketWorkflowPaths();
-    return { status: "success", message: "Queue updated." };
+    return { status: "success", message: tCrm("crm.ticketWorkflows.actions.queueUpdated") };
   } catch (error) {
     return mapCrmMutationErrorToState(error, "/ticket-workflows");
   }
@@ -114,18 +115,21 @@ export async function deleteTicketWorkflowQueueAction(
 
   const queueId = formData.get("queueId");
   if (typeof queueId !== "string" || !isGuid(queueId)) {
-    return { status: "error", message: "Invalid queue id." };
+    return { status: "error", message: tCrm("crm.ticketWorkflows.actions.invalidQueueId") };
   }
 
   try {
     const options = await getCrmApiRequestOptions();
     await crmApiClient.deleteTicketWorkflowQueue(queueId, options);
     revalidateTicketWorkflowPaths();
-    return { status: "success", message: "Queue deleted." };
+    return { status: "success", message: tCrm("crm.ticketWorkflows.actions.queueDeleted") };
   } catch (error) {
     const mapped = mapCrmMutationErrorToState(error, "/ticket-workflows");
     if (mapped.message === "The requested record no longer exists.") {
-      return { status: "error", message: "Queue is already removed or no longer available." };
+      return {
+        status: "error",
+        message: tCrm("crm.ticketWorkflows.actions.queueAlreadyRemoved"),
+      };
     }
     return mapped;
   }
@@ -143,7 +147,7 @@ export async function assignTicketWorkflowQueueAction(
     reason: formData.get("reason"),
   });
 
-  if (!parsed.success) return { status: "error", message: "Please review the highlighted fields." };
+  if (!parsed.success) return { status: "error", message: tCrm("crm.forms.errors.reviewTitle") };
 
   try {
     const options = await getCrmApiRequestOptions();
@@ -157,7 +161,10 @@ export async function assignTicketWorkflowQueueAction(
       options,
     );
     revalidateTicketWorkflowPaths(parsed.data.ticketId);
-    return { status: "success", message: "Queue assignment updated." };
+    return {
+      status: "success",
+      message: tCrm("crm.ticketWorkflows.actions.queueAssignmentUpdated"),
+    };
   } catch (error) {
     return mapCrmMutationErrorToState(error, "/ticket-workflows");
   }
@@ -176,7 +183,7 @@ export async function assignTicketWorkflowOwnerAction(
     reason: formData.get("reason"),
   });
 
-  if (!parsed.success) return { status: "error", message: "Please review the highlighted fields." };
+  if (!parsed.success) return { status: "error", message: tCrm("crm.forms.errors.reviewTitle") };
 
   try {
     const options = await getCrmApiRequestOptions();
@@ -191,7 +198,10 @@ export async function assignTicketWorkflowOwnerAction(
       options,
     );
     revalidateTicketWorkflowPaths(parsed.data.ticketId);
-    return { status: "success", message: "Owner assignment updated." };
+    return {
+      status: "success",
+      message: tCrm("crm.ticketWorkflows.actions.ownerAssignmentUpdated"),
+    };
   } catch (error) {
     return mapCrmMutationErrorToState(error, "/ticket-workflows");
   }
@@ -212,7 +222,7 @@ export async function changeTicketWorkflowStatusAction(
     note: formData.get("note"),
   });
 
-  if (!parsed.success) return { status: "error", message: "Please review the highlighted fields." };
+  if (!parsed.success) return { status: "error", message: tCrm("crm.forms.errors.reviewTitle") };
 
   try {
     const options = await getCrmApiRequestOptions();
@@ -226,15 +236,24 @@ export async function changeTicketWorkflowStatusAction(
       options,
     );
     revalidateTicketWorkflowPaths(parsed.data.ticketId);
-    return { status: "success", message: "Ticket status transition recorded." };
+    return {
+      status: "success",
+      message: tCrm("crm.ticketWorkflows.actions.statusTransitionRecorded"),
+    };
   } catch (error) {
     const mapped = mapCrmMutationErrorToState(error, "/ticket-workflows");
     if (mapped.status === "error" && mapped.message?.includes("record no longer exists")) {
-      return { status: "error", message: "Ticket is already removed or no longer available." };
+      return {
+        status: "error",
+        message: tCrm("crm.ticketWorkflows.actions.ticketAlreadyRemoved"),
+      };
     }
 
     if (mapped.status === "error" && mapped.message?.includes("changed elsewhere")) {
-      return { status: "error", message: "Ticket workflow state conflict. Refresh and retry." };
+      return {
+        status: "error",
+        message: tCrm("crm.ticketWorkflows.actions.stateConflict"),
+      };
     }
 
     return mapped;

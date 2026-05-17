@@ -8,5 +8,7 @@ namespace NetMetric.Tools.Infrastructure.Options;
 public sealed class ToolsArtifactStorageOptions
 {
     public const string SectionName = "Tools:ArtifactStorage";
+    public string Provider { get; init; } = "Local";
     public string RootPath { get; init; } = ".local/tools-artifacts";
+    public bool AllowUnsafeLocalInProduction { get; init; }
 }
