@@ -367,6 +367,6 @@ jobs:
       - name: Install helm
         uses: azure/setup-helm@v4.3.0
       - name: Install terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
       - name: Deploy checks
         run: pnpm run deploy:check
