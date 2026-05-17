@@ -4,6 +4,7 @@
 // </copyright>
 
 using MediatR;
+using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Common;
@@ -29,7 +30,8 @@ public sealed class UploadMyAvatarCommandHandler(
     IRepository<IAccountDbContext, UserProfile> profiles,
     IRepository<IAccountDbContext, AccountMediaAsset> mediaAssets,
     IAccountDbContext dbContext,
-    IMediaAssetService mediaAssetService)
+    IMediaAssetService mediaAssetService,
+    IAccountOutboxWriter outboxWriter)
     : IRequestHandler<UploadMyAvatarCommand, Result<AvatarUploadResponse>>
 {
     public async Task<Result<AvatarUploadResponse>> Handle(UploadMyAvatarCommand command, CancellationToken cancellationToken)
@@ -64,6 +66,7 @@ public sealed class UploadMyAvatarCommandHandler(
         }
 
         var safeFileName = BuildSafeFileName(command.FileName, upload.Extension);
+        var previousAvatarMediaAssetId = profile.AvatarMediaAssetId;
         var asset = AccountMediaAsset.CreateAvatar(
             tenantId,
             userId,
@@ -81,7 +84,29 @@ public sealed class UploadMyAvatarCommandHandler(
             clock.UtcNow);
         await mediaAssets.AddAsync(asset, cancellationToken);
         profile.AssignManagedAvatar(asset.Id, upload.PublicUrl, clock.UtcNow);
+        if (previousAvatarMediaAssetId.HasValue && previousAvatarMediaAssetId.Value != asset.Id)
+        {
+            var previousAsset = await mediaAssets.GetByIdAsync(previousAvatarMediaAssetId.Value, cancellationToken);
+            previousAsset?.MarkPendingCleanup(clock.UtcNow);
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await outboxWriter.EnqueueAsync(
+            currentUser.TenantId,
+            AccountOutboxEventTypes.AvatarChanged,
+            new AccountAvatarChangedEvent(
+                1,
+                currentUser.TenantId,
+                currentUser.UserId,
+                currentUser.CorrelationId,
+                clock.UtcNow,
+                asset.Id,
+                asset.ContentType,
+                asset.SizeBytes,
+                previousAvatarMediaAssetId),
+            currentUser.CorrelationId,
+            cancellationToken);
 
         return Result<AvatarUploadResponse>.Success(new AvatarUploadResponse(
             asset.Id,
@@ -136,7 +161,7 @@ public sealed class RemoveMyAvatarCommandHandler(
     IRepository<IAccountDbContext, UserProfile> profiles,
     IRepository<IAccountDbContext, AccountMediaAsset> mediaAssets,
     IAccountDbContext dbContext,
-    IMediaAssetService mediaAssetService)
+    IAccountOutboxWriter outboxWriter)
     : IRequestHandler<RemoveMyAvatarCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(RemoveMyAvatarCommand request, CancellationToken cancellationToken)
@@ -150,18 +175,31 @@ public sealed class RemoveMyAvatarCommandHandler(
             return Result<bool>.Failure(Error.NotFound("Profile"));
         }
 
-        if (profile.AvatarMediaAssetId.HasValue)
+        var removedMediaAssetId = profile.AvatarMediaAssetId;
+        if (removedMediaAssetId.HasValue)
         {
-            var asset = await mediaAssets.GetByIdAsync(profile.AvatarMediaAssetId.Value, cancellationToken);
+            var asset = await mediaAssets.GetByIdAsync(removedMediaAssetId.Value, cancellationToken);
             if (asset is not null)
             {
-                await mediaAssetService.DeleteAsync(asset.StorageKey, cancellationToken);
-                asset.MarkDeleted(clock.UtcNow);
+                asset.MarkPendingCleanup(clock.UtcNow);
             }
         }
 
         profile.ClearAvatar(clock.UtcNow);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await outboxWriter.EnqueueAsync(
+            currentUser.TenantId,
+            AccountOutboxEventTypes.AvatarDeleted,
+            new AccountAvatarDeletedEvent(
+                1,
+                currentUser.TenantId,
+                currentUser.UserId,
+                currentUser.CorrelationId,
+                clock.UtcNow,
+                removedMediaAssetId),
+            currentUser.CorrelationId,
+            cancellationToken);
+
         return Result<bool>.Success(true);
     }
 }

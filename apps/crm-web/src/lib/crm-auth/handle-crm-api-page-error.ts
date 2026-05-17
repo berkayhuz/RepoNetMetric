@@ -1,6 +1,6 @@
 import "server-only";
 
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { CrmApiError } from "@/lib/crm-api";
 import { buildAuthLoginRedirectUrl } from "@/lib/crm-auth/safe-return-url";
@@ -17,6 +17,10 @@ export function handleCrmApiPageError(error: unknown, returnPath = "/"): never {
 
     if (error.kind === "rate_limited") {
       redirect("/retry-later");
+    }
+
+    if (error.kind === "not_found") {
+      notFound();
     }
 
     if (error.kind === "server_error" || error.kind === "upstream_unavailable") {

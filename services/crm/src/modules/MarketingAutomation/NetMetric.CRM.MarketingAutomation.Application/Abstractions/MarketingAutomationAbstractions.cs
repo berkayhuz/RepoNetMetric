@@ -46,6 +46,17 @@ public interface IMarketingConsentEnforcementService
     Task<MarketingEligibilityResult> CheckAsync(Guid tenantId, string emailAddress, Guid? campaignId, CancellationToken cancellationToken);
 }
 
+public interface IMarketingConsentTokenService
+{
+    string Issue(MarketingConsentTokenIssueRequest request);
+
+    Task<MarketingConsentTokenValidationResult> ValidateAndConsumeAsync(
+        Guid tenantId,
+        string token,
+        string expectedPurpose,
+        CancellationToken cancellationToken);
+}
+
 public interface IMarketingTemplateRenderer
 {
     MarketingTemplatePreviewDto Render(string subject, string htmlBody, string textBody, string payloadJson);
@@ -91,6 +102,34 @@ public sealed record MarketingSuppressionRequest(string EmailAddress, string Rea
 public sealed record MarketingConsentRequest(string EmailAddress, string Status, string Source, bool DoubleOptInRequired);
 
 public sealed record MarketingUnsubscribeRequest(string EmailAddress, string Source);
+
+public sealed record MarketingConsentTokenIssueRequest(
+    Guid TenantId,
+    string EmailAddress,
+    string Purpose,
+    string Source,
+    string? Status = null,
+    bool DoubleOptInRequired = false,
+    DateTimeOffset? ExpiresAtUtc = null);
+
+public sealed record MarketingConsentTokenValidationResult(
+    bool IsValid,
+    string? Reason,
+    string? EmailAddress,
+    string? Source,
+    string? Status,
+    bool DoubleOptInRequired)
+{
+    public static MarketingConsentTokenValidationResult Invalid(string reason) =>
+        new(false, reason, null, null, null, false);
+
+    public static MarketingConsentTokenValidationResult Valid(
+        string emailAddress,
+        string source,
+        string? status,
+        bool doubleOptInRequired) =>
+        new(true, null, emailAddress, source, status, doubleOptInRequired);
+}
 
 public sealed record MarketingEligibilityResult(bool Allowed, string Reason, string ConsentStatus, bool Suppressed);
 

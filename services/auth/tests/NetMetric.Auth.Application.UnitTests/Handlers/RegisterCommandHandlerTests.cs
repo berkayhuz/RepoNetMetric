@@ -79,6 +79,51 @@ public sealed class RegisterCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_Should_Create_User_Tenant_And_OwnerMembership_In_One_UnitOfWork()
+    {
+        var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);
+        var command = new RegisterCommand(
+            "Acme Workspace",
+            "berkay",
+            "berkay@example.com",
+            "Str0ng!Pass123",
+            "Berkay",
+            "Test",
+            "en-US",
+            "127.0.0.1",
+            "unit-test");
+
+        var fixture = new Fixture(utcNow);
+        Tenant? createdTenant = null;
+        User? createdUser = null;
+        UserTenantMembership? createdMembership = null;
+        fixture.TenantRepository
+            .Setup(repository => repository.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
+            .Callback<Tenant, CancellationToken>((tenant, _) => createdTenant = tenant)
+            .Returns(Task.CompletedTask);
+        fixture.UserRepository
+            .Setup(repository => repository.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .Callback<User, CancellationToken>((user, _) => createdUser = user)
+            .Returns(Task.CompletedTask);
+        fixture.UserRepository
+            .Setup(repository => repository.AddMembershipAsync(It.IsAny<UserTenantMembership>(), It.IsAny<CancellationToken>()))
+            .Callback<UserTenantMembership, CancellationToken>((membership, _) => createdMembership = membership)
+            .Returns(Task.CompletedTask);
+        var sut = fixture.CreateSut();
+
+        await sut.Handle(command, CancellationToken.None);
+
+        createdTenant.Should().NotBeNull();
+        createdUser.Should().NotBeNull();
+        createdMembership.Should().NotBeNull();
+        createdUser!.TenantId.Should().Be(createdTenant!.Id);
+        createdMembership!.TenantId.Should().Be(createdTenant.Id);
+        createdMembership.UserId.Should().Be(createdUser.Id);
+        createdMembership.Roles.Split(',').Should().Contain("tenant-owner");
+        fixture.UnitOfWork.Verify(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_Should_Reject_Duplicate_Normalized_Email_Before_Creating_Tenant()
     {
         var utcNow = new DateTime(2026, 1, 6, 8, 30, 0, DateTimeKind.Utc);

@@ -4,19 +4,20 @@ import { getOpportunitiesData } from "@/features/opportunities/data/opportunitie
 import { toListQuery } from "@/features/shared/data/query";
 import type { OpportunityListItemDto } from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { formatCrmDate } from "@/lib/date-time/crm-date-time";
 import { tCrm } from "@/lib/i18n/crm-i18n";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 
 export default async function OpportunitiesPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireCrmSession("/opportunities");
-  const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const session = await requireCrmSession("/opportunities");
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
+  const capabilities = session.capabilities;
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -62,10 +63,7 @@ export default async function OpportunitiesPage({
     {
       key: "estimatedCloseDate",
       header: tCrm("crm.opportunities.fields.estimatedCloseDate", locale),
-      render: (item) =>
-        item.estimatedCloseDate
-          ? new Date(item.estimatedCloseDate).toLocaleDateString(locale)
-          : "-",
+      render: (item) => formatCrmDate(item.estimatedCloseDate, dateSettings),
     },
     {
       key: "isActive",

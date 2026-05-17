@@ -7,6 +7,7 @@ using FluentAssertions;
 using Moq;
 using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Identity;
+using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Devices.Commands;
@@ -29,12 +30,40 @@ public sealed class SecurityRevokeAndMfaTests
             Mock.Of<IClock>(c => c.UtcNow == DateTimeOffset.UtcNow),
             MockSessionRepo(),
             Mock.Of<IAccountDbContext>(),
-            Mock.Of<IAccountAuditWriter>());
+            Mock.Of<IAccountAuditWriter>(),
+            Mock.Of<IAccountOutboxWriter>());
 
         var result = await sut.Handle(new RevokeSessionCommand(current.SessionId!.Value), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("validation_error");
+    }
+
+    [Fact]
+    public async Task RevokeSession_ShouldPublishSessionRevokedEvent()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var current = CreateCurrentUser();
+        var targetSession = UserSession.Create(Guid.NewGuid(), TenantId.From(current.TenantId), UserId.From(current.UserId), now, now.AddHours(1), null, "ua");
+        var outbox = new Mock<IAccountOutboxWriter>();
+
+        var sut = new RevokeSessionCommandHandler(
+            MockCurrentUser(current),
+            Mock.Of<IClock>(c => c.UtcNow == now),
+            MockSessionRepo(targetSession),
+            Mock.Of<IAccountDbContext>(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()) == Task.FromResult(1)),
+            Mock.Of<IAccountAuditWriter>(),
+            outbox.Object);
+
+        var result = await sut.Handle(new RevokeSessionCommand(targetSession.Id), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        outbox.Verify(x => x.EnqueueAsync(
+            current.TenantId,
+            AccountOutboxEventTypes.SessionRevoked,
+            It.Is<AccountSessionRevokedEvent>(payload => payload.SessionId == targetSession.Id && payload.Reason == "user_revoked"),
+            current.CorrelationId,
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

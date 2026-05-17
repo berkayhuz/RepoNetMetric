@@ -4,7 +4,6 @@ import { getCustomersData } from "@/features/customers/data/customers-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { CustomerListItemDto } from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
 import { tCrm } from "@/lib/i18n/crm-i18n";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -14,9 +13,9 @@ export default async function CustomersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireCrmSession("/customers");
+  const session = await requireCrmSession("/customers");
   const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const capabilities = session.capabilities;
 
   const params = await searchParams;
   const query = toListQuery(params);

@@ -25,6 +25,24 @@ describe("CRM capability mapping", () => {
     expect(crmCapabilityAllows(capabilities, "customers.delete")).toBe(false);
   });
 
+  it("maps explicit backend permissions to named CRM action capabilities", () => {
+    const capabilities = createCrmCapabilities([
+      "leads.manage",
+      "deals.manage",
+      "customers.export",
+      "customers.import",
+      "customer-intelligence.duplicates.read",
+      "opportunities.delete",
+    ]);
+
+    expect(crmCapabilityAllows(capabilities, "canCreateLead")).toBe(true);
+    expect(crmCapabilityAllows(capabilities, "canEditDeal")).toBe(true);
+    expect(crmCapabilityAllows(capabilities, "canExportCustomer")).toBe(true);
+    expect(crmCapabilityAllows(capabilities, "canImportCustomer")).toBe(true);
+    expect(crmCapabilityAllows(capabilities, "customers.duplicates.review")).toBe(true);
+    expect(crmCapabilityAllows(capabilities, "canDeleteOpportunity")).toBe(true);
+  });
+
   it("maps service permissions to service module capabilities", () => {
     const capabilities = createCrmCapabilities([
       "support-inbox.messages.read",

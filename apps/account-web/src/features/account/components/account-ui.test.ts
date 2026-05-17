@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { afterEach } from "vitest";
 import { describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
 
 import { ProfileEditForm } from "./profile-edit-form";
 import { PreferencesEditForm } from "./preferences-edit-form";
@@ -186,6 +187,34 @@ describe("Account forms and panels", () => {
     expect(screen.getByText("Theme")).toBeTruthy();
     expect(screen.getByText(/Date format/i)).toBeTruthy();
     expect(screen.getByText(/Default organization/i)).toBeTruthy();
+  });
+
+  it("shows a reload action when preferences update hits a concurrency conflict", async () => {
+    const conflictAction = async (
+      previous: MutationState,
+      formData: FormData,
+    ): Promise<MutationState> => {
+      void previous;
+      void formData;
+      return {
+        status: "error",
+        code: "conflict",
+        message: "Your preferences changed in another tab.",
+      };
+    };
+
+    render(
+      createElement(PreferencesEditForm, {
+        preferences,
+        options,
+        organizations,
+        action: conflictAction,
+      }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /save preferences/i }));
+
+    expect(await screen.findByText(/Reload latest preferences/i)).toBeTruthy();
   });
 
   it("renders default avatar when avatar url is missing", () => {

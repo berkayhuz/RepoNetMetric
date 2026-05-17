@@ -165,7 +165,7 @@ public sealed class AuthController(
 
     [HttpPost("forgot-password")]
     [AllowAnonymous]
-    [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
+    [EnableRateLimiting(AuthRateLimitingOptions.PasswordRecoveryPolicyName)]
     [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
@@ -185,7 +185,7 @@ public sealed class AuthController(
 
     [HttpPost("reset-password")]
     [AllowAnonymous]
-    [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
+    [EnableRateLimiting(AuthRateLimitingOptions.PasswordRecoveryPolicyName)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
     {
@@ -208,7 +208,7 @@ public sealed class AuthController(
 
     [HttpPost("confirm-email")]
     [AllowAnonymous]
-    [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
+    [EnableRateLimiting(AuthRateLimitingOptions.EmailConfirmationPolicyName)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request, CancellationToken cancellationToken)
     {
@@ -229,7 +229,7 @@ public sealed class AuthController(
 
     [HttpPost("resend-confirm-email")]
     [AllowAnonymous]
-    [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
+    [EnableRateLimiting(AuthRateLimitingOptions.EmailConfirmationPolicyName)]
     [ProducesResponseType<AccountActionAcceptedResponse>(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> ResendConfirmEmail([FromBody] ResendEmailConfirmationRequest request, CancellationToken cancellationToken)
     {
@@ -286,13 +286,38 @@ public sealed class AuthController(
 
     [HttpGet("session-status")]
     [Authorize(Policy = AuthAuthorizationPolicies.TenantUser)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<AuthSessionStatusResponse>(StatusCodes.Status200OK)]
     public IActionResult GetSessionStatus()
-        => NoContent();
+    {
+        var principal = requestContextAccessor.GetPrincipalContext(User);
+        var roles = User.Claims
+            .Where(claim => claim.Type == System.Security.Claims.ClaimTypes.Role || claim.Type == "role")
+            .SelectMany(claim => claim.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var permissions = User.Claims
+            .Where(claim => claim.Type == "permission" || claim.Type == "permissions")
+            .SelectMany(claim => claim.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return Ok(new AuthSessionStatusResponse(
+            principal.TenantId,
+            principal.UserId,
+            principal.CurrentSessionId,
+            principal.Email ?? string.Empty,
+            roles,
+            permissions,
+            AccountStatus: "active",
+            EmailConfirmed: true,
+            MfaVerifiedAt: null));
+    }
 
     [HttpPost("confirm-email-change")]
     [AllowAnonymous]
-    [EnableRateLimiting(AuthRateLimitingOptions.LoginPolicyName)]
+    [EnableRateLimiting(AuthRateLimitingOptions.EmailConfirmationPolicyName)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ConfirmEmailChange([FromBody] ConfirmEmailChangeRequest request, CancellationToken cancellationToken)
     {

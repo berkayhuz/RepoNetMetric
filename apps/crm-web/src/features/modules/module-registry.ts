@@ -23,7 +23,7 @@ export type CrmModuleRegistryItem = {
   iconKey: string;
   status: CrmModuleStatus;
   backendModuleFolder: string;
-  endpointDiscoveryStatus: "source_visible" | "contract_pending" | "coming_soon";
+  endpointDiscoveryStatus: "ready" | "source_visible" | "contract_pending" | "disabled";
 };
 
 function moduleTextKeys(
@@ -45,7 +45,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "layout-dashboard",
     status: "read_only",
     backendModuleFolder: "AnalyticsReporting",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "customers",
@@ -55,7 +55,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "users",
     status: "active",
     backendModuleFolder: "CustomerManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "companies",
@@ -65,7 +65,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "building-2",
     status: "active",
     backendModuleFolder: "CustomerManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "contacts",
@@ -75,7 +75,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "contact",
     status: "active",
     backendModuleFolder: "CustomerManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "customer-intelligence",
@@ -85,7 +85,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "sparkles",
     status: "contract_pending",
     backendModuleFolder: "CustomerIntelligence",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "lead-management",
@@ -95,7 +95,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "user-plus",
     status: "active",
     backendModuleFolder: "LeadManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "deal-management",
@@ -105,7 +105,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "handshake",
     status: "active",
     backendModuleFolder: "DealManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "opportunity-management",
@@ -115,7 +115,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "target",
     status: "active",
     backendModuleFolder: "OpportunityManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "pipeline-management",
@@ -125,7 +125,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "git-branch",
     status: "active",
     backendModuleFolder: "PipelineManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "quote-management",
@@ -135,7 +135,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "file-text",
     status: "active",
     backendModuleFolder: "QuoteManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "sales-forecasting",
@@ -145,7 +145,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "trending-up",
     status: "contract_pending",
     backendModuleFolder: "SalesForecasting",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "product-catalog",
@@ -155,7 +155,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "package",
     status: "contract_pending",
     backendModuleFolder: "ProductCatalog",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "support-inbox",
@@ -165,7 +165,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "inbox",
     status: "read_only",
     backendModuleFolder: "SupportInboxIntegration",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "ticket-management",
@@ -175,7 +175,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "ticket",
     status: "active",
     backendModuleFolder: "TicketManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "ticket-sla",
@@ -185,7 +185,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "alarm-clock",
     status: "active",
     backendModuleFolder: "TicketSlaManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "ticket-workflow",
@@ -195,7 +195,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "shuffle",
     status: "active",
     backendModuleFolder: "TicketWorkflowManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "marketing-automation",
@@ -205,7 +205,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "megaphone",
     status: "contract_pending",
     backendModuleFolder: "MarketingAutomation",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "omnichannel",
@@ -215,7 +215,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "messages-square",
     status: "contract_pending",
     backendModuleFolder: "Omnichannel",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "calendar-sync",
@@ -225,7 +225,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "calendar",
     status: "contract_pending",
     backendModuleFolder: "CalendarSync",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "contract-lifecycle",
@@ -235,7 +235,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "file-signature",
     status: "contract_pending",
     backendModuleFolder: "ContractLifecycle",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "document-management",
@@ -245,7 +245,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "folder-open",
     status: "contract_pending",
     backendModuleFolder: "DocumentManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "finance-operations",
@@ -255,7 +255,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "wallet",
     status: "contract_pending",
     backendModuleFolder: "FinanceOperations",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "integration-hub",
@@ -265,7 +265,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "plug",
     status: "contract_pending",
     backendModuleFolder: "IntegrationHub",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "knowledge-base",
@@ -275,7 +275,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "book-open",
     status: "contract_pending",
     backendModuleFolder: "KnowledgeBaseManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "work-management",
@@ -285,7 +285,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "list-checks",
     status: "active",
     backendModuleFolder: "WorkManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "workflow-automation",
@@ -295,7 +295,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "workflow",
     status: "contract_pending",
     backendModuleFolder: "WorkflowAutomation",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "analytics-reporting",
@@ -305,7 +305,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "bar-chart-3",
     status: "contract_pending",
     backendModuleFolder: "AnalyticsReporting",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "artificial-intelligence",
@@ -315,7 +315,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "bot",
     status: "contract_pending",
     backendModuleFolder: "ArtificialIntelligence",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "tag-management",
@@ -325,7 +325,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "tags",
     status: "contract_pending",
     backendModuleFolder: "TagManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "tenant-management",
@@ -335,7 +335,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "shield",
     status: "contract_pending",
     backendModuleFolder: "TenantManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "contract_pending",
   },
   {
     id: "tasks",
@@ -345,7 +345,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "check-square",
     status: "active",
     backendModuleFolder: "WorkManagement",
-    endpointDiscoveryStatus: "source_visible",
+    endpointDiscoveryStatus: "ready",
   },
   {
     id: "activities",
@@ -365,7 +365,7 @@ export const crmModuleRegistry: CrmModuleRegistryItem[] = [
     iconKey: "settings",
     status: "coming_soon",
     backendModuleFolder: "TenantManagement",
-    endpointDiscoveryStatus: "coming_soon",
+    endpointDiscoveryStatus: "disabled",
   },
 ];
 
@@ -392,7 +392,10 @@ export function getCrmModulesByGroup(group: CrmModuleGroup): CrmModuleRegistryIt
 }
 
 export function isCrmModuleNavigable(moduleItem: CrmModuleRegistryItem): boolean {
-  return moduleItem.status === "active" || moduleItem.status === "read_only";
+  return (
+    moduleItem.endpointDiscoveryStatus === "ready" &&
+    (moduleItem.status === "active" || moduleItem.status === "read_only")
+  );
 }
 
 export function getCrmModuleRequiredCapability(

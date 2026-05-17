@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NetMetric.Media.Abstractions;
 using NetMetric.Media.Options;
+using NetMetric.Media.Security;
 using NetMetric.Media.Services;
 using NetMetric.Media.Urls;
 using NetMetric.Media.Validation;
@@ -32,6 +33,7 @@ public static class MediaServiceCollectionExtensions
         services.AddSingleton<IMediaUrlBuilder, MediaUrlBuilder>();
         services.AddScoped<IImageValidator, DefaultImageValidator>();
         services.AddScoped<IImageMetadataReader, DefaultImageMetadataReader>();
+        services.AddScoped<IMediaSecurityScanner, NoopMediaSecurityScanner>();
         services.AddScoped<IMediaAssetService, MediaAssetService>();
 
         var provider = configuration.GetSection(MediaOptions.SectionName).Get<MediaOptions>()?.StorageProvider ?? "LocalFile";

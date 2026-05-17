@@ -59,7 +59,10 @@ export function mapMutationErrorToState(error: unknown, returnPath: string): Mut
     if (error.kind === "conflict") {
       return {
         status: "error",
-        message: error.problem?.detail ?? "Your profile changed elsewhere. Refresh and try again.",
+        code: "conflict",
+        message:
+          error.problem?.detail ??
+          "Your preferences changed in another tab. Refresh to load the latest version and try again.",
       };
     }
 

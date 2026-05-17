@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { UI_LOCALE_COOKIE_NAME, UI_THEME_COOKIE_NAME } from "@netmetric/i18n";
+import {
+  UI_DATE_FORMAT_COOKIE_NAME,
+  UI_LOCALE_COOKIE_NAME,
+  UI_THEME_COOKIE_NAME,
+  UI_TIME_ZONE_COOKIE_NAME,
+} from "@netmetric/i18n";
 
 import { accountApiClient, type UpdateUserPreferenceRequest } from "@/lib/account-api";
 import { getAccountApiRequestOptions } from "@/lib/auth/account-api-request-options";
@@ -51,6 +56,8 @@ export async function updatePreferencesAction(
     const cookieValues = resolvePreferenceCookiesFromPayload(payload);
     cookieStore.set(UI_LOCALE_COOKIE_NAME, cookieValues.locale, cookieOptions);
     cookieStore.set(UI_THEME_COOKIE_NAME, cookieValues.theme, cookieOptions);
+    cookieStore.set(UI_TIME_ZONE_COOKIE_NAME, cookieValues.timeZone, cookieOptions);
+    cookieStore.set(UI_DATE_FORMAT_COOKIE_NAME, cookieValues.dateFormat, cookieOptions);
     revalidatePath("/preferences");
     revalidatePath("/settings");
 

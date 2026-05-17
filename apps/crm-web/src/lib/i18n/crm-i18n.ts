@@ -27,9 +27,10 @@ const endpointDiscoveryKeyByValue: Record<
   CrmModuleRegistryItem["endpointDiscoveryStatus"],
   string
 > = {
+  ready: "crm.modules.endpointDiscovery.ready",
   source_visible: "crm.modules.endpointDiscovery.sourceVisible",
   contract_pending: "crm.modules.endpointDiscovery.contractPending",
-  coming_soon: "crm.modules.endpointDiscovery.comingSoon",
+  disabled: "crm.modules.endpointDiscovery.disabled",
 };
 
 function toTitleCaseFromSlug(value: string): string {

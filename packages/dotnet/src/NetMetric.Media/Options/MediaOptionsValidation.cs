@@ -55,6 +55,12 @@ public sealed class MediaOptionsValidation(IHostEnvironment environment) : IVali
             failures.Add("Media:MaxImageBytes must be between 1 byte and 25 MB.");
         }
 
+        if (options.MaxImageWidth <= 0 || options.MaxImageWidth > 10000 ||
+            options.MaxImageHeight <= 0 || options.MaxImageHeight > 10000)
+        {
+            failures.Add("Media image dimension limits must be between 1 and 10000 pixels.");
+        }
+
         if (options.AllowedImageContentTypes.Length == 0 || options.AllowedImageExtensions.Length == 0)
         {
             failures.Add("Media allowed image content types/extensions must be configured.");
@@ -126,6 +132,13 @@ public sealed class MediaOptionsValidation(IHostEnvironment environment) : IVali
             ContainsUnsafeMarker(options.CloudflareR2.AccessKeyId))
         {
             failures.Add("Media:CloudflareR2 configuration contains unsafe placeholder values.");
+        }
+
+        if (options.RequireSecurityScannerInProduction &&
+            (string.IsNullOrWhiteSpace(options.SecurityScannerProvider) ||
+             string.Equals(options.SecurityScannerProvider, "Noop", StringComparison.OrdinalIgnoreCase)))
+        {
+            failures.Add("Media:SecurityScannerProvider must be a production scanner when RequireSecurityScannerInProduction is enabled.");
         }
     }
 

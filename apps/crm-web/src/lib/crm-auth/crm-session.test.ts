@@ -1,6 +1,5 @@
-import { Buffer } from "node:buffer";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { randomUUID } from "node:crypto";
 
 const mocks = vi.hoisted(() => ({
   accessToken: undefined as string | undefined,
@@ -27,9 +26,25 @@ vi.mock("next/navigation", () => ({
 
 import { isPublicCrmPath, validateCrmSession } from "./crm-session";
 
-function tokenWithPermissions(permissions: readonly string[]): string {
-  const payload = Buffer.from(JSON.stringify({ permissions })).toString("base64url");
-  return `header.${payload}.signature`;
+function sessionStatusResponse(
+  permissions: readonly string[],
+  overrides: Record<string, unknown> = {},
+) {
+  return new Response(
+    JSON.stringify({
+      tenantId: "test-tenant-id",
+      userId: "test-user-id",
+      sessionId: "test-session-id",
+      email: "ada@example.com",
+      roles: ["tenant-owner"],
+      permissions,
+      accountStatus: "active",
+      emailConfirmed: true,
+      mfaVerifiedAt: null,
+      ...overrides,
+    }),
+    { status: 200, headers: { "content-type": "application/json" } },
+  );
 }
 
 describe("CRM session route classification", () => {
@@ -58,7 +73,7 @@ describe("CRM session route classification", () => {
   });
 
   it("redirects invalid or unauthorized sessions safely", async () => {
-    mocks.accessToken = tokenWithPermissions(["customers.read"]);
+    mocks.accessToken = randomUUID();
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
 
     await expect(validateCrmSession("/customers")).rejects.toMatchObject({
@@ -72,8 +87,8 @@ describe("CRM session route classification", () => {
   });
 
   it("requires route capabilities even when session introspection succeeds", async () => {
-    mocks.accessToken = tokenWithPermissions(["customers.read"]);
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
+    mocks.accessToken = randomUUID();
+    vi.mocked(fetch).mockResolvedValueOnce(sessionStatusResponse(["customers.read"]));
 
     await expect(validateCrmSession("/customers/new")).rejects.toMatchObject({
       url: "/access-denied",
@@ -81,12 +96,44 @@ describe("CRM session route classification", () => {
   });
 
   it("returns a CRM session for valid introspection and route capability", async () => {
-    mocks.accessToken = tokenWithPermissions(["customers.read"]);
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
+    mocks.accessToken = randomUUID();
+    vi.mocked(fetch).mockResolvedValueOnce(sessionStatusResponse(["customers.read"]));
 
     const session = await validateCrmSession("/customers");
 
     expect(session.accessToken).toBe(mocks.accessToken);
     expect(session.capabilities["customers.read"]).toBe(true);
+    expect(session.profile.tenantId).toBe("test-tenant-id");
+    expect(session.profile.email).toBe("ada@example.com");
+  });
+
+  it("redirects disabled or unconfirmed profiles away from CRM", async () => {
+    mocks.accessToken = randomUUID();
+    vi.mocked(fetch).mockResolvedValueOnce(
+      sessionStatusResponse(["customers.read"], { accountStatus: "disabled" }),
+    );
+
+    await expect(validateCrmSession("/customers")).rejects.toMatchObject({
+      url: "/access-denied",
+    });
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      sessionStatusResponse(["customers.read"], { emailConfirmed: false }),
+    );
+
+    await expect(validateCrmSession("/customers")).rejects.toMatchObject({
+      url: "/access-denied",
+    });
+  });
+
+  it("redirects missing tenant context safely", async () => {
+    mocks.accessToken = randomUUID();
+    vi.mocked(fetch).mockResolvedValueOnce(
+      sessionStatusResponse(["customers.read"], { tenantId: "" }),
+    );
+
+    await expect(validateCrmSession("/customers")).rejects.toMatchObject({
+      url: "/access-denied",
+    });
   });
 });

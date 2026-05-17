@@ -7,7 +7,9 @@ using System.Text.Json.Serialization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NetMetric.CRM.API.Compatibility;
+using NetMetric.CRM.API.Security;
 using NetMetric.CRM.LeadManagement.Application.Commands.Leads;
 using NetMetric.CRM.LeadManagement.Application.Features.Bulk.Commands.BulkAssignLeadsOwner;
 using NetMetric.CRM.LeadManagement.Application.Features.Bulk.Commands.BulkSoftDeleteLeads;
@@ -22,7 +24,10 @@ namespace NetMetric.CRM.API.Controllers.Leads;
 [ApiController]
 [Route("api/leads")]
 [Authorize(Policy = AuthorizationPolicies.LeadsRead)]
-public sealed class LeadsController(IMediator mediator) : ControllerBase
+public sealed class LeadsController(
+    IMediator mediator,
+    IConfiguration configuration,
+    IPublicCaptureChallengeVerifier captureChallengeVerifier) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Get(
@@ -145,8 +150,19 @@ public sealed class LeadsController(IMediator mediator) : ControllerBase
 
     [HttpPost("capture")]
     [AllowAnonymous] // Assuming capture endpoints might be called by webhooks/public forms
+    [EnableRateLimiting("crm-public-capture")]
+    [RequestSizeLimit(64_000)]
     public async Task<IActionResult> Capture([FromBody] CaptureLeadRequest request, CancellationToken cancellationToken)
     {
+        if (!IsAllowedCaptureOrigin(Request, configuration) ||
+            !string.IsNullOrWhiteSpace(request.Honeypot) ||
+            (configuration.GetValue<bool>("Crm:PublicCapture:CaptchaRequired") &&
+             string.IsNullOrWhiteSpace(request.CaptchaToken)) ||
+            !await captureChallengeVerifier.VerifyAsync(request.CaptchaToken, HttpContext, cancellationToken))
+        {
+            return BadRequest(new { message = "Lead capture request could not be completed." });
+        }
+
         var leadId = await mediator.Send(
             new CaptureLeadCommand(
                 request.FullName,
@@ -250,11 +266,52 @@ public sealed class LeadsController(IMediator mediator) : ControllerBase
         string? UtmCampaign,
         string? UtmTerm,
         string? UtmContent,
-        Dictionary<string, object>? DynamicData);
+        Dictionary<string, object>? DynamicData,
+        string? Honeypot,
+        string? CaptchaToken);
 
     public sealed record ConvertLeadToCustomerRequest([property: JsonRequired] CustomerType CustomerType, [property: JsonRequired] bool MarkCustomerAsVip, [property: JsonRequired] bool CreateOpportunity, string? OpportunityName, decimal? EstimatedAmount, Guid? CompanyId);
 
     public sealed record BulkAssignLeadsOwnerRequest(IReadOnlyCollection<Guid> LeadIds, Guid? OwnerUserId);
 
     public sealed record BulkLeadIdsRequest(IReadOnlyCollection<Guid> LeadIds);
+
+    private static bool IsAllowedCaptureOrigin(HttpRequest request, IConfiguration configuration)
+    {
+        var allowedOrigins = configuration.GetSection("Crm:PublicCapture:AllowedOrigins").Get<string[]>() ?? [];
+        if (allowedOrigins.Length == 0)
+        {
+            return true;
+        }
+
+        var origin = request.Headers.Origin.FirstOrDefault();
+        if (TryMatchesAllowedOrigin(origin, allowedOrigins))
+        {
+            return true;
+        }
+
+        var referer = request.Headers.Referer.FirstOrDefault();
+        return TryMatchesAllowedOrigin(referer, allowedOrigins);
+    }
+
+    private static bool TryMatchesAllowedOrigin(string? value, IReadOnlyCollection<string> allowedOrigins)
+    {
+        if (string.IsNullOrWhiteSpace(value) ||
+            !Uri.TryCreate(value, UriKind.Absolute, out var requestUri))
+        {
+            return false;
+        }
+
+        foreach (var allowed in allowedOrigins)
+        {
+            if (Uri.TryCreate(allowed, UriKind.Absolute, out var allowedUri) &&
+                string.Equals(requestUri.Host, allowedUri.Host, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(requestUri.Scheme, allowedUri.Scheme, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

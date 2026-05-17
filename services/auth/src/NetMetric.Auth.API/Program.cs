@@ -121,9 +121,6 @@ builder.Services.AddSwaggerGen(options =>
 var corsOptions = builder.Configuration.GetSection(ApiCorsOptions.SectionName).Get<ApiCorsOptions>()
     ?? throw new InvalidOperationException("Security:Cors configuration is missing.");
 
-var rateLimitingOptions = builder.Configuration.GetSection(AuthRateLimitingOptions.SectionName).Get<AuthRateLimitingOptions>()
-    ?? throw new InvalidOperationException("Security:RateLimiting configuration is missing.");
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(ApiCorsOptions.PolicyName, policy =>
@@ -174,37 +171,47 @@ builder.Services.AddRateLimiter(options =>
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: $"global:{httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}",
-            factory: _ => rateLimitingOptions.Global.ToLimiterOptions()));
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Global.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.LoginPolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"login:{httpContext.Connection.RemoteIpAddress}",
-            factory: _ => rateLimitingOptions.Login.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "login"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Login.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.RegisterPolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"register:{httpContext.Connection.RemoteIpAddress}",
-            factory: _ => rateLimitingOptions.Register.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "register"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Register.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.RefreshPolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"refresh:{httpContext.Connection.RemoteIpAddress}",
-            factory: _ => rateLimitingOptions.Refresh.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "refresh"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Refresh.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.LogoutPolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"logout:{httpContext.Connection.RemoteIpAddress}",
-            factory: _ => rateLimitingOptions.Logout.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "logout"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Logout.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.InvitePolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"invite:{httpContext.Connection.RemoteIpAddress}:{httpContext.User.FindFirst("tenant_id")?.Value ?? "anonymous"}",
-            factory: _ => rateLimitingOptions.Invite.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "invite"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).Invite.ToLimiterOptions()));
 
     options.AddPolicy(AuthRateLimitingOptions.RoleManagementPolicyName, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: $"roles:{httpContext.Connection.RemoteIpAddress}:{httpContext.User.FindFirst("tenant_id")?.Value ?? "anonymous"}",
-            factory: _ => rateLimitingOptions.RoleManagement.ToLimiterOptions()));
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "roles"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).RoleManagement.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.PasswordRecoveryPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "password-recovery"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).PasswordRecovery.ToLimiterOptions()));
+
+    options.AddPolicy(AuthRateLimitingOptions.EmailConfirmationPolicyName, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: BuildAuthRateLimitPartitionKey(httpContext, "email-confirmation"),
+            factory: _ => GetAuthRateLimitingOptions(httpContext).EmailConfirmation.ToLimiterOptions()));
 });
 
 var authorizationOptions = builder.Configuration.GetSection(AuthorizationOptions.SectionName).Get<AuthorizationOptions>() ?? new AuthorizationOptions();
@@ -345,5 +352,20 @@ static bool ShouldUseHttpsRedirection(WebApplication app)
         .GetChildren()
         .Any(endpoint => endpoint["Url"]?.StartsWith("https://", StringComparison.OrdinalIgnoreCase) == true);
 }
+
+static string BuildAuthRateLimitPartitionKey(HttpContext httpContext, string policy)
+{
+    var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var tenant =
+        httpContext.User.FindFirst("tenant_id")?.Value ??
+        httpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault() ??
+        httpContext.Request.Headers["X-Tenant-Slug"].FirstOrDefault() ??
+        "anonymous";
+
+    return $"{policy}:{ip}:{tenant}:{httpContext.Request.Path.Value?.ToLowerInvariant()}";
+}
+
+static AuthRateLimitingOptions GetAuthRateLimitingOptions(HttpContext httpContext) =>
+    httpContext.RequestServices.GetRequiredService<IOptions<AuthRateLimitingOptions>>().Value;
 
 public partial class Program;

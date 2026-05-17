@@ -16,6 +16,8 @@ export const crmApiEndpoints = {
     ({ method: "PUT", path: `/api/customers/${customerId}` }) satisfies RouteDefinition,
   customersDelete: (customerId: string) =>
     ({ method: "DELETE", path: `/api/customers/${customerId}` }) satisfies RouteDefinition,
+  customerDuplicates: (customerId: string) =>
+    ({ method: "GET", path: `/api/customers/${customerId}/duplicates` }) satisfies RouteDefinition,
 
   companiesList: { method: "GET", path: "/api/companies" } satisfies RouteDefinition,
   companiesDetail: (companyId: string) =>

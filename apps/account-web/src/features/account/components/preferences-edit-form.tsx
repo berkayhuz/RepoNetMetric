@@ -66,6 +66,7 @@ export function PreferencesEditForm({
 }: PreferencesEditFormProps) {
   const [state, formAction] = useActionState(action, initialMutationState);
   const noDefaultOrganization = "__none__";
+  const isConflict = state.status === "error" && state.code === "conflict";
   const [defaultOrganizationId, setDefaultOrganizationId] = useState(
     preferences.defaultOrganizationId ?? noDefaultOrganization,
   );
@@ -89,7 +90,20 @@ export function PreferencesEditForm({
       {state.status === "error" && state.message ? (
         <Alert variant="destructive">
           <AlertTitle>{tAccountClient("account.common.updateFailed")}</AlertTitle>
-          <AlertDescription>{state.message}</AlertDescription>
+          <AlertDescription className="space-y-3">
+            <span>{state.message}</span>
+            {isConflict ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  window.location.reload();
+                }}
+              >
+                {tAccountClient("account.preferences.reloadLatest")}
+              </Button>
+            ) : null}
+          </AlertDescription>
         </Alert>
       ) : null}
 

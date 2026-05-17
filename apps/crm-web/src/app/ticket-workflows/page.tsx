@@ -14,7 +14,8 @@ import { getTicketWorkflowData } from "@/features/ticket-workflows/data/ticket-w
 import { TicketWorkflowMutationPanels } from "@/features/ticket-workflows/forms/ticket-workflow-mutation-panels";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { formatCrmDateTime } from "@/lib/date-time/crm-date-time";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
 import {
   Button,
@@ -49,7 +50,8 @@ export default async function TicketWorkflowsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await requireCrmSession("/ticket-workflows");
-  const locale = await getRequestLocale();
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
   const canManageTicketWorkflows = crmCapabilityAllows(
     session.capabilities,
     "ticketWorkflow.manage",
@@ -192,7 +194,7 @@ export default async function TicketWorkflowsPage({
               <TableBody>
                 {assignments.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell>{new Date(a.changedAtUtc).toLocaleString(locale)}</TableCell>
+                    <TableCell>{formatCrmDateTime(a.changedAtUtc, dateSettings)}</TableCell>
                     <TableCell>{a.previousQueueId ?? "-"}</TableCell>
                     <TableCell>{a.newQueueId ?? "-"}</TableCell>
                     <TableCell>{a.previousOwnerUserId ?? "-"}</TableCell>
@@ -240,7 +242,7 @@ export default async function TicketWorkflowsPage({
               <TableBody>
                 {statusHistory.map((s) => (
                   <TableRow key={s.id}>
-                    <TableCell>{new Date(s.changedAtUtc).toLocaleString(locale)}</TableCell>
+                    <TableCell>{formatCrmDateTime(s.changedAtUtc, dateSettings)}</TableCell>
                     <TableCell>{s.previousStatus}</TableCell>
                     <TableCell>{s.newStatus}</TableCell>
                     <TableCell>{s.note ?? "-"}</TableCell>

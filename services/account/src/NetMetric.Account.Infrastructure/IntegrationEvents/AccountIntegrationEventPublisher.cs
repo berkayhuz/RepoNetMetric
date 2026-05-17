@@ -68,6 +68,11 @@ public sealed class RabbitMqAccountIntegrationEventPublisher(
         {
             Outbox.OutboxEventTypes.SecurityNotificationRequested => SecurityNotificationRequestedV1.EventName,
             Outbox.OutboxEventTypes.SecurityEventRaised => "account.security_event.raised",
+            Outbox.OutboxEventTypes.ProfileUpdated => "account.profile.updated",
+            Outbox.OutboxEventTypes.PreferencesUpdated => "account.preferences.updated",
+            Outbox.OutboxEventTypes.AvatarChanged => "account.avatar.changed",
+            Outbox.OutboxEventTypes.AvatarDeleted => "account.avatar.deleted",
+            Outbox.OutboxEventTypes.SessionRevoked => "account.session.revoked",
             _ => type
         };
 
@@ -76,6 +81,11 @@ public sealed class RabbitMqAccountIntegrationEventPublisher(
         {
             Outbox.OutboxEventTypes.SecurityNotificationRequested => SecurityNotificationRequestedV1.RoutingKey,
             Outbox.OutboxEventTypes.SecurityEventRaised => "account.security_event.raised.v1",
+            Outbox.OutboxEventTypes.ProfileUpdated => "account.profile.updated.v1",
+            Outbox.OutboxEventTypes.PreferencesUpdated => "account.preferences.updated.v1",
+            Outbox.OutboxEventTypes.AvatarChanged => "account.avatar.changed.v1",
+            Outbox.OutboxEventTypes.AvatarDeleted => "account.avatar.deleted.v1",
+            Outbox.OutboxEventTypes.SessionRevoked => "account.session.revoked.v1",
             _ => type
         };
 }

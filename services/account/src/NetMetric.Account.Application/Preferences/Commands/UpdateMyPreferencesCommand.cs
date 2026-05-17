@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NetMetric.Account.Application.Abstractions.Audit;
 using NetMetric.Account.Application.Abstractions.Membership;
+using NetMetric.Account.Application.Abstractions.Outbox;
 using NetMetric.Account.Application.Abstractions.Persistence;
 using NetMetric.Account.Application.Abstractions.Security;
 using NetMetric.Account.Application.Common;
@@ -52,7 +53,8 @@ public sealed class UpdateMyPreferencesCommandHandler(
     IMembershipReadService membershipReadService,
     IAccountDbContext dbContext,
     IConcurrencyTokenWriter concurrencyTokenWriter,
-    IAccountAuditWriter auditWriter)
+    IAccountAuditWriter auditWriter,
+    IAccountOutboxWriter outboxWriter)
     : IRequestHandler<UpdateMyPreferencesCommand, Result<UserPreferenceResponse>>
 {
     public async Task<Result<UserPreferenceResponse>> Handle(UpdateMyPreferencesCommand command, CancellationToken cancellationToken)
@@ -120,6 +122,22 @@ public sealed class UpdateMyPreferencesCommandHandler(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await outboxWriter.EnqueueAsync(
+            currentUser.TenantId,
+            AccountOutboxEventTypes.PreferencesUpdated,
+            new AccountPreferencesUpdatedEvent(
+                1,
+                currentUser.TenantId,
+                currentUser.UserId,
+                currentUser.CorrelationId,
+                clock.UtcNow,
+                theme.ToString(),
+                culture,
+                effectiveTimeZone,
+                command.Request.DateFormat),
+            currentUser.CorrelationId,
+            cancellationToken);
 
         await auditWriter.WriteAsync(
             new AccountAuditWriteRequest(

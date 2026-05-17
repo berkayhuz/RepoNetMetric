@@ -4,12 +4,13 @@ import { getQuotesData } from "@/features/quotes/data/quotes-data";
 import { toListQuery } from "@/features/shared/data/query";
 import type { QuoteListItemDto } from "@/lib/crm-api";
 import { crmCapabilityAllows } from "@/lib/crm-auth/crm-capabilities";
-import { getCurrentCrmCapabilities } from "@/lib/crm-auth/current-crm-capabilities";
 import { requireCrmSession } from "@/lib/crm-auth/require-crm-session";
+import { formatCrmDate, type CrmDateSettings } from "@/lib/date-time/crm-date-time";
 import { tCrm, tCrmWithFallback } from "@/lib/i18n/crm-i18n";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { getRequestDateSettings } from "@/lib/i18n/request-date-settings";
 
-function getColumns(locale: string): CrmEntityTableColumn<QuoteListItemDto>[] {
+function getColumns(dateSettings: CrmDateSettings): CrmEntityTableColumn<QuoteListItemDto>[] {
+  const locale = dateSettings.locale;
   return [
     {
       key: "quoteNumber",
@@ -30,13 +31,12 @@ function getColumns(locale: string): CrmEntityTableColumn<QuoteListItemDto>[] {
     {
       key: "quoteDate",
       header: tCrm("crm.quotes.columns.quoteDate", locale),
-      render: (item) => new Date(item.quoteDate).toLocaleDateString(locale),
+      render: (item) => formatCrmDate(item.quoteDate, dateSettings),
     },
     {
       key: "validUntil",
       header: tCrm("crm.quotes.columns.validUntil", locale),
-      render: (item) =>
-        item.validUntil ? new Date(item.validUntil).toLocaleDateString(locale) : "-",
+      render: (item) => formatCrmDate(item.validUntil, dateSettings),
     },
     {
       key: "currencyCode",
@@ -62,9 +62,10 @@ export default async function QuotesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireCrmSession("/quotes");
-  const locale = await getRequestLocale();
-  const capabilities = await getCurrentCrmCapabilities();
+  const session = await requireCrmSession("/quotes");
+  const dateSettings = await getRequestDateSettings();
+  const locale = dateSettings.locale;
+  const capabilities = session.capabilities;
 
   const params = await searchParams;
   const query = toListQuery(params);
@@ -87,7 +88,7 @@ export default async function QuotesPage({
       createDisabledMessage={tCrm("crm.states.readOnly", locale)}
       {...(query.search ? { search: query.search } : {})}
       caption={tCrm("crm.quotes.caption", locale)}
-      columns={getColumns(locale)}
+      columns={getColumns(dateSettings)}
       paged={data}
       detailBasePath="/quotes"
       currentQuery={currentQuery}

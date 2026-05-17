@@ -223,7 +223,9 @@ public sealed class ProviderAdaptersTests
     [Fact]
     public void NonMock_TestConnection_Should_Require_VerifyToken_Config()
     {
-        var catalog = new DefaultIntegrationProviderCatalog();
+        var catalog = new DefaultIntegrationProviderCatalog(
+            new TestHostEnvironment("Development"),
+            Options.Create(new IntegrationProviderCatalogOptions { MockProviderEnabled = true }));
         var validator = new DefaultProviderCredentialValidator(catalog);
         var tester = new DefaultProviderConnectionTester(catalog, validator, Options.Create(new WhatsAppProviderOptions()));
         var missing = tester.Test(new ProviderValidationInput("whatsapp", "wa", SampleAccessValue, SampleSigningValue, JsonSerializer.Serialize(new { businessAccountId = "1" })));
@@ -253,6 +255,14 @@ public sealed class ProviderAdaptersTests
         });
 
         return new WhatsAppCloudAdapter(httpClient, options);
+    }
+
+    private sealed class TestHostEnvironment(string environmentName) : Microsoft.Extensions.Hosting.IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = environmentName;
+        public string ApplicationName { get; set; } = "NetMetric.CRM.IntegrationHub.UnitTests";
+        public string ContentRootPath { get; set; } = Directory.GetCurrentDirectory();
+        public Microsoft.Extensions.FileProviders.IFileProvider ContentRootFileProvider { get; set; } = new Microsoft.Extensions.FileProviders.NullFileProvider();
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) : HttpMessageHandler

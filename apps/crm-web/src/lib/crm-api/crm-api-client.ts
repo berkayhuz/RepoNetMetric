@@ -20,6 +20,7 @@ import type {
   CrmApiRequestOptions,
   CrmListQuery,
   CustomerDetailDto,
+  CustomerDuplicateWarningDto,
   CustomerListItemDto,
   CustomerUpsertRequest,
   HttpMethod,
@@ -336,6 +337,15 @@ export const crmApiClient = {
   deleteCustomer(customerId: string, options: CrmApiRequestOptions = {}) {
     const endpoint = crmApiEndpoints.customersDelete(customerId);
     return request<void>({
+      method: endpoint.method,
+      path: endpoint.path,
+      ...options,
+    });
+  },
+
+  findCustomerDuplicates(customerId: string, options: CrmApiRequestOptions = {}) {
+    const endpoint = crmApiEndpoints.customerDuplicates(customerId);
+    return request<CustomerDuplicateWarningDto[]>({
       method: endpoint.method,
       path: endpoint.path,
       ...options,

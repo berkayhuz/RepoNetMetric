@@ -118,6 +118,13 @@ export type CustomerDetailDto = {
   rowVersion: string;
 };
 
+export type CustomerDuplicateWarningDto = {
+  candidateId: string;
+  entityType: string | number;
+  score: number;
+  reasons: string[];
+};
+
 export type CompanyListItemDto = {
   id: string;
   name: string;
