@@ -891,6 +891,14 @@ if (shouldStopAfterFailure()) {
   writeSummaryAndExit();
 }
 runConfigValidation();
+runRequiredCommandStep({
+  step: "path and docs validation",
+  command: "node",
+  args: ["scripts/workspace/validate-path-references.mjs"],
+});
+if (shouldStopAfterFailure()) {
+  writeSummaryAndExit();
+}
 runSecurityScan();
 runArtifactCheck();
 

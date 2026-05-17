@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { AccountApiError } from "@/lib/account-api";
 import { buildAuthLoginRedirectUrl } from "@/lib/auth/safe-return-url";
+import { tAccount } from "@/lib/i18n/account-i18n";
 
 import type { MutationState } from "./mutation-state";
 
@@ -47,7 +48,7 @@ export function mapMutationErrorToState(error: unknown, returnPath: string): Mut
     if (error.kind === "validation" || error.status === 400 || error.status === 422) {
       const validationState: MutationState = {
         status: "error",
-        message: error.problem?.detail ?? "Please correct the highlighted fields and try again.",
+        message: error.problem?.detail ?? tAccount("account.errors.validation"),
       };
       const fieldErrors = mapFieldErrors(error);
       if (fieldErrors) {
@@ -60,20 +61,18 @@ export function mapMutationErrorToState(error: unknown, returnPath: string): Mut
       return {
         status: "error",
         code: "conflict",
-        message:
-          error.problem?.detail ??
-          "Your preferences changed in another tab. Refresh to load the latest version and try again.",
+        message: error.problem?.detail ?? tAccount("account.errors.conflict"),
       };
     }
 
     return {
       status: "error",
-      message: "We could not save your changes. Please try again.",
+      message: tAccount("account.errors.saveFailed"),
     };
   }
 
   return {
     status: "error",
-    message: "Unexpected error while saving. Please try again.",
+    message: tAccount("account.errors.unexpected"),
   };
 }

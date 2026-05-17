@@ -11,8 +11,9 @@
   "scripts": {
     "generate:messages": "node ./scripts/generate-message-registry.mjs",
     "check:frontend-i18n": "node ./scripts/check-frontend-i18n.mjs",
+    "check:i18n-quality": "node ./scripts/check-i18n-quality.mjs",
     "typecheck": "pnpm run generate:messages && tsc --noEmit",
-    "build": "pnpm run typecheck"
+    "build": "pnpm run typecheck && pnpm run check:i18n-quality"
   },
   "devDependencies": {
     "@netmetric/tsconfig": "workspace:*",
